@@ -149,17 +149,21 @@ public class WordRagService {
         String category = (String) metadata.get("category");
         String wordId = (String)metadata.get("wordId");
         String meaning = "";
+        String example = "";
         Word  wordObj = wordRepository.findById(Long.parseLong(wordId)).orElse(null);
-        if(wordObj != null)
+        if(wordObj != null) {
             meaning = wordObj.getMeaning();
+            example = wordObj.getExample();
+        }
 
         return new WordAnswer(
                 true,
                 word,
                 meaning,
                 category,
-                "신조어 '%s'는 %s라는 의미입니다."
-                        .formatted(word, meaning)
+//                "신조어 '%s'는 %s라는 의미입니다."
+//                        .formatted(word, meaning)
+                example
         );
     }
 }

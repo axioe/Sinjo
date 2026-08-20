@@ -1,6 +1,7 @@
 import "../css/Translate.css";
 import { useState } from "react";
 import { FaArrowRight, FaCopy } from "react-icons/fa";
+import { translate } from "../api/translateApi";
 
 /**
  * [수정] 임시 사전을 컴포넌트 밖으로 빼고 Map 으로 바꿨다.
@@ -27,8 +28,10 @@ function Translate() {
   const [result, setResult] = useState("");
   const [history, setHistory] = useState([]);
   const [notice, setNotice] = useState("");
+  const [word, setWord] = useState("");
+  const [example, setExample] = useState("");
 
-  const translate = () => {
+  const handleTranslate = async () => {
     const keyword = input.trim(); // [수정] " 억까" 처럼 공백이 섞여도 찾도록
 
     if (!keyword) {
@@ -38,24 +41,35 @@ function Translate() {
     }
 
     setNotice("");
-    const translation = DICTIONARY.get(keyword) ?? NOT_FOUND;
-    setResult(translation);
+    ///const translation = DICTIONARY.get(keyword) ?? NOT_FOUND;
+    const result = await translate(keyword);
+    if (result == null) return;
+    if (result.found) {
+      const translation = result.wordAnswers[0].meaning;
+      setResult(translation);
+      setWord(result.wordAnswers[0].word);
+      setExample(result.wordAnswers[0].answer);
 
-    // 등록되지 않은 단어는 기록에 남기지 않는다.
-    if (translation === NOT_FOUND) return;
-
-    setHistory((prev) => {
-      // [수정] 같은 단어를 계속 누르면 기록이 똑같은 줄로 가득 찼다.
-      const withoutDuplicate = prev.filter((item) => item.before !== keyword);
-      return [{ before: keyword, after: translation }, ...withoutDuplicate].slice(0, MAX_HISTORY);
-    });
+      setHistory((prev) => {
+        // [수정] 같은 단어를 계속 누르면 기록이 똑같은 줄로 가득 찼다.
+        const withoutDuplicate = prev.filter((item) => item.before !== keyword);
+        return [
+          { before: keyword, after: translation },
+          ...withoutDuplicate,
+        ].slice(0, MAX_HISTORY);
+      });
+    }
   };
 
   const handleKeyDown = (e) => {
     // Ctrl/Cmd + Enter 로 번역. 한글 조합 중에는 무시한다.
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.nativeEvent?.isComposing) {
+    if (
+      e.key === "Enter" &&
+      (e.ctrlKey || e.metaKey) &&
+      !e.nativeEvent?.isComposing
+    ) {
       e.preventDefault();
-      translate();
+      handleTranslate();
     }
   };
 
@@ -72,7 +86,9 @@ function Translate() {
       await navigator.clipboard.writeText(result);
       setNotice("복사되었습니다.");
     } catch {
-      setNotice("이 브라우저에서는 자동 복사가 되지 않습니다. 직접 선택해 복사해 주세요.");
+      setNotice(
+        "이 브라우저에서는 자동 복사가 되지 않습니다. 직접 선택해 복사해 주세요.",
+      );
     }
   };
 
@@ -98,12 +114,40 @@ function Translate() {
 
         {/* 결과 */}
         <div className="right">
-          <h3>번역 결과</h3>
+          {/* <h3>번역 결과</h3> */}
 
-          <div className="result">
+          <div className="result_new">
             {result ? (
               <>
-                <span>{result}</span>
+                {/* 신조어 */}
+                <div className="word-area">
+                  <div className="label">신조어</div>
+                  <div className="word">{word}</div>
+                </div>
+
+                {/* 번역 결과 */}
+                <div className="answer-area">
+                  <div className="label">번역 결과</div>
+                  <div className="answer">
+                    <span>{result}</span>
+                    <button
+                      type="button"
+                      className="copy-btn"
+                      onClick={copyResult}
+                      aria-label="번역 결과 복사"
+                    >
+                      <FaCopy />
+                    </button>
+                  </div>
+                </div>
+
+                {/* 예제 */}
+                <div className="example-area">
+                  <div className="label">예제</div>
+                  <div className="example">{example}</div>
+                </div>
+
+                {/* <span>{result}</span>
 
                 <button
                   type="button"
@@ -112,7 +156,7 @@ function Translate() {
                   aria-label="번역 결과 복사"
                 >
                   <FaCopy />
-                </button>
+                </button> */}
               </>
             ) : (
               "번역 결과가 표시됩니다."
@@ -127,7 +171,7 @@ function Translate() {
         </p>
       )}
 
-      <button type="button" className="translate-btn" onClick={translate}>
+      <button type="button" className="translate-btn" onClick={handleTranslate}>
         번역하기
         <FaArrowRight />
       </button>
