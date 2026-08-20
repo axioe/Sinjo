@@ -13,7 +13,10 @@ import { request } from "./client";
  */
 
 /** TODO: 백엔드에 번역 API 가 생기면 주소를 맞춘다. (예: POST /api/translate) */
-export const translate = (payload) =>
-  request("/api/translate", { method: "POST", body: JSON.stringify(payload) });
+export const translate = (keyword) =>
+  //request("/api/words/search", { method: "POST", body: JSON.stringify(payload), });
+  request(`/api/words/search?question=${encodeURIComponent(keyword)}`, {
+    method: "GET",
+});
 
 export default { translate };
