@@ -1,0 +1,117 @@
+/* ==========================================================================
+   전역 스타일
+   Vite 초기 템플릿(다크모드, #root 고정폭, h1 56px 등)을 걷어내고
+   서비스 기준으로 다시 작성했다.
+   ========================================================================== */
+
+@import "./css/fonts.css";
+
+:root {
+  /* ---- 글꼴 -------------------------------------------------------------
+     본문(300)과 제목(700)은 같은 패밀리의 두 두께라 변수 값이 같다.
+     굵기는 font-weight 로 고른다. 뒤의 system-ui 는 로딩 실패 시 대체용. */
+  --font-body: "Cafe24 Ssurround", system-ui, sans-serif;
+  --font-display: "Cafe24 Ssurround", system-ui, sans-serif;
+  --font-point: "Cafe24 Dangdanghae", system-ui, sans-serif;
+
+  /* ---- 색 ---------------------------------------------------------------- */
+  --c-primary: #6d4aff;
+  --c-primary-hover: #5c3ae8;
+  --c-primary-tint: #f3effe;
+  --c-mint: #2fbf95;
+  --c-mint-tint: #ebfaf4;
+  --c-pink: #e0568a;
+  --c-pink-tint: #ffe1e8;
+  --c-danger: #e04a5f;
+  --c-danger-tint: #fdeef0;
+
+  --c-bg: #f7f5ff;
+  --c-surface: #ffffff;
+  --c-sunken: #f7f5fc;
+  --c-border: #ebe7f5;
+
+  --c-text: #1f1b33;
+  --c-text-sub: #6e6885;
+  --c-text-muted: #a5a0b8;
+
+  /* 배경이 연보라라 회색 그림자를 쓰면 탁해진다. 보라 기운을 섞었다. */
+  --shadow-sm: 0 2px 8px rgba(58, 42, 110, 0.06);
+  --shadow-md: 0 5px 15px rgba(58, 42, 110, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.65;
+  /* 없는 두께를 브라우저가 흉내 내지 못하게 막는다. */
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--c-text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Layout 의 <main> 공통 폭 */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,45 @@
+.test-page {
+  max-width: 900px;
+
+  margin: auto;
+
+  padding: 60px 30px;
+
+  text-align: center;
+}
+
+.test-page h1 {
+  font-size: 42px;
+
+  color: #6d4aff;
+}
+
+.test-page h2 {
+  margin-top: 30px;
+
+  color: #555;
+}
+
+.test-page button {
+  margin-top: 50px;
+
+  width: 250px;
+
+  height: 60px;
+
+  border: none;
+
+  border-radius: 30px;
+
+  background: #6d4aff;
+
+  color: white;
+
+  font-size: 20px;
+
+  cursor: pointer;
+}
+
+.test-page button:hover {
+  background: #5635d8;
+}

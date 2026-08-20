@@ -1,0 +1,126 @@
+.today-page {
+  max-width: 1000px;
+
+  margin: auto;
+
+  padding: 50px 30px;
+}
+
+.today-page h1 {
+  color: #6d4aff;
+
+  font-size: 42px;
+}
+
+.subtitle {
+  color: #777;
+
+  font-size: 18px;
+
+  margin-top: 15px;
+}
+
+.today-card {
+  background: white;
+
+  border-radius: 30px;
+
+  padding: 50px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  text-align: center;
+}
+
+.category {
+  display: inline-block;
+
+  background: #eee8ff;
+
+  color: #6d4aff;
+
+  padding: 8px 20px;
+
+  border-radius: 20px;
+
+  font-weight: bold;
+}
+
+.today-card h2 {
+  margin-top: 30px;
+
+  font-size: 50px;
+
+  color: #6d4aff;
+}
+
+.meaning,
+.example {
+  margin-top: 35px;
+
+  padding: 25px;
+
+  background: #f7f5ff;
+
+  border-radius: 20px;
+}
+
+.meaning h3,
+.example h3 {
+  color: #555;
+}
+
+.meaning p,
+.example p {
+  font-size: 20px;
+
+  color: #333;
+
+  line-height: 1.6;
+}
+
+.refresh-btn {
+  margin-top: 40px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-left: auto;
+
+  margin-right: auto;
+
+  background: #6d4aff;
+
+  color: white;
+
+  border: none;
+
+  padding: 15px 30px;
+
+  border-radius: 25px;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.refresh-btn:hover {
+  background: #5635d8;
+
+  transform: translateY(-3px);
+}
+
+.refresh-btn:disabled {
+  background: #aaa;
+
+  cursor: not-allowed;
+
+  transform: none;
+}

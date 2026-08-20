@@ -1,0 +1,34 @@
+/* ==========================================================================
+   웹폰트 — 카페24 3종
+   원본 TTF 합계 10.2MB 를 woff2 로 변환해 1.26MB 로 줄였다.
+   TTF 를 그대로 쓰면 첫 화면에서 글자가 한참 늦게 뜬다.
+   ========================================================================== */
+
+/* 써라운드 에어(가늘게)와 써라운드(굵게)를 같은 이름의 300 / 700 두께로 묶는다.
+   이렇게 해두면 기존 CSS 의 font-weight: bold 가 자동으로 진짜 굵은 폰트를 쓴다.
+   따로 묶지 않으면 브라우저가 가는 폰트를 억지로 부풀려 한글이 뭉개진다. */
+@font-face {
+  font-family: "Cafe24 Ssurround";
+  src: url("../assets/fonts/Cafe24SsurroundAir-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  /* 폰트를 받는 동안 기본 글꼴로 먼저 보여준다. 빈 화면을 막는다. */
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cafe24 Ssurround";
+  src: url("../assets/fonts/Cafe24Ssurround-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 당당해는 개성이 강해 포인트로만 쓴다. */
+@font-face {
+  font-family: "Cafe24 Dangdanghae";
+  src: url("../assets/fonts/Cafe24Dangdanghae-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

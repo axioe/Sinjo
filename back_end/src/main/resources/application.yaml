@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: sinjo
+
+  # [수정] 기존에는 ai 설정이 spring.application 아래에 들어가 있었다.
+  # 올바른 위치는 spring.ai 다. 지금은 spring-ai 스타터가 주석 처리되어 있어
+  # 증상이 없지만, 나중에 스타터를 켜는 순간 "키를 넣었는데 인식이 안 된다"가 된다.
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-3-small
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+
+  datasource:
+    url: jdbc:postgresql://43.201.127.52:55432/sinjodb
+    # [수정] 기본값을 넣었다. 환경변수를 등록하지 않은 팀원의 IntelliJ 에서
+    # "Could not resolve placeholder 'DB_USERNAME'" 으로 앱이 아예 뜨지 않던 문제를 막는다.
+    # 배포 시에는 반드시 환경변수로 덮어쓸 것.
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    # [수정] show-sql 을 끄고 아래 logging 설정으로 일원화했다.
+    # 둘 다 켜 두면 같은 SQL 이 콘솔에 두 번 찍혀 로그가 두 배로 늘어난다.
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+        # dialect 는 드라이버를 보고 자동 판별된다. 직접 지정하지 않는다.
+        # PostgreSQLDialect 가 남아 있으면 MySQL 에 맞지 않는 SQL 이 생성된다.
+
+  # 비밀번호 찾기 메일 설정
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: false      # EC2 에 HTTPS 로 배포할 때 true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:sinjo-local-dev-secret-key-please-change-me-32bytes}
+    expiration: 86400000
+
+  frontend-url: http://localhost:5555
+
+#  네이버 소셜 로그인
+  naver:
+    client-id: ${NAVER_CLIENT_ID:}
+    client-secret: ${NAVER_CLIENT_SECRET:}
+    redirect-uri: http://localhost:8080/api/auth/naver/callback
+
+  admin:
+    email: ${ADMIN_EMAIL:admin@slangs.com}
+    password: ${ADMIN_PASSWORD:admin1234!}
+    nickname: ${ADMIN_NICKNAME:관리자}
+
+  cors:
+    allowed-origins: http://localhost:5555,http://localhost:5173
+logging:
+  level:
+    org.hibernate.SQL: debug
+    # 바인딩 파라미터(? 자리에 실제로 들어간 값)까지 보고 싶을 때만 주석을 푼다.
+    # org.hibernate.orm.jdbc.bind: trace

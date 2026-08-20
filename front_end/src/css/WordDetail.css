@@ -1,0 +1,288 @@
+.word-detail-page {
+  max-width: 900px;
+
+  margin: auto;
+
+  padding: 50px 30px 80px;
+}
+
+/* =========================
+   뒤로가기
+========================= */
+
+.back-button {
+  border: none;
+
+  background: transparent;
+
+  color: #6d4aff;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  padding: 8px 0;
+
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  transform: translateX(-4px);
+}
+
+/* =========================
+   상세 카드
+========================= */
+
+.word-detail-card {
+  margin-top: 20px;
+
+  padding: 45px;
+
+  border-radius: 30px;
+
+  background: white;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   메타
+========================= */
+
+.detail-meta {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.detail-category {
+  padding: 6px 11px;
+
+  border-radius: 10px;
+
+  background: #f3f1ff;
+
+  color: #6d4aff;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail-era {
+  padding: 6px 11px;
+
+  border-radius: 10px;
+
+  background: #f0f7ff;
+
+  color: #3981c6;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================
+   단어
+========================= */
+
+.detail-word {
+  margin: 18px 0 0;
+
+  color: #6d4aff;
+
+  font-size: 42px;
+
+  word-break: keep-all;
+}
+
+/* =========================
+   통계
+========================= */
+
+.detail-stats {
+  display: flex;
+
+  gap: 15px;
+
+  margin-top: 15px;
+
+  color: #888;
+
+  font-size: 14px;
+}
+
+/* =========================
+   내용
+========================= */
+
+.detail-section {
+  margin-top: 35px;
+
+  padding: 25px;
+
+  border-radius: 20px;
+
+  background: #f7f5ff;
+}
+
+.detail-section h2 {
+  margin: 0;
+
+  color: #6d4aff;
+
+  font-size: 18px;
+}
+
+.detail-section p {
+  margin: 12px 0 0;
+
+  color: #444;
+
+  font-size: 17px;
+
+  line-height: 1.8;
+
+  white-space: pre-wrap;
+
+  word-break: keep-all;
+}
+
+/* =========================
+   예문
+========================= */
+
+.example-section {
+  background: #f8f8f8;
+}
+
+.example-section h2 {
+  color: #555;
+}
+
+.example-section p {
+  color: #666;
+
+  font-size: 16px;
+}
+
+/* =========================
+   버튼
+========================= */
+
+.detail-actions {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 30px;
+}
+
+.detail-favorite-button,
+.detail-like-button {
+  border: none;
+
+  border-radius: 25px;
+
+  padding: 12px 20px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.detail-favorite-button {
+  background: #fff8d6;
+
+  color: #d89b00;
+}
+
+.detail-favorite-button:hover {
+  background: #fff0b0;
+
+  transform: translateY(-2px);
+}
+
+.detail-favorite-button.active {
+  background: #f5c928;
+
+  color: white;
+}
+
+.detail-like-button {
+  background: #fff0f2;
+
+  color: #ff4d67;
+}
+
+.detail-like-button:hover {
+  background: #ffe0e5;
+
+  transform: translateY(-2px);
+}
+
+.detail-like-button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+/* =========================
+   로딩 / 에러
+========================= */
+
+.detail-loading,
+.detail-error {
+  margin-top: 30px;
+
+  padding: 40px;
+
+  border-radius: 20px;
+
+  background: white;
+
+  text-align: center;
+
+  color: #777;
+}
+
+@media (max-width: 600px) {
+  .word-detail-page {
+    padding: 30px 15px 60px;
+  }
+
+  .word-detail-card {
+    padding: 25px 20px;
+
+    border-radius: 22px;
+  }
+
+  .detail-word {
+    font-size: 32px;
+  }
+
+  .detail-section {
+    padding: 20px;
+  }
+
+  .detail-section p {
+    font-size: 16px;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+  }
+
+  .detail-favorite-button,
+  .detail-like-button {
+    width: 100%;
+  }
+}

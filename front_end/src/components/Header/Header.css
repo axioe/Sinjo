@@ -1,0 +1,462 @@
+.header {
+  width: calc(100% - 40px);
+  max-width: 1200px;
+
+  height: 72px;
+
+  margin: 12px auto;
+  padding: 6px 20px;
+
+  display: flex;
+  align-items: center;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeaff;
+  border-radius: 14px;
+
+  box-shadow: 0 4px 14px rgba(83, 53, 209, 0.07);
+
+  box-sizing: border-box;
+}
+
+/* =========================
+   로고
+========================= */
+
+.logo {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+
+  margin-right: 30px;
+}
+
+.logo a {
+  display: flex;
+  align-items: center;
+
+  text-decoration: none;
+}
+
+.logo img {
+  display: block;
+
+  width: 190px;
+  height: auto;
+
+  object-fit: contain;
+}
+
+/* =========================
+   메뉴
+========================= */
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+
+  /* 메뉴 사이 간격 일정하게 */
+  gap: 20px;
+
+  flex: 1;
+}
+
+.nav-menu a {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  padding: 5px 0;
+
+  color: #555;
+
+  text-decoration: none;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  transition: color 0.2s ease;
+}
+
+.nav-menu a:hover {
+  color: #6d4aff;
+}
+
+/* 메뉴 밑줄 */
+
+.nav-menu a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 0;
+  height: 2px;
+
+  background: #6d4aff;
+
+  border-radius: 2px;
+
+  transition: width 0.2s ease;
+}
+
+.nav-menu a:hover::after {
+  width: 100%;
+}
+
+/* =========================
+   오른쪽 영역
+========================= */
+
+.header-right {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+
+  margin-left: 20px;
+}
+
+/* =========================
+   검색창
+========================= */
+
+.search-box {
+  width: 190px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 12px;
+
+  background: #f7f7fa;
+
+  border: 1px solid #eeeef3;
+  border-radius: 17px;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.search-box:focus-within {
+  background: #ffffff;
+  border-color: #6d4aff;
+}
+
+.search-icon {
+  flex-shrink: 0;
+
+  color: #999;
+  font-size: 13px;
+}
+
+.search-box input {
+  width: 100%;
+  min-width: 0;
+
+  height: 100%;
+
+  margin-left: 8px;
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #333;
+
+  font-size: 13px;
+}
+
+.search-box input::placeholder {
+  color: #aaa;
+}
+
+/* =========================
+   로그인 버튼
+========================= */
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  padding: 8px 12px;
+
+  border-radius: 9px;
+
+  background: #6d4aff;
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.login-btn:hover {
+  background: #5435d1;
+
+  transform: translateY(-1px);
+}
+
+/* =========================
+   로그인 후 사용자
+========================= */
+
+.user-box {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 4px 6px 4px 9px;
+
+  background: #f8f7ff;
+
+  border: 1px solid #ebe7ff;
+
+  border-radius: 10px;
+
+  color: #5d5772;
+
+  white-space: nowrap;
+}
+
+.user-box > svg {
+  color: #6d4aff;
+
+  font-size: 13px;
+}
+
+.user-name {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =========================
+   로그아웃
+========================= */
+
+.logout-btn {
+  padding: 5px 8px;
+
+  border: 1px solid #ddd8f5;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #6e6885;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #6d4aff;
+
+  border-color: #6d4aff;
+
+  color: #ffffff;
+}
+
+/* =========================
+   1100px 이하
+========================= */
+
+@media (max-width: 1100px) {
+  .header {
+    width: calc(100% - 30px);
+
+    padding: 6px 16px;
+  }
+
+  .logo {
+    margin-right: 20px;
+  }
+
+  .logo img {
+    width: 165px;
+  }
+
+  .nav-menu {
+    gap: 15px;
+  }
+
+  .nav-menu a {
+    font-size: 14px;
+  }
+
+  .header-right {
+    margin-left: 12px;
+  }
+
+  .search-box {
+    width: 125px;
+  }
+}
+
+/* =========================
+   900px 이하
+========================= */
+
+@media (max-width: 900px) {
+  .header {
+    height: 68px;
+
+    padding: 5px 14px;
+  }
+
+  .logo {
+    margin-right: 15px;
+  }
+
+  .logo img {
+    width: 150px;
+  }
+
+  .nav-menu {
+    gap: 12px;
+  }
+
+  .nav-menu a {
+    font-size: 13px;
+  }
+
+  .search-box {
+    width: 110px;
+  }
+
+  .user-name {
+    display: none;
+  }
+}
+
+/* =========================
+   모바일
+========================= */
+
+@media (max-width: 760px) {
+  .header {
+    width: calc(100% - 20px);
+
+    height: auto;
+
+    min-height: 60px;
+
+    margin: 8px auto;
+
+    padding: 6px 12px;
+
+    flex-wrap: wrap;
+
+    border-radius: 13px;
+  }
+
+  .logo img {
+    width: 145px;
+  }
+
+  .header-right {
+    margin-left: auto;
+  }
+
+  .search-box {
+    width: 120px;
+    height: 32px;
+  }
+
+  .nav-menu {
+    order: 3;
+
+    width: 100%;
+
+    flex: none;
+
+    gap: 20px;
+
+    padding-top: 8px;
+
+    border-top: 1px solid #f0eef7;
+
+    overflow-x: auto;
+
+    scrollbar-width: none;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-menu a {
+    font-size: 13px;
+  }
+}
+
+/* =========================
+   작은 모바일
+========================= */
+
+@media (max-width: 480px) {
+  .header {
+    width: calc(100% - 12px);
+
+    padding: 5px 10px;
+  }
+
+  .logo img {
+    width: 130px;
+  }
+
+  .search-box {
+    width: 100px;
+  }
+
+  .search-box input {
+    font-size: 11px;
+  }
+
+  .login-btn {
+    padding: 7px 9px;
+
+    font-size: 11px;
+  }
+
+  .nav-menu {
+    gap: 17px;
+  }
+
+  .nav-menu a {
+    font-size: 12px;
+  }
+}
