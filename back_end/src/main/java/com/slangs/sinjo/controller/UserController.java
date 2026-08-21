@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -51,5 +53,19 @@ public class UserController {
             throw new UnauthorizedException();
         }
         return ResponseEntity.ok(userService.getMyInfo(userId));
+    }
+
+    /** 비밀번호 재설정 메일 발송 요청 */
+    @PostMapping("/password-reset")
+    public ResponseEntity<Void> requestPasswordReset(@RequestBody Map<String, String> body) {
+        userService.requestPasswordReset(body.get("email"));
+        return ResponseEntity.ok().build();
+    }
+
+    /** 새 비밀번호로 확정 */
+    @PostMapping("/password-reset/confirm")
+    public ResponseEntity<Void> confirmPasswordReset(@RequestBody Map<String, String> body) {
+        userService.confirmPasswordReset(body.get("token"), body.get("newPassword"));
+        return ResponseEntity.ok().build();
     }
 }

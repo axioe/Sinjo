@@ -102,4 +102,20 @@ public class UserService {
             mailSender.send(mail);
         });
         }
+
+    @Transactional
+    public void confirmPasswordReset(String token, String newPassword) {
+        PasswordResetToken prt = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 링크입니다."));
+
+        if (!prt.isValid()) {
+            throw new IllegalArgumentException("만료되었거나 이미 사용된 링크입니다.");
+        }
+
+        User user = userRepository.findById(prt.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        prt.setUsed(true);
     }
+}
