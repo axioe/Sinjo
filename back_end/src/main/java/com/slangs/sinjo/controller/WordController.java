@@ -96,7 +96,13 @@ public class WordController {
     }
 
     @GetMapping("/search")
-    public WordSearchResponse search(@RequestParam String question) {
-        return wordRagService.search(question);
+    public WordSearchResponse search(
+            @RequestParam (defaultValue = "") String category,
+            @RequestParam String question) {
+        return wordRagService.search(category, question);
+    }
+    @GetMapping("/categories")
+    public List<String> findCategories(){
+        return wordService.findCategories();
     }
 }
