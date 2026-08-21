@@ -81,4 +81,18 @@ public class UserController {
 
         return ResponseEntity.ok(userService.updateNickname(userId, request));
     }
+
+    /** 비밀번호 변경 */
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UserDto.ChangePasswordRequest request) {
+
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        userService.changePassword(userId, request);
+        return ResponseEntity.ok().build();
+    }
 }

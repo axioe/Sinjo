@@ -14,6 +14,7 @@ import {
   POINT_BALANCE,
   WEEKLY_RECORD,
 } from "../data/myPageSampleData";
+import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
 import "../css/MyPage.css";
 
 /**
@@ -27,11 +28,13 @@ import "../css/MyPage.css";
  * [수정 1] 모듈 최상단에 있던 console.log("BADGES =", BADGES) 를 지웠다.
  *   디버그용 코드가 남아 있으면 배포 후에도 사용자 콘솔에 계속 찍힌다.
  * [수정 2] 쓰지 않는 USER_PROFILE import 를 지웠다. (npm run lint 실패 원인)
+ * [수정 3] 비밀번호 변경 모달을 추가했다. ProfileCard 의 버튼으로 연다.
  */
 function MyPage() {
   const { user } = useAuth();
   const [activeMenu, setActiveMenu] = useState("home");
   const [translations, setTranslations] = useState(RECENT_TRANSLATIONS);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleToggleFavorite = (id) => {
     // TODO: 서버 연동 시 즐겨찾기 저장/해제 요청을 보낸다.
@@ -54,7 +57,10 @@ function MyPage() {
       <MyPageSidebar active={activeMenu} onSelect={setActiveMenu} />
 
       <div className="mypage-main">
-        <ProfileCard profile={user} />
+        <ProfileCard
+          profile={user}
+          onChangePassword={() => setShowPasswordModal(true)}
+        />
         <RecentTranslations
           items={translations}
           onToggleFavorite={handleToggleFavorite}
@@ -68,6 +74,10 @@ function MyPage() {
         <BadgePoints badges={BADGES} point={POINT_BALANCE} />
         <WeeklyRecord records={WEEKLY_RECORD} />
       </div>
+
+      {showPasswordModal && (
+        <PasswordChangeModal onClose={() => setShowPasswordModal(false)} />
+      )}
     </div>
   );
 }

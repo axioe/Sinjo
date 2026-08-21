@@ -2,6 +2,7 @@ package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.entity.PasswordResetToken;
+import com.slangs.sinjo.entity.Provider;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.exception.DuplicateEmailException;
 import com.slangs.sinjo.exception.InvalidCredentialsException;
@@ -127,5 +128,27 @@ public class UserService {
         user.setNickname(request.nickname().trim());
 
         return UserDto.Response.from(user);
+    }
+
+    @Transactional
+    public void changePassword(Long userId, UserDto.ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        // 소셜 가입자는 우리 쪽 비밀번호가 랜덤값이라 확인 자체가 불가능하다.
+        if (user.getProvider() != null && user.getProvider() != Provider.LOCAL) {
+            throw new IllegalArgumentException("소셜 로그인 계정은 비밀번호를 변경할 수 없습니다.");
+        }
+
+        // 자리를 비운 사이 남이 몰래 바꾸는 것을 막는다.
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
+        }
+
+        if (request.currentPassword().equals(request.newPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호와 다른 값을 입력해 주세요.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
     }
 }

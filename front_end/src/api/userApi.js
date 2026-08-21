@@ -15,3 +15,10 @@ export const updateNickname = (nickname) =>
     method: "PATCH",
     body: JSON.stringify({ nickname }),
   });
+
+/** 비밀번호 변경 */
+export const changePassword = (currentPassword, newPassword) =>
+  request("/api/users/me/password", {
+    method: "PATCH",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });

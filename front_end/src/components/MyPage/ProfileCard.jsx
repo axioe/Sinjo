@@ -21,7 +21,7 @@ function formatDateTime(value) {
   return `${formatDate(value)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function ProfileCard({ profile }) {
+function ProfileCard({ profile, onChangePassword }) {
   const { updateUser } = useAuth();
   const nickname = profile?.nickname?.trim() || "회원";
 
@@ -124,6 +124,15 @@ function ProfileCard({ profile }) {
             마지막 접속 <strong>{formatDateTime(profile?.lastLoginAt)}</strong>
           </span>
         </div>
+
+        <button
+          type="button"
+          className="mypage-password-btn"
+          onClick={onChangePassword}
+        >
+          비밀번호 변경
+        </button>
+
       </div>
     </section>
   );
