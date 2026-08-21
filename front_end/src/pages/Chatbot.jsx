@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "../css/Chatbot.css";
 import { request } from "../api/client";
 
@@ -80,6 +80,14 @@ function Chatbot() {
     }
   };
 
+  const chatAreaRef = useRef(null);
+
+  useEffect(() => {
+    if (chatAreaRef.current) {
+      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
   return (
     <div className="slang-chatbot">
       {/* Category */}
@@ -105,7 +113,7 @@ function Chatbot() {
       </div>
 
       {/* Chat */}
-      <main className="chat-area">
+      <main className="chat-area" ref={chatAreaRef}>
         {messages.length === 0 ? (
           <Welcome />
         ) : (
