@@ -115,21 +115,19 @@
 /* =================================
    Header
 ================================= */
+.chatbot-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
 
 .chatbot-window-header {
   height: 65px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 0 14px 0 18px;
-
-  background: white;
-
-  border-bottom: 1px solid #eeeeee;
-
-  flex-shrink: 0;
 }
 
 .chatbot-header-info {
