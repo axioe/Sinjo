@@ -8,3 +8,10 @@ export const login = (payload) =>
 
 /** 토큰으로 내 정보를 조회한다. 마이페이지가 이걸 쓴다. */
 export const getMyInfo = () => request("/api/users/me");
+
+/** 닉네임 변경 */
+export const updateNickname = (nickname) =>
+  request("/api/users/me", {
+    method: "PATCH",
+    body: JSON.stringify({ nickname }),
+  });

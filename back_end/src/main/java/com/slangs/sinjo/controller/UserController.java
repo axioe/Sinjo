@@ -68,4 +68,17 @@ public class UserController {
         userService.confirmPasswordReset(body.get("token"), body.get("newPassword"));
         return ResponseEntity.ok().build();
     }
+
+    /** 닉네임 변경 */
+    @PatchMapping("/me")
+    public ResponseEntity<UserDto.Response> updateNickname(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UserDto.UpdateNicknameRequest request) {
+
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        return ResponseEntity.ok(userService.updateNickname(userId, request));
+    }
 }

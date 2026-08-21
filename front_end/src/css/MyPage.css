@@ -545,3 +545,56 @@
   color: var(--c-text-sub);
   font-size: 13px;
 }
+
+.mypage-nickname-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mypage-nickname-edit input {
+  padding: 10px 14px;
+  background: #f7f5fc;
+  border: 1px solid #7c5ce6;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.mypage-nickname-edit button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #7c5ce6;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mypage-nickname-edit button:last-child {
+  background: #fff;
+  border: 1px solid #dcd7ee;
+  color: #6e6885;
+}
+
+.mypage-nickname-edit-btn {
+  margin-left: 8px;
+  padding: 6px;
+  border: none;
+  background: none;
+  color: #9a94ad;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.mypage-nickname-edit-btn:hover {
+  color: #7c5ce6;
+}
+
+.mypage-nickname-error {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #e04a5f;
+}

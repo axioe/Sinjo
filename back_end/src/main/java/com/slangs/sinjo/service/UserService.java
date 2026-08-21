@@ -118,4 +118,14 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         prt.setUsed(true);
     }
+
+    @Transactional
+    public UserDto.Response updateNickname(Long userId, UserDto.UpdateNicknameRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        user.setNickname(request.nickname().trim());
+
+        return UserDto.Response.from(user);
+    }
 }
