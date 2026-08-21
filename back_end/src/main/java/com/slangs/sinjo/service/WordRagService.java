@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -108,10 +109,19 @@ public class WordRagService {
         );
     }
 
-    public WordSearchResponse search(String question) {
-
+    public WordSearchResponse search(String category, String question) {
         long start = System.currentTimeMillis();
-        List<Document> documents = searchService.search(question, 3);
+        List<Document> documents;
+        if(ObjectUtils.isEmpty(category)){
+            documents = searchService.search(question, 3);
+        }
+        else {
+            documents = searchService.searchByCategory(
+                    question,
+                    category,
+                    3
+            );
+        }
 
         long elapsed = System.currentTimeMillis() - start;
 
