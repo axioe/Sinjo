@@ -47,7 +47,9 @@ export async function request(path, options = {}) {
     throw error;
   }
 
-  // 204 No Content 처럼 본문이 없는 응답도 있다.
+    // 본문이 없는 응답(204, 또는 200 with empty body)도 있다.
   if (res.status === 204) return null;
-  return res.json();
+
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
