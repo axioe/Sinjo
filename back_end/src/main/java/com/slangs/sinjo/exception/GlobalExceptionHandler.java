@@ -60,6 +60,13 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(e.getMessage()));
     }
 
+    /** [추가] 관리자 화면에서 퀴즈 단어를 중복 등록하려 한 경우 */
+    @ExceptionHandler(DuplicateQuizWordException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateQuizWord(DuplicateQuizWordException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(e.getMessage()));
+    }
+
     /** [추가] 없는 자원을 수정·삭제하려 한 경우 */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
