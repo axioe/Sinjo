@@ -20,3 +20,14 @@ export const deleteWord = (id) =>
   request(`/api/admin/words/${id}`, { method: "DELETE" });
 
 export const getUsers = () => request("/api/admin/users");
+
+export const getQuizWords = () => request("/api/admin/quizzes");
+
+export const createQuizWord = (payload) =>
+  request("/api/admin/quizzes", { method: "POST", body: JSON.stringify(payload) });
+
+export const updateQuizWord = (id, payload) =>
+  request(`/api/admin/quizzes/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+
+export const deleteQuizWord = (id) =>
+  request(`/api/admin/quizzes/${id}`, { method: "DELETE" });

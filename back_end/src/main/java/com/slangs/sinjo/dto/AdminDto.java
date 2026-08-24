@@ -3,6 +3,8 @@ package com.slangs.sinjo.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 /**
  * 관리자 화면 전용 요청 양식 (REQ-ADM-01)
  */
@@ -38,6 +40,28 @@ public class AdminDto {
             long totalUsers,
             long totalWords,
             long totalQuizzes
+    ) {
+    }
+
+    /**
+     * [추가] 퀴즈 문제 등록/수정 요청.
+     * options 는 객관식 오답 보기다 - 비워 둬도 등록은 되지만,
+     * 그 문제는 객관식 게임에서 정답 보기 1개만 나오게 된다.
+     */
+    public record QuizWordRequest(
+
+            @NotBlank(message = "신조어를 입력해 주세요.")
+            @Size(max = 20, message = "신조어는 20자 이하여야 합니다.")
+            String word,
+
+            @NotBlank(message = "뜻을 입력해 주세요.")
+            @Size(max = 500, message = "뜻은 500자 이하여야 합니다.")
+            String answer,
+
+            @Size(max = 500, message = "힌트/예문은 500자 이하여야 합니다.")
+            String description,
+
+            List<String> options
     ) {
     }
 }
