@@ -86,8 +86,16 @@ public class WordController {
     }
 
     @GetMapping("/ask")
-    public WordAnswer ask(@RequestParam String question) {
-        return wordRagService.ask(question);
+    public WordAnswer ask(
+            @RequestParam String question,
+            @RequestParam(required = false)
+            String category
+    ) {
+
+        return wordRagService.ask(
+                question,
+                category
+        );
     }
 
     @PostMapping("/index")
