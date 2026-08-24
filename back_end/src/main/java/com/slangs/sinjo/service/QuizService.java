@@ -4,6 +4,7 @@ import com.slangs.sinjo.dto.QuizDto;
 import com.slangs.sinjo.entity.QuizAttempt;
 import com.slangs.sinjo.entity.QuizWord;
 import com.slangs.sinjo.entity.User;
+import com.slangs.sinjo.exception.UnauthorizedException;
 import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.QuizRepository;
 import com.slangs.sinjo.repository.UserRepository;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -147,6 +150,26 @@ public class QuizService {
         quizAttemptRepository.save(
                 new QuizAttempt(user, request.quizType(), request.score(), request.total())
         );
+    }
+
+    /**
+     * 6. 마이페이지 "게임 플레이" 통계 조회.
+     * 마이페이지는 로그인해야만 들어오는 화면이라 userId 가 null 이면 401 로 응답한다
+     * (UserController.mypage 와 같은 패턴).
+     */
+    public QuizDto.MyStats getMyStats(Long userId) {
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        long totalPlays = quizAttemptRepository.countByUserId(userId);
+
+        LocalDateTime startOfMonth = LocalDate.now()
+                .withDayOfMonth(1)
+                .atStartOfDay();
+        long playsThisMonth = quizAttemptRepository.countByUserIdAndCreatedAtAfter(userId, startOfMonth);
+
+        return new QuizDto.MyStats(totalPlays, playsThisMonth);
     }
 
     /**

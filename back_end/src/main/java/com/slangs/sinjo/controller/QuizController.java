@@ -56,4 +56,10 @@ public class QuizController {
         quizService.saveAttempt(userId, request);
         return ResponseEntity.noContent().build();
     }
+
+    /** 마이페이지 활동 요약의 "게임 플레이" 카드용 통계. */
+    @GetMapping("/stats")
+    public ResponseEntity<QuizDto.MyStats> getMyStats(@AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(quizService.getMyStats(userId));
+    }
 }

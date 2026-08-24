@@ -101,3 +101,17 @@ export async function saveQuizAttempt(quizType, score, total) {
     console.warn("[quizApi] 게임 결과 저장 실패", error);
   }
 }
+
+/**
+ * 마이페이지 활동 요약의 "게임 플레이" 카드용 통계 조회.
+ * 로그인하지 않았거나 조회에 실패하면 null 을 돌려준다 - 호출하는 쪽에서
+ * null 이면 "준비 중" 카드로 대체 표시한다(ActivitySummary 의 ready 참고).
+ */
+export async function getMyQuizStats() {
+  try {
+    return await request("/api/quiz/stats");
+  } catch (error) {
+    console.warn("[quizApi] 게임 통계 조회 실패", error);
+    return null;
+  }
+}

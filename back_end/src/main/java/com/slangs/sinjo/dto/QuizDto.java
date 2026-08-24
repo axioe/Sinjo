@@ -87,4 +87,13 @@ public class QuizDto {
             @Min(value = 1, message = "전체 문제 수는 1 이상이어야 합니다.")
             Integer total
     ) {}
+
+    /**
+     * [추가] 마이페이지 "게임 플레이" 통계.
+     * totalPlays: 전체 플레이 횟수, playsThisMonth: 이번 달 플레이 횟수(활동 요약의 "지난 달 대비" 표시용).
+     */
+    public record MyStats(
+            long totalPlays,
+            long playsThisMonth
+    ) {}
 }
