@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getSubjectiveQuiz, checkAnswer, QUIZ_TYPE } from "../api/quizApi";
+import { getSubjectiveQuiz, checkAnswer, saveQuizAttempt, QUIZ_TYPE } from "../api/quizApi";
 import QuizResult from "./QuizResult";
 import QuizProgress from "./QuizProgress";
 import "../css/Game.css";
@@ -52,6 +52,7 @@ function SubjectiveQuiz() {
       setInput("");
       setFeedback(null);
     } else {
+      saveQuizAttempt(QUIZ_TYPE.SUBJECTIVE, score, quizzes.length);
       setFinished(true);
     }
   };
