@@ -39,6 +39,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (userId != null) {
                 Role role = jwtProvider.getRole(token);
 
+                if (role == null) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 // 권한 목록을 함께 넣어야 SecurityConfig 의 hasRole("ADMIN") 이 동작한다.
                 // 비워두면 토큰에 role 이 있어도 관리자 API 가 403 을 돌려준다.
                 var authentication = new UsernamePasswordAuthenticationToken(

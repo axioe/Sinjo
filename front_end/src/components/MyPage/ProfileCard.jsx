@@ -1,4 +1,7 @@
-import { FaCamera } from "react-icons/fa";
+import { useState } from "react";
+import { FaCamera, FaPen } from "react-icons/fa";
+import { useAuth } from "../../AuthContext";
+import { updateNickname } from "../../api/userApi";
 
 /** 서버가 주는 ISO 문자열을 "2026.03.15" 형태로 바꾼다. */
 function formatDate(value) {
@@ -18,19 +21,52 @@ function formatDateTime(value) {
   return `${formatDate(value)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-/**
- * [수정] 만들어 둔 formatDate / formatDateTime 을 실제로 쓰지 않고 있었다.
- *
- * 서버가 주는 필드는 createdAt / lastLoginAt (ISO 문자열)인데
- * 화면은 profile.joinedAt / profile.lastLoginAt 을 그대로 출력했다. 그래서
- *  - 가입일     : profile.joinedAt 이 없어서 빈칸
- *  - 마지막 접속 : "2026-08-11T07:24:29.123456" 같은 원본 문자열이 그대로 노출
- * 되고 있었다. (formatDateTime 은 쓰이지 않아 npm run lint 도 실패했다)
- *
- * profile 이 아직 없을 수도 있으니 안전하게 접근한다.
- */
-function ProfileCard({ profile }) {
+function ProfileCard({ profile, onChangePassword }) {
+  const { updateUser } = useAuth();
   const nickname = profile?.nickname?.trim() || "회원";
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(nickname);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const startEdit = () => {
+    setDraft(profile?.nickname ?? "");
+    setError("");
+    setEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setError("");
+    setEditing(false);
+  };
+
+  const handleSave = async () => {
+    const trimmed = draft.trim();
+
+    if (trimmed.length < 2 || trimmed.length > 20) {
+      setError("닉네임은 2~20자여야 합니다.");
+      return;
+    }
+
+    if (trimmed === profile?.nickname) {
+      setEditing(false);
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    try {
+      const updated = await updateNickname(trimmed);
+      updateUser(updated);
+      setEditing(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <section className="mypage-profile">
@@ -42,9 +78,42 @@ function ProfileCard({ profile }) {
       </div>
 
       <div className="mypage-profile-text">
-        <h1 className="mypage-greeting">
-          {nickname} 님, 안녕하세요! <span aria-hidden="true">👋</span>
-        </h1>
+        {editing ? (
+          <div className="mypage-nickname-edit">
+            <input
+              type="text"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              maxLength={20}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSave();
+                if (e.key === "Escape") cancelEdit();
+              }}
+            />
+            <button type="button" onClick={handleSave} disabled={saving}>
+              {saving ? "저장 중..." : "저장"}
+            </button>
+            <button type="button" onClick={cancelEdit} disabled={saving}>
+              취소
+            </button>
+          </div>
+        ) : (
+          <h1 className="mypage-greeting">
+            {nickname} 님, 안녕하세요! <span aria-hidden="true">👋</span>
+            <button
+              type="button"
+              className="mypage-nickname-edit-btn"
+              onClick={startEdit}
+              aria-label="닉네임 변경"
+            >
+              <FaPen />
+            </button>
+          </h1>
+        )}
+
+        {error && <p className="mypage-nickname-error">{error}</p>}
+
         <p className="mypage-greeting-sub">오늘도 새로운 표현을 함께 배워봐요!</p>
 
         <div className="mypage-meta">
@@ -55,6 +124,15 @@ function ProfileCard({ profile }) {
             마지막 접속 <strong>{formatDateTime(profile?.lastLoginAt)}</strong>
           </span>
         </div>
+
+        <button
+          type="button"
+          className="mypage-password-btn"
+          onClick={onChangePassword}
+        >
+          비밀번호 변경
+        </button>
+
       </div>
     </section>
   );

@@ -18,6 +18,8 @@ import NotFound from "./pages/NotFound";
 import WordDetail from "./pages/WordDetail"
 // 비밀번호 찾기 페이지 라우팅
 import FindPassword from "./pages/FindPassword";
+// 비밀번호 재설정
+import ResetPassword from "./pages/ResetPassword";
 // 네이버 소셜 로그인
 import OAuthCallback from "./pages/OAuthCallback";
 
@@ -66,6 +68,8 @@ function App() {
         />
         {/* 비밀번호 찾기 */}
         <Route path="/find-password" element={<FindPassword />} />
+        {/* 비밀번호 재설정 */}
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* 네이버 소셜 로그인 */}
         <Route path="/oauth/callback" element={<OAuthCallback />} />
 

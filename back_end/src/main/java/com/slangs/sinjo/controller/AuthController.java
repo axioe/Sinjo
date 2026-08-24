@@ -38,6 +38,7 @@ public class AuthController {
                 + "&client_id=" + clientId
                 + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
                 + "&state=" + state;
+        System.out.println("=== 네이버 인증 URL: " + url);
         response.sendRedirect(url);
     }
 

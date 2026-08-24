@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -51,5 +53,46 @@ public class UserController {
             throw new UnauthorizedException();
         }
         return ResponseEntity.ok(userService.getMyInfo(userId));
+    }
+
+    /** 비밀번호 재설정 메일 발송 요청 */
+    @PostMapping("/password-reset")
+    public ResponseEntity<Void> requestPasswordReset(@RequestBody Map<String, String> body) {
+        userService.requestPasswordReset(body.get("email"));
+        return ResponseEntity.ok().build();
+    }
+
+    /** 새 비밀번호로 확정 */
+    @PostMapping("/password-reset/confirm")
+    public ResponseEntity<Void> confirmPasswordReset(@RequestBody Map<String, String> body) {
+        userService.confirmPasswordReset(body.get("token"), body.get("newPassword"));
+        return ResponseEntity.ok().build();
+    }
+
+    /** 닉네임 변경 */
+    @PatchMapping("/me")
+    public ResponseEntity<UserDto.Response> updateNickname(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UserDto.UpdateNicknameRequest request) {
+
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        return ResponseEntity.ok(userService.updateNickname(userId, request));
+    }
+
+    /** 비밀번호 변경 */
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UserDto.ChangePasswordRequest request) {
+
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        userService.changePassword(userId, request);
+        return ResponseEntity.ok().build();
     }
 }
