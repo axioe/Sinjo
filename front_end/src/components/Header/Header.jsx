@@ -21,7 +21,14 @@ function Header() {
         <Link to="/game">게임</Link>
         <Link to="/ranking">랭킹</Link>
         <Link to="/today">오늘의 신조어</Link>
-        <Link to="/mypage">마이페이지</Link>
+
+        {user &&
+          (user.role === "ADMIN" ? (
+            <Link to="/admin">관리자 페이지</Link>
+          ) : (
+            <Link to="/mypage">마이페이지</Link>
+          ))}
+          
       </nav>
 
       <div className="header-right">

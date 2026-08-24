@@ -13,12 +13,19 @@ function RequireAuth({ children }) {
   const location = useLocation();
 
   if (loading) {
-    return <p style={{ padding: "60px", textAlign: "center" }}>불러오는 중...</p>;
+    return (
+      <p style={{ padding: "60px", textAlign: "center" }}>불러오는 중...</p>
+    );
   }
 
   if (!user) {
     // 로그인 후 원래 가려던 곳으로 돌아올 수 있도록 위치를 넘긴다.
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // 관리자는 마이페이지 대신 관리자 페이지로 보낸다.
+  if (user.role === "ADMIN") {
+    return <Navigate to="/admin" replace />;
   }
 
   return children;
