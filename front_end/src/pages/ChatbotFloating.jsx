@@ -22,17 +22,14 @@ function ChatbotFloating() {
             ========================= */}
       {open && (
         <div className="chatbot-window">
-
           {/* Header */}
           <div className="chatbot-window-header">
-
             <div className="chatbot-header-info">
               <strong>💬 신조어 AI</strong>
               <span>궁금한 신조어를 물어보세요</span>
             </div>
 
             <div className="chatbot-header-buttons">
-
               {/* 새 대화 */}
               <button
                 type="button"
@@ -53,16 +50,13 @@ function ChatbotFloating() {
               >
                 ×
               </button>
-
             </div>
-
           </div>
 
           {/* Chatbot */}
           <div className="chatbot-window-body">
             <Chatbot key={chatKey} />
           </div>
-
         </div>
       )}
 
@@ -78,8 +72,6 @@ function ChatbotFloating() {
           title="신조어 챗봇"
         >
           <img src={slang} alt="신조어 챗봇" />
-
-          {/*<span className="chatbot-ai">AI</span>*/}
         </button>
       )}
     </>

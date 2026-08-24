@@ -21,8 +21,6 @@ public class WordSearchService {
             String query,
             int topK
     ) {
-
-
         long start = System.currentTimeMillis();
 
         List<Document> documents = vectorStore.similaritySearch(
@@ -57,7 +55,6 @@ public class WordSearchService {
                         .filterExpression(
                                 "category == '" + escape(category) + "'"
                         )
-                        .topK(topK)
                         .build()
         );
     }
