@@ -59,6 +59,9 @@ function Dictionary() {
 
   const [selectedInitial, setSelectedInitial] = useState("전체");
 
+  // 년도 필터
+  const [selectedYear, setSelectedYear] = useState("전체");
+
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   /**
@@ -100,6 +103,22 @@ function Dictionary() {
     }
 
     return "#";
+  };
+
+  /**
+   * 년도 추출
+   *
+   * era 값이
+   * "2024"
+   * "2024년"
+   * "2024 년"
+   * "2024년대"
+   * 등의 형태로 들어와도 4자리 년도를 추출한다.
+   */
+  const getYear = (era = "") => {
+    const match = String(era).match(/\b(19|20)\d{2}\b/);
+
+    return match ? match[0] : "";
   };
 
   /**
@@ -145,17 +164,45 @@ function Dictionary() {
   const categories = ["전체", ...CATEGORY_OPTIONS];
 
   /**
+   * 년도 목록
+   *
+   * 데이터의 era에서 년도를 자동으로 추출한다.
+   *
+   * 예:
+   * 2026
+   * 2025
+   * 2024
+   * ...
+   */
+  const years = useMemo(() => {
+    const yearSet = new Set();
+
+    words.forEach((item) => {
+      const year = getYear(item.era);
+
+      if (year) {
+        yearSet.add(year);
+      }
+    });
+
+    return [
+      "전체",
+      ...Array.from(yearSet).sort((a, b) => Number(b) - Number(a)),
+    ];
+  }, [words]);
+
+  /**
    * 검색 + 필터 + 정렬
    *
    * 검색어가 있으면 검색어 조건을 먼저 만족시키고
-   * 그 결과에 초성/카테고리/즐겨찾기를 적용한다.
+   * 그 결과에 초성/카테고리/년도/즐겨찾기를 적용한다.
    */
   const result = useMemo(() => {
     const q = query.trim().toLowerCase();
 
     const filtered = words.filter((item) => {
       /**
-       * 검색어 우선
+       * 검색어
        */
       if (q) {
         const matchesSearch =
@@ -187,6 +234,17 @@ function Dictionary() {
         getInitial(item.word) !== selectedInitial
       ) {
         return false;
+      }
+
+      /**
+       * 년도
+       */
+      if (selectedYear !== "전체") {
+        const itemYear = getYear(item.era);
+
+        if (itemYear !== selectedYear) {
+          return false;
+        }
       }
 
       /**
@@ -223,7 +281,7 @@ function Dictionary() {
         return (a.word ?? "").localeCompare(b.word ?? "", "ko");
       }
 
-      return (a.word ?? "").localeCompare(b.word ?? "", "ko", {
+      return (a.word ?? "").localeCompare(b.word ?? "", {
         sensitivity: "base",
       });
     });
@@ -232,6 +290,7 @@ function Dictionary() {
     query,
     selectedCategory,
     selectedInitial,
+    selectedYear,
     showFavoritesOnly,
     favoriteIds,
     sortType,
@@ -339,9 +398,16 @@ function Dictionary() {
   const searchWord = () => {
     const trimmed = keyword.trim();
 
-    setSearchParams(trimmed ? { word: trimmed } : {}, {
-      replace: true,
-    });
+    setSearchParams(
+      trimmed
+        ? {
+            word: trimmed,
+          }
+        : {},
+      {
+        replace: true,
+      },
+    );
 
     setCurrentPage(1);
   };
@@ -414,9 +480,13 @@ function Dictionary() {
     setCurrentPage(1);
   };
 
+  /**
+   * 전체 필터 초기화
+   */
   const resetFilters = () => {
     setSelectedCategory("전체");
     setSelectedInitial("전체");
+    setSelectedYear("전체");
     setShowFavoritesOnly(false);
     setSortType("latest");
     setCurrentPage(1);
@@ -436,6 +506,15 @@ function Dictionary() {
     setCurrentPage(1);
   };
 
+  /**
+   * 년도 변경
+   */
+  const changeYear = (year) => {
+    setSelectedYear(year);
+
+    setCurrentPage(1);
+  };
+
   const toggleFavoritesOnly = () => {
     setShowFavoritesOnly((prev) => !prev);
 
@@ -446,13 +525,13 @@ function Dictionary() {
    * 엑셀 다운로드
    */
   const downloadExcel = () => {
-    if (words.length === 0) {
+    if (result.length === 0) {
       alert("다운로드할 신조어 데이터가 없습니다.");
 
       return;
     }
 
-    const excelData = words.map((item, index) => ({
+    const excelData = result.map((item, index) => ({
       번호: index + 1,
       단어: item.word ?? "",
       뜻: item.meaning ?? "",
@@ -600,6 +679,23 @@ function Dictionary() {
         ))}
       </div>
 
+      {/* 년도 */}
+
+      <div className="year-list">
+        {years.map((year) => (
+          <button
+            key={year}
+            type="button"
+            className={
+              selectedYear === year ? "year-button active" : "year-button"
+            }
+            onClick={() => changeYear(year)}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+
       {/* 정렬 */}
 
       <div className="sort-filter-area">
@@ -672,6 +768,7 @@ function Dictionary() {
 
         {(selectedCategory !== "전체" ||
           selectedInitial !== "전체" ||
+          selectedYear !== "전체" ||
           showFavoritesOnly ||
           sortType !== "latest") && (
           <button
@@ -688,6 +785,7 @@ function Dictionary() {
 
       {(selectedCategory !== "전체" ||
         selectedInitial !== "전체" ||
+        selectedYear !== "전체" ||
         showFavoritesOnly ||
         sortType !== "latest") && (
         <div className="filter-info">
@@ -696,6 +794,8 @@ function Dictionary() {
           {selectedCategory !== "전체" && <strong>{selectedCategory}</strong>}
 
           {selectedInitial !== "전체" && <strong>{selectedInitial}</strong>}
+
+          {selectedYear !== "전체" && <strong>{selectedYear}</strong>}
 
           {showFavoritesOnly && <strong>⭐ 즐겨찾기</strong>}
 
@@ -738,6 +838,7 @@ function Dictionary() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
+
                       openWordDetail(item.id);
                     }
                   }}
@@ -767,6 +868,7 @@ function Dictionary() {
                         }
                         onClick={(e) => {
                           e.stopPropagation();
+
                           toggleFavorite(item.id);
                         }}
                       >
@@ -778,6 +880,7 @@ function Dictionary() {
                         className="card-like-button"
                         onClick={(e) => {
                           e.stopPropagation();
+
                           likeWord(item.id);
                         }}
                         disabled={likingId === item.id}
@@ -789,6 +892,7 @@ function Dictionary() {
 
                   <div className="meaning">
                     <b>뜻</b>
+
                     <p>{item.meaning}</p>
                   </div>
                 </div>

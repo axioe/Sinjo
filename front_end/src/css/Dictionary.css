@@ -215,6 +215,59 @@
 }
 
 /* =========================
+   년도
+========================= */
+
+.year-list {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 20px;
+}
+
+.year-button {
+  min-width: 65px;
+  height: 38px;
+
+  padding: 0 14px;
+
+  border: 1px solid #e0dafd;
+
+  border-radius: 12px;
+
+  background: white;
+
+  color: #6d4aff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.year-button:hover {
+  background: #eeeaff;
+
+  transform: translateY(-2px);
+}
+
+.year-button.active {
+  background: #6d4aff;
+
+  color: white;
+
+  border-color: #6d4aff;
+
+  box-shadow: 0 4px 10px rgba(109, 74, 255, 0.25);
+}
+
+
+/* =========================
    정렬
 ========================= */
 
