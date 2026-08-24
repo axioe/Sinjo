@@ -1,8 +1,12 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.QuizDto;
+import com.slangs.sinjo.entity.QuizAttempt;
 import com.slangs.sinjo.entity.QuizWord;
+import com.slangs.sinjo.entity.User;
+import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.QuizRepository;
+import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.util.KoreanUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,8 @@ import java.util.stream.Collectors;
 public class QuizService {
 
     private final QuizRepository quizRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final UserRepository userRepository;
     private static final int DEFAULT_QUIZ_COUNT = 5;
 
     // 1. 객관식 퀴즈 목록 생성
@@ -122,6 +128,25 @@ public class QuizService {
         }
 
         return new QuizDto.CheckResponse(correct, correctAnswer);
+    }
+
+    /**
+     * 5. 게임 결과 저장.
+     *
+     * 로그인하지 않은 사용자(userId == null)는 저장하지 않고 조용히 넘어간다.
+     * 퀴즈는 비로그인 상태에서도 풀 수 있게 열려 있어서(SecurityConfig 참고),
+     * 저장할 때만 로그인을 강제하면 익명 플레이가 끊겨버린다.
+     */
+    @Transactional
+    public void saveAttempt(Long userId, QuizDto.AttemptRequest request) {
+        if (userId == null) {
+            return;
+        }
+
+        User user = userRepository.getReferenceById(userId);
+        quizAttemptRepository.save(
+                new QuizAttempt(user, request.quizType(), request.score(), request.total())
+        );
     }
 
     /**

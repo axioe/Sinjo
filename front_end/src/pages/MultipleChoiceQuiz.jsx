@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getMultipleChoiceQuiz, checkAnswer, QUIZ_TYPE } from "../api/quizApi";
+import { getMultipleChoiceQuiz, checkAnswer, saveQuizAttempt, QUIZ_TYPE } from "../api/quizApi";
 import QuizResult from "./QuizResult";
 import QuizProgress from "./QuizProgress";
 import "../css/Game.css";
@@ -54,6 +54,7 @@ function MultipleChoiceQuiz() {
       setSelected("");
       setFeedback(null);
     } else {
+      saveQuizAttempt(QUIZ_TYPE.MULTIPLE_CHOICE, score, quizzes.length);
       setFinished(true);
     }
   };

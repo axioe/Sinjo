@@ -1,5 +1,6 @@
 package com.slangs.sinjo.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -68,5 +69,22 @@ public class QuizDto {
     public record CheckResponse(
             boolean correct,
             String correctAnswer
+    ) {}
+
+    /**
+     * [추가] 게임 결과 저장 요청.
+     * 로그인하지 않은 상태로 보내도 에러는 아니다 - 서버가 조용히 무시한다(QuizService.saveAttempt 참고).
+     */
+    public record AttemptRequest(
+            @NotNull(message = "퀴즈 종류가 필요합니다.")
+            QuizType quizType,
+
+            @NotNull(message = "점수가 필요합니다.")
+            @Min(value = 0, message = "점수는 0 이상이어야 합니다.")
+            Integer score,
+
+            @NotNull(message = "전체 문제 수가 필요합니다.")
+            @Min(value = 1, message = "전체 문제 수는 1 이상이어야 합니다.")
+            Integer total
     ) {}
 }
