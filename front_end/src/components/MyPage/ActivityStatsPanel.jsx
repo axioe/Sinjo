@@ -22,12 +22,15 @@ function getMonthCells(year, month) {
 }
 
 /**
- * "이번 주 사용 기록"의 전체 보기 - 달력으로 출석 날짜를 훑어보고,
- * 같은 화면에 마이페이지의 "나의 활동 요약" 카드를 그대로 재사용해 활동 통계로 함께 보여준다.
+ * 마이페이지 사이드바 "활동 통계" 화면 (REQ-MY-01).
+ *
+ * 월별 달력으로 로그인 출석 날짜를 훑어보고, 같은 화면에 "나의 활동 요약" 카드를
+ * 그대로 재사용해서 함께 보여준다. WeeklyRecord 의 "전체 보기"를 누르면 사이드바의
+ * "활동 통계" 메뉴로 이동해 이 컴포넌트가 렌더링된다(MyPage.jsx 참고).
  *
  * activeDates: Set<"yyyy-MM-dd">. activityItems: MyPage 에서 계산한 활동 요약 배열 그대로.
  */
-function AttendanceCalendarModal({ activeDates, activityItems, onClose }) {
+function ActivityStatsPanel({ activeDates, activityItems }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
 
@@ -44,11 +47,11 @@ function AttendanceCalendarModal({ activeDates, activityItems, onClose }) {
   const goNextMonth = () => setViewDate(new Date(year, month + 1, 1));
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card wide" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">활동 통계</h2>
+    <>
+      <section className="mypage-card">
+        <h2 className="mypage-card-title">활동 통계</h2>
 
-        <section className="mypage-calendar">
+        <div className="mypage-calendar">
           <div className="mypage-calendar-head">
             <button type="button" className="mypage-calendar-nav" onClick={goPrevMonth} aria-label="이전 달">
               <FaChevronLeft />
@@ -87,18 +90,12 @@ function AttendanceCalendarModal({ activeDates, activityItems, onClose }) {
               })
             )}
           </div>
-        </section>
-
-        <ActivitySummary items={activityItems} />
-
-        <div className="modal-actions">
-          <button type="button" className="modal-submit" onClick={onClose}>
-            닫기
-          </button>
         </div>
-      </div>
-    </div>
+      </section>
+
+      <ActivitySummary items={activityItems} />
+    </>
   );
 }
 
-export default AttendanceCalendarModal;
+export default ActivityStatsPanel;

@@ -11,6 +11,11 @@
   padding: 24px 0 40px;
 }
 
+/* 사이드바 "활동 통계" 화면처럼 우측 요약 컬럼 없이 본문을 넓게 쓸 때 */
+.mypage-main-wide {
+  grid-column: 2 / span 2;
+}
+
 /* 카드 공통 */
 .mypage-card {
   padding: 24px;
@@ -733,13 +738,7 @@
   color: #7c5ce6;
 }
 
-/* ---- 활동 통계 달력 (이번 주 사용 기록 전체 보기) -------------------------- */
-.modal-card.wide {
-  width: 560px;
-  max-height: 86vh;
-  overflow-y: auto;
-}
-
+/* ---- 활동 통계 (사이드바 "활동 통계" 화면) --------------------------------- */
 .mypage-calendar {
   margin-bottom: 20px;
 }

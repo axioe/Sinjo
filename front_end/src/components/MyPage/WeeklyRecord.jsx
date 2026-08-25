@@ -1,8 +1,5 @@
-import { useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { getMyAttendance } from "../../api/attendanceApi";
 import { toLocalDateKey } from "../../utils/date";
-import AttendanceCalendarModal from "./AttendanceCalendarModal";
 
 const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -27,26 +24,12 @@ function getThisWeekDates() {
  * 이번 주 사용 기록 (REQ-MY-01).
  *
  * 출석 체크는 로그인 성공 기준이다 - 로그인할 때마다 서버가 오늘 날짜로 자동 기록한다
- * (UserService.login / NaverService.naverLogin 참고). activeDates 를 못 불러온 동안(null)에는
- * 아무 날도 체크하지 않은 채로 보여준다.
+ * (UserService.login / NaverService.naverLogin 참고). activeDates 는 MyPage 가 한 번만
+ * 불러와 내려준다 - 사이드바 "활동 통계" 화면(ActivityStatsPanel)과 같은 데이터를 쓴다.
+ * "전체 보기"는 모달이 아니라 사이드바의 "활동 통계" 메뉴로 이동한다(onViewAll).
  */
-function WeeklyRecord({ activityItems }) {
-  const [activeDates, setActiveDates] = useState(null);
-  const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-
-    getMyAttendance().then((dates) => {
-      if (alive) setActiveDates(dates);
-    });
-
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  const activeDateSet = new Set(activeDates ?? []);
+function WeeklyRecord({ activeDates, onViewAll }) {
+  const activeDateSet = activeDates instanceof Set ? activeDates : new Set(activeDates ?? []);
   const weekDates = getThisWeekDates();
   const records = weekDates.map((date, i) => ({
     day: DAY_LABELS[i],
@@ -58,7 +41,7 @@ function WeeklyRecord({ activityItems }) {
     <section className="mypage-card">
       <div className="mypage-card-head">
         <h2 className="mypage-card-title">이번 주 사용 기록</h2>
-        <button type="button" className="mypage-more" onClick={() => setShowAll(true)}>
+        <button type="button" className="mypage-more" onClick={onViewAll}>
           전체 보기 <span aria-hidden="true">›</span>
         </button>
       </div>
@@ -77,14 +60,6 @@ function WeeklyRecord({ activityItems }) {
       <p className="mypage-week-summary">
         이번 주 {usedCount}일 사용했어요! <span aria-hidden="true">🔥</span>
       </p>
-
-      {showAll && (
-        <AttendanceCalendarModal
-          activeDates={activeDateSet}
-          activityItems={activityItems}
-          onClose={() => setShowAll(false)}
-        />
-      )}
     </section>
   );
 }
