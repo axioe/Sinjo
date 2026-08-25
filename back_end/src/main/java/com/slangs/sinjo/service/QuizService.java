@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -171,24 +170,6 @@ public class QuizService {
         long playsThisMonth = quizAttemptRepository.countByUserIdAndCreatedAtAfter(userId, startOfMonth);
 
         return new QuizDto.MyStats(totalPlays, playsThisMonth);
-    }
-
-    /**
-     * 7. 마이페이지 "이번 주 사용 기록" / 활동 통계 달력 조회.
-     * 마이페이지 화면이라 getMyStats 와 같은 이유로 비로그인은 401 로 막는다.
-     */
-    public QuizDto.Attendance getMyAttendance(Long userId) {
-        if (userId == null) {
-            throw new UnauthorizedException();
-        }
-
-        List<LocalDate> activeDates = quizAttemptRepository.findCreatedAtByUserId(userId).stream()
-                .map(LocalDateTime::toLocalDate)
-                .distinct()
-                .sorted(Comparator.naturalOrder())
-                .toList();
-
-        return new QuizDto.Attendance(activeDates);
     }
 
     /**

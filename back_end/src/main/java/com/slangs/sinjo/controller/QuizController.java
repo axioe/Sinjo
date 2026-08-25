@@ -62,10 +62,4 @@ public class QuizController {
     public ResponseEntity<QuizDto.MyStats> getMyStats(@AuthenticationPrincipal Long userId) {
         return ResponseEntity.ok(quizService.getMyStats(userId));
     }
-
-    /** 마이페이지 "이번 주 사용 기록" / 활동 통계 달력용 출석 날짜. */
-    @GetMapping("/attendance")
-    public ResponseEntity<QuizDto.Attendance> getMyAttendance(@AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(quizService.getMyAttendance(userId));
-    }
 }

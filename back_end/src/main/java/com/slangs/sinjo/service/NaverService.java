@@ -20,6 +20,7 @@ public class NaverService {
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final AttendanceService attendanceService;
     private final RestClient restClient = RestClient.create();
 
     @Value("${app.naver.client-id}")
@@ -33,6 +34,7 @@ public class NaverService {
         String accessToken = getAccessToken(code, state);
         Map<String, Object> profile = getUserInfo(accessToken);
         User user = findOrCreate(profile);
+        attendanceService.checkIn(user.getId());
         return jwtProvider.createToken(user.getId(), user.getEmail(), user.getRole());
     }
 

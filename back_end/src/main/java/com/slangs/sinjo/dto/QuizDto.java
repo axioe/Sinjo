@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class QuizDto {
@@ -96,14 +95,5 @@ public class QuizDto {
     public record MyStats(
             long totalPlays,
             long playsThisMonth
-    ) {}
-
-    /**
-     * [추가] 마이페이지 "이번 주 사용 기록" / 활동 통계 달력용.
-     * 게임(퀴즈)을 1회 이상 플레이한 날짜만 중복 없이 내려준다 - 아직 번역·즐겨찾기가
-     * 서버에 기록되지 않아(REQ-MY-01 참고) 출석 신호로 쓸 수 있는 건 이것뿐이다.
-     */
-    public record Attendance(
-            List<LocalDate> activeDates
     ) {}
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { getMyAttendance } from "../../api/quizApi";
+import { getMyAttendance } from "../../api/attendanceApi";
 import { toLocalDateKey } from "../../utils/date";
 import AttendanceCalendarModal from "./AttendanceCalendarModal";
 
@@ -26,9 +26,9 @@ function getThisWeekDates() {
 /**
  * 이번 주 사용 기록 (REQ-MY-01).
  *
- * 출석 체크는 QuizAttempt(게임/퀴즈 플레이) 기록 기준이다 - 번역·즐겨찾기는 아직
- * 서버에 저장되지 않아(myPageSampleData.js 참고) 출석 신호로 쓸 수 있는 게 이것뿐이다.
- * activeDates 를 못 불러온 동안(null)에는 아무 날도 체크하지 않은 채로 보여준다.
+ * 출석 체크는 로그인 성공 기준이다 - 로그인할 때마다 서버가 오늘 날짜로 자동 기록한다
+ * (UserService.login / NaverService.naverLogin 참고). activeDates 를 못 불러온 동안(null)에는
+ * 아무 날도 체크하지 않은 채로 보여준다.
  */
 function WeeklyRecord({ activityItems }) {
   const [activeDates, setActiveDates] = useState(null);
