@@ -1,7 +1,7 @@
-import "../css/Ranking.css";
+import "../../css/dictionary/Ranking.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getRankingWords } from "../api/wordApi";
+import { getRankingWords } from "../../api/wordApi";
 
 function Ranking() {
   const [words, setWords] = useState([]);

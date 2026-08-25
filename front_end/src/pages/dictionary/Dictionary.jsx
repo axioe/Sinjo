@@ -1,15 +1,15 @@
-import "../css/Dictionary.css";
+import "../../css/dictionary/Dictionary.css";
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 
-import { getWords, likeWord as likeWordApi } from "../api/wordApi";
+import { getWords, likeWord as likeWordApi } from "../../api/wordApi";
 import {
   getMyFavorites,
   addFavorite,
   removeFavorite,
-} from "../api/favoriteApi";
+} from "../../api/favoriteApi";
 
 const CATEGORY_OPTIONS = ["일상", "인터넷", "게임", "SNS", "직장", "기타"];
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { request } from "../api/client";
-import "../css/AiLearning.css";
+import { request } from "../../api/client";
+import "../../css/chatbot/AiLearning.css";
 
 function AiLearning({ onBack }) {
   const [questions, setQuestions] = useState([]);

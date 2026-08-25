@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getSubjectiveQuiz, checkAnswer, saveQuizAttempt, QUIZ_TYPE } from "../api/quizApi";
+import { getInitialSoundQuiz, checkAnswer, saveQuizAttempt, QUIZ_TYPE } from "../../api/quizApi";
 import QuizResult from "./QuizResult";
 import QuizProgress from "./QuizProgress";
-import "../css/Game.css";
+import "../../css/game/Game.css";
 
-function SubjectiveQuiz() {
+function InitialSoundQuiz() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
@@ -18,7 +18,7 @@ function SubjectiveQuiz() {
   useEffect(() => {
     let alive = true;
 
-    getSubjectiveQuiz()
+    getInitialSoundQuiz()
       .then((data) => {
         if (alive) setQuizzes(data);
       })
@@ -38,7 +38,7 @@ function SubjectiveQuiz() {
 
     setChecking(true);
     try {
-      const result = await checkAnswer(current, input.trim(), QUIZ_TYPE.SUBJECTIVE);
+      const result = await checkAnswer(current, input.trim(), QUIZ_TYPE.INITIAL_SOUND);
       setFeedback(result);
       if (result.correct) setScore((prev) => prev + 1);
     } finally {
@@ -52,7 +52,7 @@ function SubjectiveQuiz() {
       setInput("");
       setFeedback(null);
     } else {
-      saveQuizAttempt(QUIZ_TYPE.SUBJECTIVE, score, quizzes.length);
+      saveQuizAttempt(QUIZ_TYPE.INITIAL_SOUND, score, quizzes.length);
       setFinished(true);
     }
   };
@@ -96,14 +96,12 @@ function SubjectiveQuiz() {
       <Link to="/game" className="quiz-back">← 게임 선택으로</Link>
 
       <div className="quiz-card">
-        <p className="quiz-label">주관식 퀴즈</p>
+        <p className="quiz-label">초성 퀴즈</p>
         <QuizProgress index={index} total={quizzes.length} />
 
-        <h2 className="quiz-question">{current.question}</h2>
+        <div className="quiz-initial">{current.initialSound}</div>
 
-        {current.description && (
-          <p className="quiz-hint">💡 힌트: {current.description}</p>
-        )}
+        {current.hint && <p className="quiz-hint">💡 힌트: {current.hint}</p>}
 
         <input
           className="quiz-input"
@@ -111,7 +109,7 @@ function SubjectiveQuiz() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="신조어를 입력하세요"
+          placeholder="단어를 입력하세요"
           aria-label="정답 입력"
           disabled={feedback !== null}
         />
@@ -143,4 +141,4 @@ function SubjectiveQuiz() {
   );
 }
 
-export default SubjectiveQuiz;
+export default InitialSoundQuiz;

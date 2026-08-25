@@ -3,7 +3,7 @@ import AdminSummary from "./AdminSummary";
 import AdminWords from "./AdminWords";
 import AdminUsers from "./AdminUsers";
 import AdminQuizzes from "./AdminQuizzes";
-import "../../css/Admin.css";
+import "../../css/admin/Admin.css";
 
 /**
  * 관리자 페이지 (REQ-ADM-01)

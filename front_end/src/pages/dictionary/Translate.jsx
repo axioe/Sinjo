@@ -1,7 +1,7 @@
-import "../css/Translate.css";
+import "../../css/dictionary/Translate.css";
 import { useState } from "react";
 import { FaArrowRight, FaCopy } from "react-icons/fa";
-import { translate, saveTranslation } from "../api/translateApi";
+import { translate, saveTranslation } from "../../api/translateApi";
 
 /**
  * [수정] 임시 사전을 컴포넌트 밖으로 빼고 Map 으로 바꿨다.

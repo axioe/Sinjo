@@ -1,29 +1,29 @@
-import "../css/MyPage.css";
-import { useAuth } from "../AuthContext";
+import "../../css/mypage/MyPage.css";
+import { useAuth } from "../../AuthContext";
 import { useState, useEffect } from "react";
-import MyPageSidebar from "../components/MyPage/MyPageSidebar";
-import ProfileCard from "../components/MyPage/ProfileCard";
-import RecentTranslations from "../components/MyPage/RecentTranslations";
-import QuickMenu from "../components/MyPage/QuickMenu";
-import ActivitySummary from "../components/MyPage/ActivitySummary";
-import BadgePoints from "../components/MyPage/BadgePoints";
-import WeeklyRecord from "../components/MyPage/WeeklyRecord";
-import ActivityStatsPanel from "../components/MyPage/ActivityStatsPanel";
+import MyPageSidebar from "../../components/MyPage/MyPageSidebar";
+import ProfileCard from "../../components/MyPage/ProfileCard";
+import RecentTranslations from "../../components/MyPage/RecentTranslations";
+import QuickMenu from "../../components/MyPage/QuickMenu";
+import ActivitySummary from "../../components/MyPage/ActivitySummary";
+import BadgePoints from "../../components/MyPage/BadgePoints";
+import WeeklyRecord from "../../components/MyPage/WeeklyRecord";
+import ActivityStatsPanel from "../../components/MyPage/ActivityStatsPanel";
 import {
   ACTIVITY_SUMMARY_PLACEHOLDERS,
   BADGES,
   POINT_BALANCE,
-} from "../data/myPageSampleData";
-import { getMyQuizStats } from "../api/quizApi";
-import { getMyAttendance } from "../api/attendanceApi";
-import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
-import { getMyTranslations, getMyTranslationCount } from "../api/translateApi";
-import FavoriteWords from "../components/MyPage/FavoriteWords";
+} from "../../data/myPageSampleData";
+import { getMyQuizStats } from "../../api/quizApi";
+import { getMyAttendance } from "../../api/attendanceApi";
+import PasswordChangeModal from "../../components/MyPage/PasswordChangeModal";
+import { getMyTranslations, getMyTranslationCount } from "../../api/translateApi";
+import FavoriteWords from "../../components/MyPage/FavoriteWords";
 import {
   getMyFavorites,
   getMyFavoriteCount,
   removeFavorite,
-} from "../api/favoriteApi";
+} from "../../api/favoriteApi";
 
 /**
  * 마이페이지 (REQ-AUTH-02, REQ-MY-01)

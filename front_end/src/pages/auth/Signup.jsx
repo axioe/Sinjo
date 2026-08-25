@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signup } from "../api/userApi";
-import "../css/signup.css";
+import { signup } from "../../api/userApi";
+import "../../css/auth/signup.css";
 
 function Signup() {
   const [form, setForm] = useState({

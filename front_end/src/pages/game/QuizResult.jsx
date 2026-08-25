@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "../css/Game.css";
+import "../../css/game/Game.css";
 
 function QuizResult({ score, total, onRetry }) {
   const percent = Math.round((score / total) * 100);

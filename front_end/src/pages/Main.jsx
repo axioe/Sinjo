@@ -12,7 +12,7 @@ import slang from "../assets/images/slang.png";
 import { getRankingWords, getWords } from "../api/wordApi";
 
 import "../css/Main.css";
-import ChatbotFloating from "./ChatbotFloating";
+import ChatbotFloating from "./chatbot/ChatbotFloating";
 /* =========================================================
    오늘의 신조어와 동일한 날짜 기준
 ========================================================= */

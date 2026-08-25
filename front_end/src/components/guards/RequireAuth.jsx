@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../AuthContext";
 
 /**
  * 로그인해야 볼 수 있는 페이지를 감싼다.

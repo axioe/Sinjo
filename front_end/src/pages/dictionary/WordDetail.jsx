@@ -1,10 +1,10 @@
-import "../css/WordDetail.css";
+import "../../css/dictionary/WordDetail.css";
 
 import { useEffect, useState } from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-import { getWord, likeWord as likeWordApi } from "../api/wordApi";
+import { getWord, likeWord as likeWordApi } from "../../api/wordApi";
 
 function WordDetail() {
   const { id } = useParams();

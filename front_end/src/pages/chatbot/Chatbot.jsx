@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import "../css/Chatbot.css";
-import { request } from "../api/client";
+import "../../css/chatbot/Chatbot.css";
+import { request } from "../../api/client";
 import AiLearning from "./AiLearning";
-import slang from "../assets/images/chatbot.png";
+import slang from "../../assets/images/chatbot.png";
 
 function Chatbot() {
   const [question, setQuestion] = useState("");
