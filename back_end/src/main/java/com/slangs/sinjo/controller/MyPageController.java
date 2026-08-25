@@ -4,6 +4,7 @@ import com.slangs.sinjo.dto.TranslationDto;
 import com.slangs.sinjo.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,16 +18,18 @@ public class MyPageController {
 
     @GetMapping("/history")
     public ResponseEntity<List<TranslationDto>> getHistory(
+            @AuthenticationPrincipal Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
-        Long userId = 1L;
         return ResponseEntity.ok(myPageService.getHistory(userId, page, size));
     }
 
     @GetMapping("/history/count")
-    public ResponseEntity<Long> getHistoryCount() {
-        Long userId = 1L;
+    public ResponseEntity<Long> getHistoryCount(
+            @AuthenticationPrincipal Long userId
+    ) {
+
         return ResponseEntity.ok(myPageService.getTranslationCount(userId));
     }
 }

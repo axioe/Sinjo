@@ -10,6 +10,7 @@ import com.slangs.sinjo.service.WordRagService;
 import com.slangs.sinjo.service.WordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -106,8 +107,10 @@ public class WordController {
     @GetMapping("/search")
     public WordSearchResponse search(
             @RequestParam (defaultValue = "") String category,
-            @RequestParam String question) {
-        return wordRagService.search(category, question);
+            @RequestParam String question,
+//            유저 아이디 별 기록 연동
+            @AuthenticationPrincipal Long userId) {
+        return wordRagService.search(category, question, userId);
     }
     @GetMapping("/categories")
     public List<String> findCategories(){

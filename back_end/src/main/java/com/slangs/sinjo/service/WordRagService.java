@@ -4,7 +4,10 @@ import com.slangs.sinjo.dto.QueryType;
 import com.slangs.sinjo.dto.WordAnswer;
 import com.slangs.sinjo.dto.WordQuery;
 import com.slangs.sinjo.dto.WordSearchResponse;
+import com.slangs.sinjo.entity.TranslationMode;
+import com.slangs.sinjo.entity.Translations;
 import com.slangs.sinjo.entity.Word;
+import com.slangs.sinjo.repository.TranslationsRepository;
 import com.slangs.sinjo.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,8 @@ public class WordRagService {
     private final WordRepository wordRepository;
     private final WordSearchService searchService;
     private final WordAnswerService answerService;
+//    번역 기록 연동
+    private final TranslationsRepository translationsRepository;
 
     /**
      * 신조어 질문
@@ -162,7 +167,9 @@ public class WordRagService {
      */
     public WordSearchResponse search(
             String category,
-            String question
+            String question,
+//            유저아이디 연동
+            Long userId
     ) {
 
         long start =
@@ -209,10 +216,43 @@ public class WordRagService {
                         .map(this::toResponse)
                         .toList();
 
+        saveHistory(userId, question, results); // 호출 추가
+
         return new WordSearchResponse(
                 true,
                 results
         );
+    }
+
+    /**
+     * 번역 이력 저장 (REQ-AUTH-02)
+     * 비로그인(userId == null)이면 저장하지 않는다.
+     */
+    private void saveHistory(
+            Long userId,
+            String question,
+            List<WordAnswer> results
+    ) {
+
+        if (userId == null || results.isEmpty()) {
+            return;
+        }
+
+        WordAnswer top = results.getFirst();
+
+        try {
+            translationsRepository.save(
+                    Translations.builder()
+                            .userId(userId)
+                            .mode(TranslationMode.EXPLAIN)
+                            .originalText(question)
+                            .translatedText(top.meaning())
+                            .explanation(top.answer())
+                            .build()
+            );
+        } catch (Exception e) {
+            log.warn("[RAG] 번역 이력 저장 실패 userId={}", userId, e);
+        }
     }
 
     private WordAnswer toResponse(
