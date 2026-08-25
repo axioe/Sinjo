@@ -147,7 +147,8 @@
 }
 
 .admin-field input,
-.admin-field select {
+.admin-field select,
+.admin-field textarea {
   width: 100%;
   padding: 12px 14px;
   background: var(--c-surface);
@@ -157,8 +158,13 @@
   color: var(--c-text);
 }
 
+.admin-field textarea {
+  resize: vertical;
+}
+
 .admin-field input:focus,
-.admin-field select:focus {
+.admin-field select:focus,
+.admin-field textarea:focus {
   outline: none;
   border-color: var(--c-primary);
   box-shadow: 0 0 0 4px rgba(109, 74, 255, 0.12);

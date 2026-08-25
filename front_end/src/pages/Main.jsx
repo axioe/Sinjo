@@ -12,7 +12,7 @@ import slang from "../assets/images/slang.png";
 import { getRankingWords, getWords } from "../api/wordApi";
 
 import "../css/Main.css";
-
+import ChatbotFloating from "./ChatbotFloating";
 /* =========================================================
    오늘의 신조어와 동일한 날짜 기준
 ========================================================= */
@@ -151,227 +151,231 @@ function Main() {
   const today = todayWords[0] ?? null;
 
   return (
-    <main className="main">
-      {/* =====================================================
+    <div>
+      <main className="main">
+        {/* =====================================================
           HERO
       ===================================================== */}
 
-      <section className="hero">
-        <div className="hero-left">
-          <span className="badge">🚀 AI 신조어 번역 서비스</span>
+        <section className="hero">
+          <div className="hero-left">
+            <span className="badge">🚀 AI 신조어 번역 서비스</span>
 
-          <h1>
-            신조어가 어렵다면
-            <br />
-            AI에게 맡겨보세요.
-          </h1>
+            <h1>
+              신조어가 어렵다면
+              <br />
+              AI에게 맡겨보세요.
+            </h1>
 
-          <p>
-            실시간 신조어 번역부터 퀴즈, 신조어 게임까지
-            <br className="hero-description-break" />
-            하나의 서비스에서 제공합니다.
-          </p>
+            <p>
+              실시간 신조어 번역부터 퀴즈, 신조어 게임까지
+              <br className="hero-description-break" />
+              하나의 서비스에서 제공합니다.
+            </p>
 
-          <Link to="/translate" className="start">
-            번역 시작하기
-            <FaArrowRight />
-          </Link>
-        </div>
+            <Link to="/translate" className="start">
+              번역 시작하기
+              <FaArrowRight />
+            </Link>
+          </div>
 
-        <div className="hero-right">
-          <img
-            src={slang}
-            alt="신조어를 표준어로 바꿔주는 서비스 소개 이미지"
-            onError={(e) => {
-              e.currentTarget.parentElement.style.display = "none";
-            }}
-          />
-        </div>
-      </section>
+          <div className="hero-right">
+            <img
+              src={slang}
+              alt="신조어를 표준어로 바꿔주는 서비스 소개 이미지"
+              onError={(e) => {
+                e.currentTarget.parentElement.style.display = "none";
+              }}
+            />
+          </div>
+        </section>
 
-      {/* =====================================================
+        {/* =====================================================
           FEATURE GRID
       ===================================================== */}
 
-      <section className="feature-grid">
-        {/* ===================================================
+        <section className="feature-grid">
+          {/* ===================================================
             랭킹
         =================================================== */}
 
-        <div className="feature-card ranking-card">
-          <div className="card-top">
-            <div className="card-icon">
-              <FaFire />
+          <div className="feature-card ranking-card">
+            <div className="card-top">
+              <div className="card-icon">
+                <FaFire />
+              </div>
+
+              <span className="card-badge">RANK</span>
             </div>
 
-            <span className="card-badge">RANK</span>
+            <div className="card-title-row">
+              <h3>신조어 인기 랭킹</h3>
+            </div>
+
+            <div className="card-content ranking-content">
+              {rankingLoading ? (
+                <p className="data-message">인기 신조어를 불러오는 중...</p>
+              ) : rankingError ? (
+                <p className="data-message error">{rankingError}</p>
+              ) : ranking.length > 0 ? (
+                <ul className="ranking-list">
+                  {ranking.slice(0, 3).map((item, index) => (
+                    <li key={item.id ?? item.word}>
+                      <span className="ranking-number">
+                        {String(item.rank ?? index + 1).padStart(2, "0")}
+                      </span>
+
+                      <span className="ranking-word">{item.word}</span>
+
+                      <span className="ranking-likes-small">
+                        ❤️ {item.likes ?? 0}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="data-message">등록된 신조어가 없습니다.</p>
+              )}
+            </div>
+
+            <Link to="/ranking" className="card-button">
+              랭킹 보러 가기
+              <FaArrowRight />
+            </Link>
           </div>
 
-          <div className="card-title-row">
-            <h3>신조어 인기 랭킹</h3>
-          </div>
-
-          <div className="card-content ranking-content">
-            {rankingLoading ? (
-              <p className="data-message">인기 신조어를 불러오는 중...</p>
-            ) : rankingError ? (
-              <p className="data-message error">{rankingError}</p>
-            ) : ranking.length > 0 ? (
-              <ul className="ranking-list">
-                {ranking.slice(0, 3).map((item, index) => (
-                  <li key={item.id ?? item.word}>
-                    <span className="ranking-number">
-                      {String(item.rank ?? index + 1).padStart(2, "0")}
-                    </span>
-
-                    <span className="ranking-word">{item.word}</span>
-
-                    <span className="ranking-likes-small">
-                      ❤️ {item.likes ?? 0}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="data-message">등록된 신조어가 없습니다.</p>
-            )}
-          </div>
-
-          <Link to="/ranking" className="card-button">
-            랭킹 보러 가기
-            <FaArrowRight />
-          </Link>
-        </div>
-
-        {/* ===================================================
+          {/* ===================================================
             오늘의 신조어
         =================================================== */}
 
-        <div className="feature-card main-today-card">
-          <div className="today-top">
-            <div className="card-icon">
-              <FaBook />
+          <div className="feature-card main-today-card">
+            <div className="today-top">
+              <div className="card-icon">
+                <FaBook />
+              </div>
+
+              <span className="today-badge">TODAY</span>
             </div>
 
-            <span className="today-badge">TODAY</span>
+            <div className="card-title-row today-title">
+              <h3>오늘의 신조어</h3>
+            </div>
+
+            <div className="today-content">
+              {todayLoading ? (
+                <p className="data-message">오늘의 신조어를 불러오는 중...</p>
+              ) : todayError ? (
+                <p className="data-message error">{todayError}</p>
+              ) : today ? (
+                <>
+                  <span className="today-label">오늘 배워볼 표현</span>
+
+                  {/* 실제 getWords()에서 받은 today.word */}
+                  <h2 className="today-word">{today.word}</h2>
+
+                  {/* 실제 getWords()에서 받은 today.meaning */}
+                  <p className="today-meaning">{today.meaning}</p>
+                </>
+              ) : (
+                <p className="data-message">등록된 신조어가 없습니다.</p>
+              )}
+            </div>
+
+            <Link to="/today" className="today-button">
+              오늘의 신조어 보기
+              <FaArrowRight />
+            </Link>
           </div>
 
-          <div className="card-title-row today-title">
-            <h3>오늘의 신조어</h3>
-          </div>
-
-          <div className="today-content">
-            {todayLoading ? (
-              <p className="data-message">오늘의 신조어를 불러오는 중...</p>
-            ) : todayError ? (
-              <p className="data-message error">{todayError}</p>
-            ) : today ? (
-              <>
-                <span className="today-label">오늘 배워볼 표현</span>
-
-                {/* 실제 getWords()에서 받은 today.word */}
-                <h2 className="today-word">{today.word}</h2>
-
-                {/* 실제 getWords()에서 받은 today.meaning */}
-                <p className="today-meaning">{today.meaning}</p>
-              </>
-            ) : (
-              <p className="data-message">등록된 신조어가 없습니다.</p>
-            )}
-          </div>
-
-          <Link to="/today" className="today-button">
-            오늘의 신조어 보기
-            <FaArrowRight />
-          </Link>
-        </div>
-
-        {/* ===================================================
+          {/* ===================================================
             게임
         =================================================== */}
 
-        <div className="feature-card">
-          <div className="card-top">
-            <div className="card-icon">
-              <FaGamepad />
+          <div className="feature-card">
+            <div className="card-top">
+              <div className="card-icon">
+                <FaGamepad />
+              </div>
+
+              <span className="card-badge">GAME</span>
             </div>
 
-            <span className="card-badge">GAME</span>
+            <div className="card-title-row">
+              <h3>신조어 게임</h3>
+            </div>
+
+            <div className="card-content">
+              <p className="card-description">
+                신조어로 재미있는 게임을 즐겨보세요.
+              </p>
+            </div>
+
+            <Link to="/game" className="card-button">
+              게임 시작
+              <FaArrowRight />
+            </Link>
           </div>
 
-          <div className="card-title-row">
-            <h3>신조어 게임</h3>
-          </div>
-
-          <div className="card-content">
-            <p className="card-description">
-              신조어로 재미있는 게임을 즐겨보세요.
-            </p>
-          </div>
-
-          <Link to="/game" className="card-button">
-            게임 시작
-            <FaArrowRight />
-          </Link>
-        </div>
-
-        {/* ===================================================
+          {/* ===================================================
             테스트
         =================================================== */}
 
-        <div className="feature-card">
-          <div className="card-top">
-            <div className="card-icon">
-              <FaBrain />
+          <div className="feature-card">
+            <div className="card-top">
+              <div className="card-icon">
+                <FaBrain />
+              </div>
+
+              <span className="card-badge">TEST</span>
             </div>
 
-            <span className="card-badge">TEST</span>
+            <div className="card-title-row">
+              <h3>신조어 이해도 테스트</h3>
+            </div>
+
+            <div className="card-content">
+              <p className="card-description">
+                당신의 신조어 실력을 확인해보세요.
+              </p>
+            </div>
+
+            <Link to="/test" className="card-button">
+              테스트 시작
+              <FaArrowRight />
+            </Link>
           </div>
+        </section>
 
-          <div className="card-title-row">
-            <h3>신조어 이해도 테스트</h3>
-          </div>
-
-          <div className="card-content">
-            <p className="card-description">
-              당신의 신조어 실력을 확인해보세요.
-            </p>
-          </div>
-
-          <Link to="/test" className="card-button">
-            테스트 시작
-            <FaArrowRight />
-          </Link>
-        </div>
-      </section>
-
-      {/* =====================================================
+        {/* =====================================================
           HISTORY
       ===================================================== */}
 
-      <section className="history">
-        <div className="history-header">
-          <h2>최근 번역</h2>
+        <section className="history">
+          <div className="history-header">
+            <h2>최근 번역</h2>
 
-          <Link to="/translate" className="history-more">
-            번역하러 가기
-            <FaArrowRight />
-          </Link>
-        </div>
-
-        <div className="history-box">
-          <div className="history-item">
-            <span className="history-label">신조어</span>
-            <p>오늘 시험 억까였다</p>
+            <Link to="/translate" className="history-more">
+              번역하러 가기
+              <FaArrowRight />
+            </Link>
           </div>
 
-          <div className="history-item">
-            <span className="history-label">번역 결과</span>
-            <p>오늘 시험에서 부당한 불이익을 받았다.</p>
+          <div className="history-box">
+            <div className="history-item">
+              <span className="history-label">신조어</span>
+              <p>오늘 시험 억까였다</p>
+            </div>
+
+            <div className="history-item">
+              <span className="history-label">번역 결과</span>
+              <p>오늘 시험에서 부당한 불이익을 받았다.</p>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+      {/* 신조어 챗봇 */}
+      <ChatbotFloating />
+    </div>
   );
 }
 

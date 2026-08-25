@@ -1,4 +1,4 @@
-import { apiUrl } from "./client";
+import { apiUrl, request } from "./client";
 import {
   MULTIPLE_CHOICE_SAMPLE,
   INITIAL_SOUND_SAMPLE,
@@ -81,5 +81,37 @@ export async function checkAnswer(quiz, answer, quizType) {
       correct: normalize(expected) === normalize(answer),
       correctAnswer: expected,
     };
+  }
+}
+
+/**
+ * 게임 결과 저장.
+ *
+ * 로그인 상태면 서버가 마이페이지 통계용으로 기록하고, 비로그인/서버 오류 시에는
+ * 조용히 무시한다 - 결과 화면은 저장 성공 여부와 상관없이 항상 그대로 보여줘야 하므로
+ * 에러를 던지지 않는다.
+ */
+export async function saveQuizAttempt(quizType, score, total) {
+  try {
+    await request("/api/quiz/attempts", {
+      method: "POST",
+      body: JSON.stringify({ quizType, score, total }),
+    });
+  } catch (error) {
+    console.warn("[quizApi] 게임 결과 저장 실패", error);
+  }
+}
+
+/**
+ * 마이페이지 활동 요약의 "게임 플레이" 카드용 통계 조회.
+ * 로그인하지 않았거나 조회에 실패하면 null 을 돌려준다 - 호출하는 쪽에서
+ * null 이면 "준비 중" 카드로 대체 표시한다(ActivitySummary 의 ready 참고).
+ */
+export async function getMyQuizStats() {
+  try {
+    return await request("/api/quiz/stats");
+  } catch (error) {
+    console.warn("[quizApi] 게임 통계 조회 실패", error);
+    return null;
   }
 }

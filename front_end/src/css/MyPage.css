@@ -394,6 +394,20 @@
   color: var(--c-text-muted);
 }
 
+/* 아직 실데이터가 연동되지 않은 카드 (다른 기능 붙을 자리) */
+.mypage-stat.pending {
+  background: var(--c-bg-soft, #f5f5f7);
+}
+
+.mypage-stat.pending .mypage-stat-icon {
+  color: var(--c-text-muted);
+}
+
+.mypage-stat-pending {
+  color: var(--c-text-muted);
+  font-size: 13px;
+}
+
 /* ---- 배지 & 포인트 -------------------------------------------------------- */
 .mypage-badge-grid {
   display: grid;

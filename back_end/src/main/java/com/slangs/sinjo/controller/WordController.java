@@ -86,8 +86,16 @@ public class WordController {
     }
 
     @GetMapping("/ask")
-    public WordAnswer ask(@RequestParam String question) {
-        return wordRagService.ask(question);
+    public WordAnswer ask(
+            @RequestParam String question,
+            @RequestParam(required = false)
+            String category
+    ) {
+
+        return wordRagService.ask(
+                question,
+                category
+        );
     }
 
     @PostMapping("/index")
@@ -96,7 +104,13 @@ public class WordController {
     }
 
     @GetMapping("/search")
-    public WordSearchResponse search(@RequestParam String question) {
-        return wordRagService.search(question);
+    public WordSearchResponse search(
+            @RequestParam (defaultValue = "") String category,
+            @RequestParam String question) {
+        return wordRagService.search(category, question);
+    }
+    @GetMapping("/categories")
+    public List<String> findCategories(){
+        return wordService.findCategories();
     }
 }

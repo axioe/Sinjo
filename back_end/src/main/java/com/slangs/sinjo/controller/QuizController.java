@@ -5,6 +5,7 @@ import com.slangs.sinjo.service.QuizService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,5 +44,22 @@ public class QuizController {
     @PostMapping("/check")
     public ResponseEntity<QuizDto.CheckResponse> checkAnswer(@Valid @RequestBody QuizDto.CheckRequest request) {
         return ResponseEntity.ok(quizService.checkAnswer(request));
+    }
+
+    /**
+     * 게임 결과 저장. 비로그인 사용자가 보내도 에러 없이 무시된다(QuizService.saveAttempt 참고).
+     */
+    @PostMapping("/attempts")
+    public ResponseEntity<Void> saveAttempt(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody QuizDto.AttemptRequest request) {
+        quizService.saveAttempt(userId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** 마이페이지 활동 요약의 "게임 플레이" 카드용 통계. */
+    @GetMapping("/stats")
+    public ResponseEntity<QuizDto.MyStats> getMyStats(@AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(quizService.getMyStats(userId));
     }
 }

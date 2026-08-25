@@ -207,4 +207,8 @@ public class WordService {
                         )
                 );
     }
+
+    public List<String> findCategories(){
+        return wordRepository.findCategories();
+    }
 }

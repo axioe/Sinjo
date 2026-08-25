@@ -1,5 +1,5 @@
 import { useAuth } from "../AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MyPageSidebar from "../components/MyPage/MyPageSidebar";
 import ProfileCard from "../components/MyPage/ProfileCard";
 import RecentTranslations from "../components/MyPage/RecentTranslations";
@@ -9,11 +9,12 @@ import BadgePoints from "../components/MyPage/BadgePoints";
 import WeeklyRecord from "../components/MyPage/WeeklyRecord";
 import {
   RECENT_TRANSLATIONS,
-  ACTIVITY_SUMMARY,
+  ACTIVITY_SUMMARY_PLACEHOLDERS,
   BADGES,
   POINT_BALANCE,
   WEEKLY_RECORD,
 } from "../data/myPageSampleData";
+import { getMyQuizStats } from "../api/quizApi";
 import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
 import "../css/MyPage.css";
 
@@ -22,7 +23,9 @@ import "../css/MyPage.css";
  * 화면구조 가이드라인 6장: 변환 이력 / 즐겨찾기 / 테스트·게임 결과 / 계정 설정
  *
  * 프로필은 서버에서 받은 실제 회원 정보를 쓴다.
- * 나머지 카드는 아직 서버 API 가 없어 샘플 데이터를 쓴다.
+ * 활동 요약의 "게임 플레이" 카드는 QuizAttempt 기반 실데이터다(quizApi.getMyQuizStats).
+ * 그 외 카드(저장한 번역/즐겨찾기/테스트, 배지, 이번 주 기록)는 아직 서버 API 가 없어
+ * 샘플 데이터거나 "준비 중" 상태다 - 해당 기능을 만드는 사람이 채워 넣을 자리다.
  * 즐겨찾기 토글과 삭제는 화면에서 즉시 반영되지만 새로고침하면 되돌아간다.
  *
  * [수정 1] 모듈 최상단에 있던 console.log("BADGES =", BADGES) 를 지웠다.
@@ -35,6 +38,34 @@ function MyPage() {
   const [activeMenu, setActiveMenu] = useState("home");
   const [translations, setTranslations] = useState(RECENT_TRANSLATIONS);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [gameStats, setGameStats] = useState(null); // null: 아직 못 불러옴 → "준비 중"으로 표시
+
+  useEffect(() => {
+    let alive = true;
+
+    getMyQuizStats().then((stats) => {
+      if (alive) setGameStats(stats);
+    });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // 원래 카드 순서(저장한 번역 / 즐겨찾기 / 게임 플레이 / 테스트 완료)를 그대로 유지한다.
+  const activityItems = [
+    { ...ACTIVITY_SUMMARY_PLACEHOLDERS[0], ready: false },
+    { ...ACTIVITY_SUMMARY_PLACEHOLDERS[1], ready: false },
+    {
+      key: "game",
+      label: "게임 플레이",
+      tone: "amber",
+      ready: gameStats !== null,
+      value: gameStats?.totalPlays ?? 0,
+      diff: gameStats?.playsThisMonth ?? 0,
+    },
+    { ...ACTIVITY_SUMMARY_PLACEHOLDERS[2], ready: false },
+  ];
 
   const handleToggleFavorite = (id) => {
     // TODO: 서버 연동 시 즐겨찾기 저장/해제 요청을 보낸다.
@@ -70,7 +101,7 @@ function MyPage() {
       </div>
 
       <div className="mypage-side">
-        <ActivitySummary items={ACTIVITY_SUMMARY} />
+        <ActivitySummary items={activityItems} />
         <BadgePoints badges={BADGES} point={POINT_BALANCE} />
         <WeeklyRecord records={WEEKLY_RECORD} />
       </div>

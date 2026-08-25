@@ -2,6 +2,7 @@ import { useState } from "react";
 import AdminSummary from "./AdminSummary";
 import AdminWords from "./AdminWords";
 import AdminUsers from "./AdminUsers";
+import AdminQuizzes from "./AdminQuizzes";
 import "../../css/Admin.css";
 
 /**
@@ -11,6 +12,7 @@ import "../../css/Admin.css";
 const MENUS = [
   { key: "summary", label: "대시보드", icon: "📊" },
   { key: "words", label: "용어 관리", icon: "📖" },
+  { key: "quizzes", label: "퀴즈 관리", icon: "🎮" },
   { key: "users", label: "회원 관리", icon: "👥" },
 ];
 
@@ -37,6 +39,7 @@ function AdminPage() {
       <section className="admin-content">
         {menu === "summary" && <AdminSummary />}
         {menu === "words" && <AdminWords />}
+        {menu === "quizzes" && <AdminQuizzes />}
         {menu === "users" && <AdminUsers />}
       </section>
     </div>

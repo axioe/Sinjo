@@ -1,6 +1,7 @@
 package com.slangs.sinjo.controller;
 
 import com.slangs.sinjo.dto.AdminDto;
+import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.service.AdminService;
@@ -60,5 +61,29 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDto.AdminUserRow>> getUsers() {
         return ResponseEntity.ok(adminService.getUsers());
+    }
+
+    // ---- 퀴즈 관리 --------------------------------------------------------
+
+    @GetMapping("/quizzes")
+    public ResponseEntity<List<QuizWordDto>> getQuizWords() {
+        return ResponseEntity.ok(adminService.getQuizWords());
+    }
+
+    @PostMapping("/quizzes")
+    public ResponseEntity<QuizWordDto> createQuizWord(@Valid @RequestBody AdminDto.QuizWordRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.createQuizWord(request));
+    }
+
+    @PutMapping("/quizzes/{id}")
+    public ResponseEntity<QuizWordDto> updateQuizWord(@PathVariable Long id,
+                                                       @Valid @RequestBody AdminDto.QuizWordRequest request) {
+        return ResponseEntity.ok(adminService.updateQuizWord(id, request));
+    }
+
+    @DeleteMapping("/quizzes/{id}")
+    public ResponseEntity<Void> deleteQuizWord(@PathVariable Long id) {
+        adminService.deleteQuizWord(id);
+        return ResponseEntity.noContent().build();
     }
 }

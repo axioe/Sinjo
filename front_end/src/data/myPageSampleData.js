@@ -48,11 +48,18 @@ export const RECENT_TRANSLATIONS = [
   },
 ];
 
-export const ACTIVITY_SUMMARY = [
-  { key: "saved", label: "저장한 번역", value: 128, diff: 12, tone: "purple" },
-  { key: "favorite", label: "즐겨찾기 단어", value: 32, diff: 6, tone: "mint" },
-  { key: "game", label: "게임 플레이", value: 18, diff: 3, tone: "amber" },
-  { key: "test", label: "테스트 완료", value: 56, diff: 9, tone: "pink" },
+/**
+ * 활동 요약 카드 중 아직 백엔드 기능이 없는 항목들.
+ * value/diff 없이 label/tone 만 있다 - ActivitySummary 가 ready:false 로 렌더링해
+ * "준비 중"으로 보여준다. 번역 저장, 즐겨찾기 기능을 만들 사람은 여기에 value/diff 를
+ * 채우고 MyPage.jsx 에서 ready:true 로 바꾸면 된다.
+ *
+ * "game"(게임 플레이)은 QuizAttempt 로 실데이터가 연동돼 있어 여기 없다 - MyPage.jsx 참고.
+ */
+export const ACTIVITY_SUMMARY_PLACEHOLDERS = [
+  { key: "saved", label: "저장한 번역", tone: "purple" },
+  { key: "favorite", label: "즐겨찾기 단어", tone: "mint" },
+  { key: "test", label: "테스트 완료", tone: "pink" },
 ];
 
 export const BADGES = [
