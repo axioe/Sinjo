@@ -739,8 +739,15 @@
 }
 
 /* ---- 활동 통계 (사이드바 "활동 통계" 화면) --------------------------------- */
+/*
+ * 달력 칸은 aspect-ratio: 1 이라 폭이 늘어나는 만큼 높이도 같이 늘어난다.
+ * mypage-main-wide(화면 전체 너비)에 그대로 두면 칸 하나가 100px 를 넘어가면서
+ * 달력이 지나치게 커지고 그 아래 "나의 활동 요약"이 한참 밀려났다.
+ * max-width 로 폭을 묶어 칸 크기를 억제하고 가운데 정렬한다.
+ */
 .mypage-calendar {
-  margin-bottom: 20px;
+  max-width: 320px;
+  margin: 0 auto 16px;
 }
 
 .mypage-calendar-head {
@@ -748,7 +755,7 @@
   align-items: center;
   justify-content: center;
   gap: 18px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .mypage-calendar-title {
@@ -779,22 +786,22 @@
 }
 
 .mypage-calendar-summary {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   color: var(--c-text-sub);
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
 }
 
 .mypage-calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 4px;
 }
 
 .mypage-calendar-weekday {
-  padding-bottom: 4px;
+  padding-bottom: 2px;
   color: var(--c-text-muted);
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
 }
 
@@ -803,9 +810,9 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 1;
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--c-text-sub);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .mypage-calendar-cell.empty {
