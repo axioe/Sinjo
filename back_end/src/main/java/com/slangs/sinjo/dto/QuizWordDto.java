@@ -3,6 +3,7 @@ package com.slangs.sinjo.dto;
 import com.slangs.sinjo.entity.QuizWord;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,7 +24,10 @@ public class QuizWordDto {
         this.id = quizWord.getId();
         this.word = quizWord.getWord();
         this.answer = quizWord.getAnswer();
-        this.options = quizWord.getOptions();
+        // [수정] getOptions() 를 그대로 대입하면 Hibernate 지연 로딩 프록시가 그대로 넘어가서,
+        // 트랜잭션이 끝난 뒤 Jackson 이 JSON 으로 직렬화할 때 LazyInitializationException(no session) 이 난다.
+        // ArrayList 로 감싸 트랜잭션이 살아있는 지금 내용을 읽어(초기화해) 둔다.
+        this.options = new ArrayList<>(quizWord.getOptions());
         this.description = quizWord.getDescription();
     }
 }
