@@ -137,17 +137,35 @@ function MyPage() {
         </div>
       ) : (
         <>
-          <div className="mypage-main">
-            <ProfileCard
-              profile={user}
-              onChangePassword={() => setShowPasswordModal(true)}
-            />
-            <RecentTranslations
-              items={translations}
-              onToggleFavorite={handleToggleFavorite}
-              onDelete={handleDelete}
-            />
-            <QuickMenu />
+                    <div className="mypage-main">
+            {activeMenu === "home" && (
+              <>
+                <ProfileCard
+                  profile={user}
+                  onChangePassword={() => setShowPasswordModal(true)}
+                />
+                <RecentTranslations
+                  items={translations}
+                  onToggleFavorite={handleToggleFavorite}
+                  onDelete={handleDelete}
+                />
+                <QuickMenu />
+              </>
+            )}
+
+            {activeMenu === "saved" && (
+              <RecentTranslations
+                items={allTranslations}
+                onToggleFavorite={handleToggleFavorite}
+                onDelete={handleDelete}
+              />
+            )}
+
+            {activeMenu !== "home" && activeMenu !== "saved" && (
+              <section className="mypage-card">
+                <p className="mypage-empty">준비 중입니다.</p>
+              </section>
+            )}
           </div>
 
           <div className="mypage-side">
