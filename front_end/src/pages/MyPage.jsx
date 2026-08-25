@@ -1,3 +1,4 @@
+import "../css/MyPage.css";
 import { useAuth } from "../AuthContext";
 import { useState, useEffect } from "react";
 import MyPageSidebar from "../components/MyPage/MyPageSidebar";
@@ -17,7 +18,12 @@ import { getMyQuizStats } from "../api/quizApi";
 import { getMyAttendance } from "../api/attendanceApi";
 import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
 import { getMyTranslations, getMyTranslationCount } from "../api/translateApi";
-import "../css/MyPage.css";
+import FavoriteWords from "../components/MyPage/FavoriteWords";
+import {
+  getMyFavorites,
+  getMyFavoriteCount,
+  removeFavorite,
+} from "../api/favoriteApi";
 
 /**
  * 마이페이지 (REQ-AUTH-02, REQ-MY-01)
@@ -38,6 +44,8 @@ function MyPage() {
   const [translations, setTranslations] = useState([]);
   const [translationCount, setTranslationCount] = useState(null);
   const [allTranslations, setAllTranslations] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [favoriteCount, setFavoriteCount] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [gameStats, setGameStats] = useState(null); // null: 아직 못 불러옴 → "준비 중"으로 표시
   const [attendanceDates, setAttendanceDates] = useState(null); // null: 아직 못 불러옴 → 출석 표시 없음
@@ -61,10 +69,33 @@ function MyPage() {
       })
       .catch(console.error);
 
+    getMyFavoriteCount()
+      .then((count) => {
+        if (alive) setFavoriteCount(count);
+      })
+      .catch(console.error);
+
     return () => {
       alive = false;
     };
   }, []);
+
+  // "즐겨찾기 단어" 메뉴를 열 때만 목록을 불러온다.
+  useEffect(() => {
+    if (activeMenu !== "favorite") return;
+
+    let alive = true;
+
+    getMyFavorites(0, 50)
+      .then((list) => {
+        if (alive) setFavorites(list);
+      })
+      .catch(console.error);
+
+    return () => {
+      alive = false;
+    };
+  }, [activeMenu]);
 
   // "번역 저장" 메뉴를 열 때만 전체 목록을 불러온다.
   useEffect(() => {
@@ -91,7 +122,12 @@ function MyPage() {
       value: translationCount ?? 0,
       diff: 0,
     },
-    { ...ACTIVITY_SUMMARY_PLACEHOLDERS[1], ready: false },
+    {
+      ...ACTIVITY_SUMMARY_PLACEHOLDERS[1],
+      ready: favoriteCount !== null,
+      value: favoriteCount ?? 0,
+      diff: 0,
+    },
     {
       key: "game",
       label: "게임 플레이",
@@ -127,17 +163,32 @@ function MyPage() {
     setAllTranslations(remove);
   };
 
+  const handleRemoveFavorite = async (wordId) => {
+    if (!window.confirm("즐겨찾기를 해제할까요?")) return;
+
+    try {
+      await removeFavorite(wordId);
+      setFavorites((prev) => prev.filter((item) => item.wordId !== wordId));
+      setFavoriteCount((prev) => (prev == null ? prev : prev - 1));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="mypage">
       <MyPageSidebar active={activeMenu} onSelect={setActiveMenu} />
 
       {isStats ? (
         <div className="mypage-main mypage-main-wide">
-          <ActivityStatsPanel activeDates={attendanceDateSet} activityItems={activityItems} />
+          <ActivityStatsPanel
+            activeDates={attendanceDateSet}
+            activityItems={activityItems}
+          />
         </div>
       ) : (
         <>
-                    <div className="mypage-main">
+          <div className="mypage-main">
             {activeMenu === "home" && (
               <>
                 <ProfileCard
@@ -161,10 +212,19 @@ function MyPage() {
               />
             )}
 
-            {activeMenu !== "home" && activeMenu !== "saved" && (
-              <section className="mypage-card">
-                <p className="mypage-empty">준비 중입니다.</p>
-              </section>
+            {activeMenu !== "home" &&
+              activeMenu !== "saved" &&
+              activeMenu !== "favorite" && (
+                <section className="mypage-card">
+                  <p className="mypage-empty">준비 중입니다.</p>
+                </section>
+              )}
+
+            {activeMenu === "favorite" && (
+              <FavoriteWords
+                items={favorites}
+                onRemove={handleRemoveFavorite}
+              />
             )}
           </div>
 
