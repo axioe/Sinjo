@@ -15,7 +15,7 @@ import Signup from "./pages/Signup";
 import MyPage from "./pages/MyPage";
 import AdminPage from "./pages/Admin/AdminPage";
 import NotFound from "./pages/NotFound";
-import WordDetail from "./pages/WordDetail"
+import WordDetail from "./pages/WordDetail";
 // 비밀번호 찾기 페이지 라우팅
 import FindPassword from "./pages/FindPassword";
 // 비밀번호 재설정

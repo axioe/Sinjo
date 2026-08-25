@@ -38,9 +38,9 @@ function Ranking() {
     };
   }, []);
 
-  // 신조어 클릭 → 사전으로 이동
-  const goToDictionary = (word) => {
-    navigate(`/dictionary?word=${encodeURIComponent(word)}`);
+  // 신조어 클릭 → 해당 신조어 상세 페이지로 이동
+  const goToDictionary = (id) => {
+    navigate(`/dictionary/${id}`);
   };
 
   if (loading) {
@@ -76,7 +76,7 @@ function Ranking() {
               type="button"
               className="rank-card"
               key={item.id}
-              onClick={() => goToDictionary(item.word)}
+              onClick={() => goToDictionary(item.id)}
             >
               <div className="rank">{item.rank ?? index + 1}</div>
 
