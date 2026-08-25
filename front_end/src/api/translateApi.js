@@ -19,4 +19,22 @@ export const translate = (keyword) =>
     method: "GET",
 });
 
-export default { translate };
+/** 마이페이지 - 번역 기록 조회 (REQ-AUTH-02) */
+export const getMyTranslations = async (page = 0, size = 5) => {
+  const list = await request(`/api/mypage/history?page=${page}&size=${size}`, {
+    method: "GET",
+  });
+
+  // 백엔드 응답 필드 → 화면(RecentTranslations)이 쓰는 필드로 변환
+  return list.map((t) => ({
+  id: t.id,
+  source: t.originalText,
+  result: t.translatedText,
+  createdAt: t.createdAt
+  ? t.createdAt.slice(0, 16).replace("T", " ").replaceAll("-", ".")
+  : "",
+  favorite: false,
+}));
+}
+
+export default { translate, getMyTranslations };

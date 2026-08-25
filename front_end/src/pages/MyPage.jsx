@@ -16,6 +16,7 @@ import {
 } from "../data/myPageSampleData";
 import { getMyQuizStats } from "../api/quizApi";
 import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
+import { getMyTranslations } from "../api/translateApi";
 import "../css/MyPage.css";
 
 /**
@@ -36,7 +37,7 @@ import "../css/MyPage.css";
 function MyPage() {
   const { user } = useAuth();
   const [activeMenu, setActiveMenu] = useState("home");
-  const [translations, setTranslations] = useState(RECENT_TRANSLATIONS);
+  const [translations, setTranslations] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [gameStats, setGameStats] = useState(null); // null: 아직 못 불러옴 → "준비 중"으로 표시
 
@@ -46,6 +47,12 @@ function MyPage() {
     getMyQuizStats().then((stats) => {
       if (alive) setGameStats(stats);
     });
+
+    getMyTranslations(0, 5)
+      .then((list) => {
+        if (alive) setTranslations(list);
+      })
+      .catch(console.error);
 
     return () => {
       alive = false;
@@ -71,8 +78,8 @@ function MyPage() {
     // TODO: 서버 연동 시 즐겨찾기 저장/해제 요청을 보낸다.
     setTranslations((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, favorite: !item.favorite } : item
-      )
+        item.id === id ? { ...item, favorite: !item.favorite } : item,
+      ),
     );
   };
 
