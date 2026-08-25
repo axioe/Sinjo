@@ -1,3 +1,7 @@
+/* =========================================================
+   HEADER
+========================================================= */
+
 .header {
   width: calc(100% - 40px);
   max-width: 1200px;
@@ -5,24 +9,58 @@
   height: 72px;
 
   margin: 12px auto;
-  padding: 6px 20px;
+  padding: 6px 22px;
 
   display: flex;
   align-items: center;
 
-  background: #ffffff;
-
-  border: 1px solid #eeeaff;
-  border-radius: 14px;
-
-  box-shadow: 0 4px 14px rgba(83, 53, 209, 0.07);
-
   box-sizing: border-box;
+
+  /*
+    메인 페이지와 어울리는 보라색 계열 배경
+    너무 진하지 않게 은은한 그라데이션 적용
+  */
+  background: linear-gradient(135deg, #ffffff 0%, #faf8ff 45%, #f1edff 100%);
+
+  border: 1px solid #ddd5ff;
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 18px rgba(83, 53, 209, 0.08),
+    0 1px 3px rgba(83, 53, 209, 0.04);
+
+  position: relative;
+
+  z-index: 100;
 }
 
-/* =========================
+/* 헤더 상단에 아주 은은한 보라색 포인트 */
+.header::before {
+  content: "";
+
+  position: absolute;
+
+  top: -1px;
+  left: 24px;
+  right: 24px;
+
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(109, 74, 255, 0.35),
+    transparent
+  );
+
+  border-radius: 999px;
+
+  pointer-events: none;
+}
+
+/* =========================================================
    로고
-========================= */
+========================================================= */
 
 .logo {
   flex-shrink: 0;
@@ -30,37 +68,62 @@
   display: flex;
   align-items: center;
 
-  margin-right: 30px;
+  /*
+    기존 30px보다 살짝 줄여서
+    로고와 메뉴 사이가 자연스럽게 연결되도록 조정
+  */
+  margin-right: 24px;
 }
 
 .logo a {
   display: flex;
   align-items: center;
 
+  width: auto;
+  height: 52px;
+
   text-decoration: none;
+
+  /* 이미지를 살짝 위로 */
+  transform: translateY(-2px);
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.logo a:hover {
+  /* 기존 -1px 대신 위로 올라가는 효과 유지 */
+  transform: translateY(-3px);
+
+  opacity: 0.95;
 }
 
 .logo img {
   display: block;
 
-  width: 190px;
-  height: auto;
+  width: 172px;
+  height: 48px;
 
   object-fit: contain;
+  object-position: left center;
+
+  transform: translateY(-3px);
 }
 
-/* =========================
+/* =========================================================
    메뉴
-========================= */
+========================================================= */
 
 .nav-menu {
   display: flex;
   align-items: center;
 
-  /* 메뉴 사이 간격 일정하게 */
-  gap: 20px;
+  gap: 21px;
 
   flex: 1;
+
+  min-width: 0;
 }
 
 .nav-menu a {
@@ -69,22 +132,26 @@
   display: flex;
   align-items: center;
 
-  padding: 5px 0;
+  padding: 7px 0;
 
-  color: #555;
+  color: #5d5870;
 
   text-decoration: none;
 
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 
   white-space: nowrap;
 
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .nav-menu a:hover {
   color: #6d4aff;
+
+  transform: translateY(-1px);
 }
 
 /* 메뉴 밑줄 */
@@ -95,14 +162,14 @@
   position: absolute;
 
   left: 0;
-  bottom: 0;
+  bottom: 1px;
 
   width: 0;
   height: 2px;
 
-  background: #6d4aff;
+  background: linear-gradient(90deg, #6d4aff, #927aff);
 
-  border-radius: 2px;
+  border-radius: 999px;
 
   transition: width 0.2s ease;
 }
@@ -111,9 +178,9 @@
   width: 100%;
 }
 
-/* =========================
+/* =========================================================
    오른쪽 영역
-========================= */
+========================================================= */
 
 .header-right {
   display: flex;
@@ -123,15 +190,15 @@
 
   flex-shrink: 0;
 
-  margin-left: 20px;
+  margin-left: 18px;
 }
 
-/* =========================
+/* =========================================================
    검색창
-========================= */
+========================================================= */
 
 .search-box {
-  width: 190px;
+  width: 180px;
   height: 34px;
 
   display: flex;
@@ -139,28 +206,41 @@
 
   padding: 0 12px;
 
-  background: #f7f7fa;
+  box-sizing: border-box;
 
-  border: 1px solid #eeeef3;
+  background: rgba(255, 255, 255, 0.82);
+
+  border: 1px solid #e4dff1;
   border-radius: 17px;
 
-  box-sizing: border-box;
+  box-shadow: inset 0 1px 2px rgba(70, 50, 130, 0.025);
 
   transition:
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .search-box:focus-within {
   background: #ffffff;
+
   border-color: #6d4aff;
+
+  box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.08);
 }
 
 .search-icon {
   flex-shrink: 0;
 
-  color: #999;
-  font-size: 13px;
+  color: #9b96a8;
+
+  font-size: 12px;
+
+  transition: color 0.2s ease;
+}
+
+.search-box:focus-within .search-icon {
+  color: #6d4aff;
 }
 
 .search-box input {
@@ -179,16 +259,16 @@
 
   color: #333;
 
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .search-box input::placeholder {
-  color: #aaa;
+  color: #aaa6b4;
 }
 
-/* =========================
+/* =========================================================
    로그인 버튼
-========================= */
+========================================================= */
 
 .login-btn {
   display: flex;
@@ -197,11 +277,16 @@
 
   gap: 6px;
 
+  min-width: 70px;
+
   padding: 8px 12px;
+
+  box-sizing: border-box;
 
   border-radius: 9px;
 
-  background: #6d4aff;
+  background: linear-gradient(135deg, #7b5cff 0%, #6d4aff 55%, #5d3de0 100%);
+
   color: #ffffff;
 
   text-decoration: none;
@@ -211,20 +296,29 @@
 
   white-space: nowrap;
 
+  box-shadow: 0 4px 10px rgba(109, 74, 255, 0.2);
+
   transition:
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .login-btn:hover {
-  background: #5435d1;
+  background: linear-gradient(135deg, #7050ef 0%, #5d3dd5 100%);
 
   transform: translateY(-1px);
+
+  box-shadow: 0 6px 14px rgba(109, 74, 255, 0.28);
 }
 
-/* =========================
+.login-btn svg {
+  font-size: 11px;
+}
+
+/* =========================================================
    로그인 후 사용자
-========================= */
+========================================================= */
 
 .user-box {
   display: flex;
@@ -234,15 +328,16 @@
 
   padding: 4px 6px 4px 9px;
 
-  background: #f8f7ff;
+  background: rgba(248, 247, 255, 0.95);
 
-  border: 1px solid #ebe7ff;
-
+  border: 1px solid #e1daf9;
   border-radius: 10px;
 
   color: #5d5772;
 
   white-space: nowrap;
+
+  box-shadow: 0 2px 7px rgba(80, 55, 160, 0.04);
 }
 
 .user-box > svg {
@@ -256,9 +351,9 @@
   font-weight: 700;
 }
 
-/* =========================
+/* =========================================================
    로그아웃
-========================= */
+========================================================= */
 
 .logout-btn {
   padding: 5px 8px;
@@ -279,7 +374,8 @@
   transition:
     background 0.2s ease,
     color 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .logout-btn:hover {
@@ -288,25 +384,28 @@
   border-color: #6d4aff;
 
   color: #ffffff;
+
+  transform: translateY(-1px);
 }
 
-/* =========================
+/* =========================================================
    1100px 이하
-========================= */
+========================================================= */
 
 @media (max-width: 1100px) {
   .header {
     width: calc(100% - 30px);
 
-    padding: 6px 16px;
+    padding: 6px 17px;
   }
 
   .logo {
-    margin-right: 20px;
+    margin-right: 18px;
   }
 
   .logo img {
-    width: 165px;
+    width: 155px;
+    height: 44px;
   }
 
   .nav-menu {
@@ -314,7 +413,7 @@
   }
 
   .nav-menu a {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .header-right {
@@ -326,35 +425,46 @@
   }
 }
 
-/* =========================
+/* =========================================================
    900px 이하
-========================= */
+========================================================= */
 
 @media (max-width: 900px) {
   .header {
     height: 68px;
 
     padding: 5px 14px;
+
+    border-radius: 14px;
   }
 
   .logo {
-    margin-right: 15px;
+    margin-right: 14px;
+  }
+
+  .logo a {
+    height: 45px;
   }
 
   .logo img {
-    width: 150px;
+    width: 140px;
+    height: 42px;
   }
 
   .nav-menu {
-    gap: 12px;
+    gap: 11px;
   }
 
   .nav-menu a {
-    font-size: 13px;
+    font-size: 12px;
+  }
+
+  .header-right {
+    margin-left: 10px;
   }
 
   .search-box {
-    width: 110px;
+    width: 105px;
   }
 
   .user-name {
@@ -362,9 +472,9 @@
   }
 }
 
-/* =========================
+/* =========================================================
    모바일
-========================= */
+========================================================= */
 
 @media (max-width: 760px) {
   .header {
@@ -383,8 +493,22 @@
     border-radius: 13px;
   }
 
+  .header::before {
+    left: 18px;
+    right: 18px;
+  }
+
+  .logo {
+    margin-right: 0;
+  }
+
+  .logo a {
+    height: 42px;
+  }
+
   .logo img {
-    width: 145px;
+    width: 138px;
+    height: 40px;
   }
 
   .header-right {
@@ -406,8 +530,9 @@
     gap: 20px;
 
     padding-top: 8px;
+    padding-bottom: 2px;
 
-    border-top: 1px solid #f0eef7;
+    border-top: 1px solid #e9e4f6;
 
     overflow-x: auto;
 
@@ -423,40 +548,115 @@
   }
 }
 
-/* =========================
+/* =========================================================
+   600px 이하
+========================================================= */
+
+@media (max-width: 600px) {
+  .header {
+    width: calc(100% - 16px);
+
+    padding: 6px 11px;
+  }
+
+  .logo img {
+    width: 132px;
+    height: 38px;
+  }
+
+  .search-box {
+    width: 110px;
+  }
+
+  .login-btn {
+    min-width: auto;
+
+    padding: 7px 9px;
+
+    font-size: 11px;
+  }
+
+  .user-box {
+    padding: 4px 5px 4px 7px;
+  }
+
+  .logout-btn {
+    padding: 5px 7px;
+  }
+}
+
+/* =========================================================
    작은 모바일
-========================= */
+========================================================= */
 
 @media (max-width: 480px) {
   .header {
     width: calc(100% - 12px);
 
-    padding: 5px 10px;
+    padding: 5px 9px;
+
+    border-radius: 12px;
   }
 
   .logo img {
-    width: 130px;
+    width: 125px;
+    height: 36px;
   }
 
   .search-box {
-    width: 100px;
+    width: 96px;
+    height: 31px;
+
+    padding: 0 10px;
   }
 
   .search-box input {
     font-size: 11px;
   }
 
-  .login-btn {
-    padding: 7px 9px;
+  .search-box input::placeholder {
+    font-size: 10px;
+  }
 
-    font-size: 11px;
+  .login-btn {
+    padding: 7px 8px;
+
+    font-size: 10px;
+  }
+
+  .login-btn svg {
+    font-size: 10px;
   }
 
   .nav-menu {
     gap: 17px;
+
+    padding-top: 7px;
   }
 
   .nav-menu a {
     font-size: 12px;
+  }
+}
+
+/* =========================================================
+   아주 작은 모바일
+========================================================= */
+
+@media (max-width: 380px) {
+  .logo img {
+    width: 112px;
+  }
+
+  .search-box {
+    width: 88px;
+  }
+
+  .header-right {
+    gap: 5px;
+  }
+
+  .nav-menu {
+    gap: 15px;
   }
 }

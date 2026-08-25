@@ -7,13 +7,14 @@ import QuickMenu from "../components/MyPage/QuickMenu";
 import ActivitySummary from "../components/MyPage/ActivitySummary";
 import BadgePoints from "../components/MyPage/BadgePoints";
 import WeeklyRecord from "../components/MyPage/WeeklyRecord";
+import ActivityStatsPanel from "../components/MyPage/ActivityStatsPanel";
 import {
   ACTIVITY_SUMMARY_PLACEHOLDERS,
   BADGES,
   POINT_BALANCE,
-  WEEKLY_RECORD,
 } from "../data/myPageSampleData";
 import { getMyQuizStats } from "../api/quizApi";
+import { getMyAttendance } from "../api/attendanceApi";
 import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
 import { getMyTranslations, getMyTranslationCount } from "../api/translateApi";
 import "../css/MyPage.css";
@@ -39,6 +40,7 @@ function MyPage() {
   const [allTranslations, setAllTranslations] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [gameStats, setGameStats] = useState(null); // null: 아직 못 불러옴 → "준비 중"으로 표시
+  const [attendanceDates, setAttendanceDates] = useState(null); // null: 아직 못 불러옴 → 출석 표시 없음
 
   useEffect(() => {
     let alive = true;
@@ -101,6 +103,9 @@ function MyPage() {
     { ...ACTIVITY_SUMMARY_PLACEHOLDERS[2], ready: false },
   ];
 
+  const attendanceDateSet = new Set(attendanceDates ?? []);
+  const isStats = activeMenu === "stats";
+
   const handleToggleFavorite = (id) => {
     // TODO: 서버 연동 시 즐겨찾기 저장/해제 요청을 보낸다.
     const toggle = (prev) =>
@@ -126,9 +131,13 @@ function MyPage() {
     <div className="mypage">
       <MyPageSidebar active={activeMenu} onSelect={setActiveMenu} />
 
-      <div className="mypage-main">
-        {activeMenu === "home" && (
-          <>
+      {isStats ? (
+        <div className="mypage-main mypage-main-wide">
+          <ActivityStatsPanel activeDates={attendanceDateSet} activityItems={activityItems} />
+        </div>
+      ) : (
+        <>
+          <div className="mypage-main">
             <ProfileCard
               profile={user}
               onChangePassword={() => setShowPasswordModal(true)}
@@ -139,29 +148,18 @@ function MyPage() {
               onDelete={handleDelete}
             />
             <QuickMenu />
-          </>
-        )}
+          </div>
 
-        {activeMenu === "saved" && (
-          <RecentTranslations
-            items={allTranslations}
-            onToggleFavorite={handleToggleFavorite}
-            onDelete={handleDelete}
-          />
-        )}
-
-        {activeMenu !== "home" && activeMenu !== "saved" && (
-          <section className="mypage-card">
-            <p className="mypage-empty">준비 중입니다.</p>
-          </section>
-        )}
-      </div>
-
-      <div className="mypage-side">
-        <ActivitySummary items={activityItems} />
-        <BadgePoints badges={BADGES} point={POINT_BALANCE} />
-        <WeeklyRecord records={WEEKLY_RECORD} />
-      </div>
+          <div className="mypage-side">
+            <ActivitySummary items={activityItems} />
+            <BadgePoints badges={BADGES} point={POINT_BALANCE} />
+            <WeeklyRecord
+              activeDates={attendanceDateSet}
+              onViewAll={() => setActiveMenu("stats")}
+            />
+          </div>
+        </>
+      )}
 
       {showPasswordModal && (
         <PasswordChangeModal onClose={() => setShowPasswordModal(false)} />

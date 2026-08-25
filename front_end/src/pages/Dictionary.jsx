@@ -56,21 +56,10 @@ function Dictionary() {
   });
 
   const [selectedCategory, setSelectedCategory] = useState("전체");
-
   const [selectedInitial, setSelectedInitial] = useState("전체");
-
-  // 년도 필터
   const [selectedYear, setSelectedYear] = useState("전체");
-
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  /**
-   * 정렬
-   *
-   * latest : 가나다순
-   * likes  : 좋아요순
-   * views  : 조회순
-   */
   const [sortType, setSortType] = useState("latest");
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,6 +67,34 @@ function Dictionary() {
   const query = searchParams.get("word") ?? "";
 
   const [keyword, setKeyword] = useState(query);
+
+  /*
+   * =========================================================
+   * 엑셀 다운로드 설정
+   * =========================================================
+   */
+
+  const [showExcelModal, setShowExcelModal] = useState(false);
+
+  /*
+   * 처음에는 모두 false
+   */
+  const [excelFields, setExcelFields] = useState({
+    word: false,
+    meaning: false,
+    example: false,
+    category: false,
+    era: false,
+  });
+
+  /*
+   * 세부 선택
+   *
+   * 처음에는 모두 선택되지 않은 상태
+   */
+  const [excelInitials, setExcelInitials] = useState([]);
+  const [excelCategories, setExcelCategories] = useState([]);
+  const [excelYears, setExcelYears] = useState([]);
 
   useEffect(() => {
     setKeyword(query);
@@ -107,13 +124,6 @@ function Dictionary() {
 
   /**
    * 년도 추출
-   *
-   * era 값이
-   * "2024"
-   * "2024년"
-   * "2024 년"
-   * "2024년대"
-   * 등의 형태로 들어와도 4자리 년도를 추출한다.
    */
   const getYear = (era = "") => {
     const match = String(era).match(/\b(19|20)\d{2}\b/);
@@ -165,14 +175,6 @@ function Dictionary() {
 
   /**
    * 년도 목록
-   *
-   * 데이터의 era에서 년도를 자동으로 추출한다.
-   *
-   * 예:
-   * 2026
-   * 2025
-   * 2024
-   * ...
    */
   const years = useMemo(() => {
     const yearSet = new Set();
@@ -191,19 +193,26 @@ function Dictionary() {
     ];
   }, [words]);
 
-  /**
-   * 검색 + 필터 + 정렬
-   *
-   * 검색어가 있으면 검색어 조건을 먼저 만족시키고
-   * 그 결과에 초성/카테고리/년도/즐겨찾기를 적용한다.
+  /*
+   * =========================================================
+   * 엑셀용 세부 목록
+   * =========================================================
    */
+
+  const excelYearOptions = useMemo(() => {
+    return years.filter((year) => year !== "전체");
+  }, [years]);
+
+  /*
+   * =========================================================
+   * 검색 + 필터 + 정렬
+   * =========================================================
+   */
+
   const result = useMemo(() => {
     const q = query.trim().toLowerCase();
 
     const filtered = words.filter((item) => {
-      /**
-       * 검색어
-       */
       if (q) {
         const matchesSearch =
           item.word?.toLowerCase().includes(q) ||
@@ -217,18 +226,12 @@ function Dictionary() {
         }
       }
 
-      /**
-       * 카테고리
-       */
       const itemCategory = item.category?.trim() || "기타";
 
       if (selectedCategory !== "전체" && itemCategory !== selectedCategory) {
         return false;
       }
 
-      /**
-       * 초성
-       */
       if (
         selectedInitial !== "전체" &&
         getInitial(item.word) !== selectedInitial
@@ -236,9 +239,6 @@ function Dictionary() {
         return false;
       }
 
-      /**
-       * 년도
-       */
       if (selectedYear !== "전체") {
         const itemYear = getYear(item.era);
 
@@ -247,9 +247,6 @@ function Dictionary() {
         }
       }
 
-      /**
-       * 즐겨찾기
-       */
       if (showFavoritesOnly && !favoriteIds.includes(item.id)) {
         return false;
       }
@@ -257,9 +254,6 @@ function Dictionary() {
       return true;
     });
 
-    /**
-     * 정렬
-     */
     return filtered.sort((a, b) => {
       if (sortType === "likes") {
         const likesDiff = (b.likes ?? 0) - (a.likes ?? 0);
@@ -324,30 +318,14 @@ function Dictionary() {
   );
 
   /**
-   * 조회수에 따라 카드 색상을 결정
-   *
-   * 글자색이 아니라 카드 배경색이 진해진다.
+   * 조회수에 따른 카드 색상
    */
   const getViewLevel = (views = 0) => {
-    if (views >= 1000) {
-      return 5;
-    }
-
-    if (views >= 500) {
-      return 4;
-    }
-
-    if (views >= 200) {
-      return 3;
-    }
-
-    if (views >= 50) {
-      return 2;
-    }
-
-    if (views > 0) {
-      return 1;
-    }
+    if (views >= 1000) return 5;
+    if (views >= 500) return 4;
+    if (views >= 200) return 3;
+    if (views >= 50) return 2;
+    if (views > 0) return 1;
 
     return 0;
   };
@@ -494,74 +472,322 @@ function Dictionary() {
 
   const changeCategory = (category) => {
     setSelectedCategory(category);
-
     setShowFavoritesOnly(false);
-
     setCurrentPage(1);
   };
 
   const changeInitial = (initial) => {
     setSelectedInitial(initial);
-
     setCurrentPage(1);
   };
 
-  /**
-   * 년도 변경
-   */
   const changeYear = (year) => {
     setSelectedYear(year);
-
     setCurrentPage(1);
   };
 
   const toggleFavoritesOnly = () => {
     setShowFavoritesOnly((prev) => !prev);
-
     setCurrentPage(1);
   };
 
-  /**
-   * 엑셀 다운로드
+  /*
+   * =========================================================
+   * 엑셀 모달 열기
+   * =========================================================
+   *
+   * 중요:
+   * 버튼을 누를 때마다 전체 체크 해제
    */
+
+  const openExcelModal = () => {
+    setExcelFields({
+      word: false,
+      meaning: false,
+      example: false,
+      category: false,
+      era: false,
+    });
+
+    setExcelInitials([]);
+    setExcelCategories([]);
+    setExcelYears([]);
+
+    setShowExcelModal(true);
+  };
+
+  const closeExcelModal = () => {
+    setShowExcelModal(false);
+  };
+
+  /*
+   * =========================================================
+   * 엑셀 메인 항목 체크
+   * =========================================================
+   */
+
+  const toggleExcelField = (field) => {
+    setExcelFields((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+
+    /*
+     * 해당 항목을 해제하면 세부 선택도 초기화
+     */
+    if (field === "word") {
+      setExcelInitials([]);
+    }
+
+    if (field === "category") {
+      setExcelCategories([]);
+    }
+
+    if (field === "era") {
+      setExcelYears([]);
+    }
+  };
+
+  /*
+   * =========================================================
+   * 초성 선택
+   * =========================================================
+   */
+
+  const toggleExcelInitial = (initial) => {
+    setExcelInitials((prev) =>
+      prev.includes(initial)
+        ? prev.filter((item) => item !== initial)
+        : [...prev, initial],
+    );
+  };
+
+  /*
+   * =========================================================
+   * 카테고리 선택
+   * =========================================================
+   */
+
+  const toggleExcelCategory = (category) => {
+    setExcelCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((item) => item !== category)
+        : [...prev, category],
+    );
+  };
+
+  /*
+   * =========================================================
+   * 년도 선택
+   * =========================================================
+   */
+
+  const toggleExcelYear = (year) => {
+    setExcelYears((prev) =>
+      prev.includes(year)
+        ? prev.filter((item) => item !== year)
+        : [...prev, year],
+    );
+  };
+
+  /*
+   * =========================================================
+   * 전체 선택 / 전체 해제
+   * =========================================================
+   */
+
+  const toggleAllExcelInitials = () => {
+    if (excelInitials.length === INITIALS.length) {
+      setExcelInitials([]);
+    } else {
+      setExcelInitials([...INITIALS]);
+    }
+  };
+
+  const toggleAllExcelCategories = () => {
+    if (excelCategories.length === CATEGORY_OPTIONS.length) {
+      setExcelCategories([]);
+    } else {
+      setExcelCategories([...CATEGORY_OPTIONS]);
+    }
+  };
+
+  const toggleAllExcelYears = () => {
+    if (excelYears.length === excelYearOptions.length) {
+      setExcelYears([]);
+    } else {
+      setExcelYears([...excelYearOptions]);
+    }
+  };
+
+  /*
+   * =========================================================
+   * 엑셀 다운로드
+   * =========================================================
+   */
+
   const downloadExcel = () => {
-    if (result.length === 0) {
-      alert("다운로드할 신조어 데이터가 없습니다.");
+    const selectedFields = Object.keys(excelFields).filter(
+      (key) => excelFields[key],
+    );
+
+    /*
+     * 아무 항목도 선택하지 않은 경우
+     */
+    if (selectedFields.length === 0) {
+      alert("엑셀로 받을 항목을 하나 이상 선택해 주세요.");
 
       return;
     }
 
-    const excelData = result.map((item, index) => ({
-      번호: index + 1,
-      단어: item.word ?? "",
-      뜻: item.meaning ?? "",
-      예문: item.example ?? "",
-      카테고리: item.category?.trim() || "기타",
-      시대: item.era ?? "",
-      좋아요: item.likes ?? 0,
-      조회수: item.views ?? 0,
-      즐겨찾기: isFavorite(item.id) ? "Y" : "N",
-    }));
+    /*
+     * 단어 선택 시 초성을 하나라도 선택해야 함
+     */
+    if (excelFields.word && excelInitials.length === 0) {
+      alert("단어의 초성을 하나 이상 선택해 주세요.");
+
+      return;
+    }
+
+    /*
+     * 카테고리 선택 시 카테고리를 하나라도 선택해야 함
+     */
+    if (excelFields.category && excelCategories.length === 0) {
+      alert("카테고리를 하나 이상 선택해 주세요.");
+
+      return;
+    }
+
+    /*
+     * 시대 선택 시 년도를 하나라도 선택해야 함
+     */
+    if (excelFields.era && excelYears.length === 0) {
+      alert("시대를 하나 이상 선택해 주세요.");
+
+      return;
+    }
+
+    /*
+     * 현재 검색/필터 결과를 기준으로
+     * 엑셀 세부 조건을 한 번 더 적용
+     */
+    const excelResult = result.filter((item) => {
+      /*
+       * 단어 → 초성
+       */
+      if (excelFields.word) {
+        const itemInitial = getInitial(item.word);
+
+        if (!excelInitials.includes(itemInitial)) {
+          return false;
+        }
+      }
+
+      /*
+       * 카테고리
+       */
+      if (excelFields.category) {
+        const itemCategory = item.category?.trim() || "기타";
+
+        if (!excelCategories.includes(itemCategory)) {
+          return false;
+        }
+      }
+
+      /*
+       * 시대 → 년도
+       */
+      if (excelFields.era) {
+        const itemYear = getYear(item.era);
+
+        if (!excelYears.includes(itemYear)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    if (excelResult.length === 0) {
+      alert("선택한 조건에 해당하는 신조어가 없습니다.");
+
+      return;
+    }
+
+    /*
+     * 엑셀 데이터 생성
+     *
+     * 좋아요 / 조회수 / 즐겨찾기는 포함하지 않음
+     */
+    const excelData = excelResult.map((item, index) => {
+      const row = {
+        번호: index + 1,
+      };
+
+      if (excelFields.word) {
+        row["단어"] = item.word ?? "";
+      }
+
+      if (excelFields.meaning) {
+        row["뜻"] = item.meaning ?? "";
+      }
+
+      if (excelFields.example) {
+        row["예문"] = item.example ?? "";
+      }
+
+      if (excelFields.category) {
+        row["카테고리"] = item.category?.trim() || "기타";
+      }
+
+      if (excelFields.era) {
+        row["시대"] = item.era ?? "";
+      }
+
+      return row;
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    worksheet["!cols"] = [
-      { wch: 8 },
-      { wch: 20 },
-      { wch: 50 },
-      { wch: 60 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 10 },
-      { wch: 10 },
-      { wch: 12 },
-    ];
+    /*
+     * 선택한 항목에 따라 컬럼 너비 설정
+     */
+    const columnWidths = [];
+
+    columnWidths.push({ wch: 8 });
+
+    if (excelFields.word) {
+      columnWidths.push({ wch: 20 });
+    }
+
+    if (excelFields.meaning) {
+      columnWidths.push({ wch: 50 });
+    }
+
+    if (excelFields.example) {
+      columnWidths.push({ wch: 60 });
+    }
+
+    if (excelFields.category) {
+      columnWidths.push({ wch: 15 });
+    }
+
+    if (excelFields.era) {
+      columnWidths.push({ wch: 15 });
+    }
+
+    worksheet["!cols"] = columnWidths;
 
     const workbook = XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(workbook, worksheet, "신조어 사전");
 
     XLSX.writeFile(workbook, "신조어_사전.xlsx");
+
+    /*
+     * 다운로드 후 모달 닫기
+     */
+    setShowExcelModal(false);
   };
 
   /**
@@ -623,7 +849,7 @@ function Dictionary() {
         <button
           type="button"
           className="excel-download-button"
-          onClick={downloadExcel}
+          onClick={openExcelModal}
         >
           📥 엑셀 다운로드
         </button>
@@ -967,6 +1193,241 @@ function Dictionary() {
             {">>"}
           </button>
         </nav>
+      )}
+
+      {/* =====================================================
+          엑셀 다운로드 모달
+      ===================================================== */}
+
+      {showExcelModal && (
+        <div className="excel-modal-overlay" onClick={closeExcelModal}>
+          <div className="excel-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="excel-modal-header">
+              <div>
+                <h2>📥 엑셀 다운로드</h2>
+
+                <p>다운로드할 항목과 세부 조건을 선택하세요.</p>
+              </div>
+
+              <button
+                type="button"
+                className="excel-modal-close"
+                onClick={closeExcelModal}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="excel-modal-body">
+              {/* 항목 선택 */}
+
+              <section className="excel-section">
+                <h3>1. 다운로드 항목</h3>
+
+                <div className="excel-field-list">
+                  <label className="custom-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={excelFields.word}
+                      onChange={() => toggleExcelField("word")}
+                    />
+
+                    <span className="checkbox-box">✓</span>
+
+                    <span className="checkbox-text">단어</span>
+                  </label>
+
+                  <label className="custom-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={excelFields.meaning}
+                      onChange={() => toggleExcelField("meaning")}
+                    />
+
+                    <span className="checkbox-box">✓</span>
+
+                    <span className="checkbox-text">뜻</span>
+                  </label>
+
+                  <label className="custom-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={excelFields.example}
+                      onChange={() => toggleExcelField("example")}
+                    />
+
+                    <span className="checkbox-box">✓</span>
+
+                    <span className="checkbox-text">예문</span>
+                  </label>
+
+                  <label className="custom-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={excelFields.category}
+                      onChange={() => toggleExcelField("category")}
+                    />
+
+                    <span className="checkbox-box">✓</span>
+
+                    <span className="checkbox-text">카테고리</span>
+                  </label>
+
+                  <label className="custom-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={excelFields.era}
+                      onChange={() => toggleExcelField("era")}
+                    />
+
+                    <span className="checkbox-box">✓</span>
+
+                    <span className="checkbox-text">시대</span>
+                  </label>
+                </div>
+              </section>
+
+              {/* 단어 → 초성 */}
+
+              {excelFields.word && (
+                <section className="excel-detail-section">
+                  <div className="excel-detail-header">
+                    <h3>2. 단어 초성 선택</h3>
+
+                    <button
+                      type="button"
+                      className="excel-select-all-button"
+                      onClick={toggleAllExcelInitials}
+                    >
+                      {excelInitials.length === INITIALS.length
+                        ? "전체 해제"
+                        : "전체 선택"}
+                    </button>
+                  </div>
+
+                  <div className="excel-option-grid initials-grid">
+                    {INITIALS.map((initial) => (
+                      <label key={initial} className="custom-checkbox small">
+                        <input
+                          type="checkbox"
+                          checked={excelInitials.includes(initial)}
+                          onChange={() => toggleExcelInitial(initial)}
+                        />
+
+                        <span className="checkbox-box">✓</span>
+
+                        <span className="checkbox-text">{initial}</span>
+                      </label>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 카테고리 */}
+
+              {excelFields.category && (
+                <section className="excel-detail-section">
+                  <div className="excel-detail-header">
+                    <h3>3. 카테고리 선택</h3>
+
+                    <button
+                      type="button"
+                      className="excel-select-all-button"
+                      onClick={toggleAllExcelCategories}
+                    >
+                      {excelCategories.length === CATEGORY_OPTIONS.length
+                        ? "전체 해제"
+                        : "전체 선택"}
+                    </button>
+                  </div>
+
+                  <div className="excel-option-grid">
+                    {CATEGORY_OPTIONS.map((category) => (
+                      <label key={category} className="custom-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={excelCategories.includes(category)}
+                          onChange={() => toggleExcelCategory(category)}
+                        />
+
+                        <span className="checkbox-box">✓</span>
+
+                        <span className="checkbox-text">{category}</span>
+                      </label>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 시대 → 년도 */}
+
+              {excelFields.era && (
+                <section className="excel-detail-section">
+                  <div className="excel-detail-header">
+                    <h3>4. 시대 / 년도 선택</h3>
+
+                    <button
+                      type="button"
+                      className="excel-select-all-button"
+                      onClick={toggleAllExcelYears}
+                    >
+                      {excelYears.length === excelYearOptions.length
+                        ? "전체 해제"
+                        : "전체 선택"}
+                    </button>
+                  </div>
+
+                  {excelYearOptions.length > 0 ? (
+                    <div className="excel-option-grid">
+                      {excelYearOptions.map((year) => (
+                        <label key={year} className="custom-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={excelYears.includes(year)}
+                            onChange={() => toggleExcelYear(year)}
+                          />
+
+                          <span className="checkbox-box">✓</span>
+
+                          <span className="checkbox-text">{year}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="excel-empty">
+                      등록된 년도 데이터가 없습니다.
+                    </p>
+                  )}
+                </section>
+              )}
+
+              <div className="excel-notice">
+                <span>ℹ️</span>
+                <p>
+                  좋아요, 조회수, 즐겨찾기 정보는 엑셀 파일에 포함되지 않습니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="excel-modal-footer">
+              <button
+                type="button"
+                className="excel-cancel-button"
+                onClick={closeExcelModal}
+              >
+                취소
+              </button>
+
+              <button
+                type="button"
+                className="excel-confirm-button"
+                onClick={downloadExcel}
+              >
+                📥 엑셀 다운로드
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

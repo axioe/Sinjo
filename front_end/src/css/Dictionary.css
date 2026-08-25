@@ -266,34 +266,29 @@
   box-shadow: 0 4px 10px rgba(109, 74, 255, 0.25);
 }
 
-
 /* =========================
    정렬
 ========================= */
 
-.sort-area {
+.sort-filter-area {
   display: flex;
 
   align-items: center;
 
-  gap: 12px;
+  flex-wrap: wrap;
 
-  margin-top: 22px;
+  gap: 8px;
+
+  margin-top: 20px;
 }
 
 .sort-label {
+  margin-right: 5px;
+
   color: #777;
 
   font-size: 14px;
-  font-weight: 700;
-}
-
-.sort-list {
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
+  font-weight: 600;
 }
 
 .sort-button {
@@ -301,12 +296,13 @@
 
   border-radius: 20px;
 
-  padding: 8px 14px;
+  padding: 9px 15px;
 
   background: white;
-  color: #777;
+  color: #6d4aff;
 
   font-size: 13px;
+  font-weight: 600;
 
   cursor: pointer;
 
@@ -316,7 +312,7 @@
 .sort-button:hover {
   background: #f2efff;
 
-  color: #6d4aff;
+  transform: translateY(-2px);
 }
 
 .sort-button.active {
@@ -325,6 +321,8 @@
   color: white;
 
   border-color: #6d4aff;
+
+  box-shadow: 0 4px 10px rgba(109, 74, 255, 0.2);
 }
 
 /* =========================
@@ -558,15 +556,8 @@
 
 .word-card:focus-visible {
   outline: 3px solid rgba(109, 74, 255, 0.35);
+
   outline-offset: 3px;
-}
-
-.word-card-content {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 18px;
 }
 
 .word-card h2 {
@@ -593,27 +584,41 @@
 
 .word-meta {
   display: flex;
+
   align-items: center;
+
   flex-wrap: wrap;
+
   gap: 6px;
 }
 
 .word-category {
   display: inline-block;
+
   padding: 4px 9px;
+
   border-radius: 10px;
+
   background: #f3f1ff;
+
   color: #6d4aff;
+
   font-size: 11px;
 }
 
 .word-era {
   display: inline-block;
+
   padding: 4px 9px;
+
   border-radius: 10px;
+
   background: #f0f7ff;
+
   color: #3981c6;
+
   font-size: 11px;
+
   font-weight: 600;
 }
 
@@ -623,7 +628,9 @@
 
 .word-card-header {
   display: flex;
+
   align-items: flex-start;
+
   justify-content: space-between;
 
   gap: 15px;
@@ -636,7 +643,6 @@
 .word-title-area h2 {
   margin-top: 12px;
 }
-
 
 /* =========================
    카드 액션
@@ -665,10 +671,13 @@
 
 .card-favorite-button {
   width: 38px;
+
   height: 38px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   border-radius: 12px;
@@ -689,7 +698,6 @@
 .card-favorite-button.active {
   background: #fff3c4;
 }
-
 
 .card-like-button {
   min-height: 38px;
@@ -718,7 +726,6 @@
 
   cursor: not-allowed;
 }
-
 
 /* =========================
    뜻
@@ -750,9 +757,8 @@
   word-break: keep-all;
 }
 
-
 /* =========================
-   조회수에 따른 카드 색상
+   조회수 카드 색상
 ========================= */
 
 .word-card.view-level-0 {
@@ -823,6 +829,7 @@
   align-items: center;
 
   width: 42px;
+
   height: 42px;
 
   border: 1px solid #e0dafd;
@@ -834,6 +841,7 @@
   color: #6d4aff;
 
   font-size: 16px;
+
   font-weight: 700;
 
   cursor: pointer;
@@ -875,6 +883,7 @@
 
 .pagination-number {
   width: 42px;
+
   height: 42px;
 
   border: 1px solid #e0dafd;
@@ -886,6 +895,7 @@
   color: #6d4aff;
 
   font-size: 14px;
+
   font-weight: 600;
 
   cursor: pointer;
@@ -909,38 +919,364 @@
   box-shadow: 0 4px 10px rgba(109, 74, 255, 0.25);
 }
 
-/* =========================
-   정렬 필터
-========================= */
+/* =========================================================
+   엑셀 다운로드 모달
+========================================================= */
 
-.sort-filter-area {
+.excel-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
 
-  margin-top: 20px;
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(25, 20, 45, 0.55);
+
+  backdrop-filter: blur(5px);
+
+  animation: excelOverlayShow 0.2s ease;
 }
 
-.sort-label {
-  margin-right: 5px;
+@keyframes excelOverlayShow {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.excel-modal {
+  width: min(720px, 100%);
+
+  max-height: 90vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border-radius: 25px;
+
+  background: white;
+
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+
+  animation: excelModalShow 0.25s ease;
+}
+
+@keyframes excelModalShow {
+  from {
+    opacity: 0;
+
+    transform: translateY(20px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================
+   모달 헤더
+========================= */
+
+.excel-modal-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 25px 28px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.excel-modal-header h2 {
+  margin: 0;
+
+  color: #333;
+
+  font-size: 22px;
+}
+
+.excel-modal-header p {
+  margin: 7px 0 0;
+
+  color: #888;
+
+  font-size: 13px;
+}
+
+.excel-modal-close {
+  width: 38px;
+
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #f5f5f5;
 
   color: #777;
 
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 26px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition: 0.2s;
 }
 
-.sort-button {
-  border: 1px solid #e0dafd;
-  border-radius: 20px;
+.excel-modal-close:hover {
+  background: #eee;
 
-  padding: 9px 15px;
+  color: #333;
 
-  background: white;
+  transform: rotate(90deg);
+}
+
+/* =========================
+   모달 본문
+========================= */
+
+.excel-modal-body {
+  padding: 25px 28px;
+
+  overflow-y: auto;
+}
+
+.excel-section {
+  padding-bottom: 22px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.excel-section h3,
+.excel-detail-section h3 {
+  margin: 0;
+
+  color: #444;
+
+  font-size: 16px;
+}
+
+/* =========================
+   메인 항목
+========================= */
+
+.excel-field-list {
+  display: grid;
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 10px;
+
+  margin-top: 15px;
+}
+
+/* =========================
+   커스텀 체크박스
+========================= */
+
+.custom-checkbox {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-height: 48px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #e5e1f5;
+
+  border-radius: 13px;
+
+  background: #fff;
+
+  color: #555;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.custom-checkbox:hover {
+  border-color: #b9a9ff;
+
+  background: #f8f6ff;
+
   color: #6d4aff;
 
-  font-size: 13px;
+  transform: translateY(-1px);
+}
+
+/*
+ * 실제 checkbox는 숨김
+ * 하지만 클릭/키보드 접근은 유지
+ */
+.custom-checkbox input {
+  position: absolute;
+
+  width: 1px;
+
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+/*
+ * 우리가 직접 만든 체크박스
+ */
+.checkbox-box {
+  width: 22px;
+
+  height: 22px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 2px solid #d4d0df;
+
+  border-radius: 6px;
+
+  background: white;
+
+  color: transparent;
+
+  font-size: 14px;
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+/*
+ * 체크됐을 때
+ */
+.custom-checkbox input:checked + .checkbox-box {
+  border-color: #6d4aff;
+
+  background: #6d4aff;
+
+  color: white;
+
+  box-shadow: 0 3px 8px rgba(109, 74, 255, 0.25);
+
+  transform: scale(1.05);
+}
+
+/*
+ * 체크된 전체 영역
+ */
+.custom-checkbox:has(input:checked) {
+  border-color: #c9bfff;
+
+  background: #f5f2ff;
+
+  color: #6d4aff;
+}
+
+/*
+ * 키보드 접근
+ */
+.custom-checkbox:has(input:focus-visible) {
+  outline: 3px solid rgba(109, 74, 255, 0.2);
+
+  outline-offset: 2px;
+}
+
+.checkbox-text {
+  line-height: 1.3;
+}
+
+/* =========================
+   세부 선택
+========================= */
+
+.excel-detail-section {
+  margin-top: 22px;
+
+  padding: 20px;
+
+  border-radius: 17px;
+
+  background: #faf9ff;
+
+  border: 1px solid #eeeaff;
+}
+
+.excel-detail-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 15px;
+}
+
+.excel-select-all-button {
+  border: 1px solid #d9d2f5;
+
+  border-radius: 20px;
+
+  padding: 7px 13px;
+
+  background: white;
+
+  color: #6d4aff;
+
+  font-size: 12px;
+
   font-weight: 600;
 
   cursor: pointer;
@@ -948,19 +1284,153 @@
   transition: 0.2s;
 }
 
-.sort-button:hover {
-  background: #f2efff;
-
-  transform: translateY(-2px);
-}
-
-.sort-button.active {
-  background: #6d4aff;
-  color: white;
+.excel-select-all-button:hover {
+  background: #eeeaff;
 
   border-color: #6d4aff;
+}
 
-  box-shadow: 0 4px 10px rgba(109, 74, 255, 0.2);
+.excel-option-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 9px;
+}
+
+.excel-option-grid .custom-checkbox {
+  min-height: 43px;
+
+  padding: 8px 10px;
+
+  border-radius: 11px;
+
+  font-size: 13px;
+}
+
+.excel-option-grid .checkbox-box {
+  width: 20px;
+
+  height: 20px;
+
+  border-radius: 5px;
+}
+
+.initials-grid {
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.initials-grid .custom-checkbox {
+  justify-content: center;
+}
+
+.excel-empty {
+  margin: 0;
+
+  color: #999;
+
+  font-size: 13px;
+}
+
+/* =========================
+   안내
+========================= */
+
+.excel-notice {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-top: 20px;
+
+  padding: 13px 15px;
+
+  border-radius: 12px;
+
+  background: #f3f8ff;
+
+  color: #5c78a0;
+
+  font-size: 12px;
+}
+
+.excel-notice span {
+  flex-shrink: 0;
+
+  font-size: 15px;
+}
+
+.excel-notice p {
+  margin: 0;
+
+  line-height: 1.5;
+}
+
+/* =========================
+   모달 하단
+========================= */
+
+.excel-modal-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 18px 28px;
+
+  border-top: 1px solid #eee;
+
+  background: #fff;
+}
+
+.excel-cancel-button,
+.excel-confirm-button {
+  height: 45px;
+
+  padding: 0 22px;
+
+  border-radius: 13px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.excel-cancel-button {
+  border: 1px solid #ddd;
+
+  background: #f7f7f7;
+
+  color: #666;
+}
+
+.excel-cancel-button:hover {
+  background: #eee;
+
+  transform: translateY(-1px);
+}
+
+.excel-confirm-button {
+  border: 1px solid #16803c;
+
+  background: #16803c;
+
+  color: white;
+}
+
+.excel-confirm-button:hover {
+  background: #126c32;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 5px 12px rgba(22, 128, 60, 0.2);
 }
 
 /* =========================
@@ -970,6 +1440,14 @@
 @media (max-width: 900px) {
   .category-word-list {
     grid-template-columns: 1fr;
+  }
+
+  .excel-field-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .initials-grid {
+    grid-template-columns: repeat(6, 1fr);
   }
 }
 
@@ -1022,6 +1500,7 @@
 
   .initial-button {
     min-width: 36px;
+
     height: 34px;
 
     padding: 0 8px;
@@ -1031,33 +1510,19 @@
     border-radius: 10px;
   }
 
-  .sort-area {
-    align-items: flex-start;
-
-    flex-direction: column;
-
-    gap: 8px;
-  }
-
-  .sort-list {
-    width: 100%;
-  }
-
-  .sort-button {
-    flex: 1;
-  }
-
   .sort-filter-area {
     gap: 6px;
   }
 
   .sort-button {
     padding: 8px 12px;
+
     font-size: 12px;
   }
 
   .sort-label {
     width: 100%;
+
     margin-bottom: 2px;
   }
 
@@ -1105,6 +1570,7 @@
 
   .pagination-button {
     width: 36px;
+
     height: 36px;
 
     border-radius: 10px;
@@ -1122,10 +1588,94 @@
 
   .pagination-number {
     width: 36px;
+
     height: 36px;
 
     border-radius: 10px;
 
     font-size: 13px;
+  }
+
+  /* =========================
+     엑셀 모바일
+  ========================= */
+
+  .excel-modal-overlay {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+  .excel-modal {
+    width: 100%;
+
+    max-height: 94vh;
+
+    border-radius: 25px 25px 0 0;
+  }
+
+  .excel-modal-header {
+    padding: 20px;
+  }
+
+  .excel-modal-body {
+    padding: 20px;
+  }
+
+  .excel-modal-footer {
+    padding: 15px 20px;
+  }
+
+  .excel-field-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .excel-option-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .initials-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .excel-detail-section {
+    padding: 15px;
+  }
+
+  .excel-detail-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .excel-select-all-button {
+    width: 100%;
+  }
+
+  .excel-modal-footer {
+    display: grid;
+
+    grid-template-columns: 1fr 1.5fr;
+  }
+
+  .excel-cancel-button,
+  .excel-confirm-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .excel-field-list {
+    grid-template-columns: 1fr;
+  }
+
+  .excel-option-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .initials-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
