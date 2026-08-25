@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Chatbot from "./Chatbot";
-import "../css/ChatbotFloating.css";
-import slang from "../assets/images/chatbot.png";
+import "../../css/chatbot/ChatbotFloating.css";
+import slang from "../../assets/images/chatbot.png";
 
 function ChatbotFloating() {
   const [open, setOpen] = useState(false);

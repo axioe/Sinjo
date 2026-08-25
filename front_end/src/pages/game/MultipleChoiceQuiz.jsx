@@ -1,24 +1,25 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getInitialSoundQuiz, checkAnswer, saveQuizAttempt, QUIZ_TYPE } from "../api/quizApi";
+import { getMultipleChoiceQuiz, checkAnswer, saveQuizAttempt, QUIZ_TYPE } from "../../api/quizApi";
 import QuizResult from "./QuizResult";
 import QuizProgress from "./QuizProgress";
-import "../css/Game.css";
+import "../../css/game/Game.css";
 
-function InitialSoundQuiz() {
+function MultipleChoiceQuiz() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
-  const [input, setInput] = useState("");
-  const [feedback, setFeedback] = useState(null);
+  const [selected, setSelected] = useState("");
+  const [feedback, setFeedback] = useState(null); // null | { correct, correctAnswer }
   const [checking, setChecking] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
+    // [수정] 화면을 벗어난 뒤 응답이 도착해 setState 가 호출되는 것을 막는다.
     let alive = true;
 
-    getInitialSoundQuiz()
+    getMultipleChoiceQuiz()
       .then((data) => {
         if (alive) setQuizzes(data);
       })
@@ -34,11 +35,12 @@ function InitialSoundQuiz() {
   const current = quizzes[index];
 
   const handleSubmit = async () => {
-    if (!input.trim() || checking) return;
+    if (!selected || checking) return;
 
     setChecking(true);
     try {
-      const result = await checkAnswer(current, input.trim(), QUIZ_TYPE.INITIAL_SOUND);
+      // [수정] 퀴즈 종류를 함께 보낸다. 서버가 종류에 맞게 채점한다.
+      const result = await checkAnswer(current, selected, QUIZ_TYPE.MULTIPLE_CHOICE);
       setFeedback(result);
       if (result.correct) setScore((prev) => prev + 1);
     } finally {
@@ -49,35 +51,24 @@ function InitialSoundQuiz() {
   const handleNext = () => {
     if (index + 1 < quizzes.length) {
       setIndex((prev) => prev + 1);
-      setInput("");
+      setSelected("");
       setFeedback(null);
     } else {
-      saveQuizAttempt(QUIZ_TYPE.INITIAL_SOUND, score, quizzes.length);
+      saveQuizAttempt(QUIZ_TYPE.MULTIPLE_CHOICE, score, quizzes.length);
       setFinished(true);
     }
   };
 
   const handleRetry = () => {
     setIndex(0);
-    setInput("");
+    setSelected("");
     setFeedback(null);
     setScore(0);
     setFinished(false);
   };
 
-  // Enter 로도 진행할 수 있게 한다.
-  const handleKeyDown = (e) => {
-    if (e.key !== "Enter") return;
-
-    // [수정] 한글 조합 중에 눌린 Enter 는 무시한다.
-    // 없으면 "억까" 를 치는 도중 마지막 글자가 확정되기 전에 채점되어 오답이 된다.
-    if (e.nativeEvent?.isComposing) return;
-
-    e.preventDefault();
-    if (feedback === null) handleSubmit();
-    else handleNext();
-  };
-
+  // [수정] 로딩 중과 "문제가 없음" 을 구분한다.
+  // 예전에는 둘 다 "문제를 불러오는 중..." 이라 영원히 로딩처럼 보였다.
   if (loading) return <div className="quiz-loading">문제를 불러오는 중...</div>;
 
   if (!quizzes.length) {
@@ -96,23 +87,25 @@ function InitialSoundQuiz() {
       <Link to="/game" className="quiz-back">← 게임 선택으로</Link>
 
       <div className="quiz-card">
-        <p className="quiz-label">초성 퀴즈</p>
+        <p className="quiz-label">객관식 퀴즈</p>
         <QuizProgress index={index} total={quizzes.length} />
 
-        <div className="quiz-initial">{current.initialSound}</div>
+        <h2 className="quiz-question">'{current.word}' 의 알맞은 뜻은?</h2>
 
-        {current.hint && <p className="quiz-hint">💡 힌트: {current.hint}</p>}
-
-        <input
-          className="quiz-input"
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="단어를 입력하세요"
-          aria-label="정답 입력"
-          disabled={feedback !== null}
-        />
+        <div className="quiz-options">
+          {/* [수정] 같은 보기가 두 번 들어오면 key 가 겹치므로 순번을 함께 쓴다 */}
+          {current.options.map((option, i) => (
+            <button
+              key={`${option}-${i}`}
+              type="button"
+              className={`quiz-option ${selected === option ? "selected" : ""}`}
+              onClick={() => setSelected(option)}
+              disabled={feedback !== null}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
 
         {feedback !== null && (
           <div className={`quiz-feedback ${feedback.correct ? "correct" : "wrong"}`}>
@@ -127,7 +120,7 @@ function InitialSoundQuiz() {
             type="button"
             className="quiz-submit"
             onClick={handleSubmit}
-            disabled={!input.trim() || checking}
+            disabled={!selected || checking}
           >
             {checking ? "확인 중..." : "정답 확인"}
           </button>
@@ -141,4 +134,4 @@ function InitialSoundQuiz() {
   );
 }
 
-export default InitialSoundQuiz;
+export default MultipleChoiceQuiz;

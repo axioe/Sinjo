@@ -1,7 +1,7 @@
-import "../css/TodayWord.css";
+import "../../css/dictionary/TodayWord.css";
 import { useEffect, useMemo, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
-import { getWords } from "../api/wordApi";
+import { getWords } from "../../api/wordApi";
 
 /**
  * 오늘 날짜를 숫자 하나로 만든다.

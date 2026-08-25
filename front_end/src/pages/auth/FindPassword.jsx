@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import "../css/Login.css";
+import "../../css/auth/Login.css";
 
 function FindPassword() {
   const [email, setEmail] = useState("");

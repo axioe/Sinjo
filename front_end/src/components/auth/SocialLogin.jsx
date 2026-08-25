@@ -1,4 +1,4 @@
-import "../css/SocialLogin.css"
+import "../../css/auth/SocialLogin.css"
 
 function SocialLogin({mode = "login"}) {
   const text = mode === "login" ? "로그인" : "시작하기"

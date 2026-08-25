@@ -1,32 +1,32 @@
 import { Routes, Route } from "react-router-dom";
 
 import Layout from "./layouts/Layout";
-import RequireAuth from "./components/RequireAuth";
-import RequireAdmin from "./components/RequireAdmin";
+import RequireAuth from "./components/guards/RequireAuth";
+import RequireAdmin from "./components/guards/RequireAdmin";
 
 import Main from "./pages/Main";
-import Translate from "./pages/Translate";
-import Dictionary from "./pages/Dictionary";
-import Ranking from "./pages/Ranking";
-import TodayWord from "./pages/TodayWord";
+import Translate from "./pages/dictionary/Translate";
+import Dictionary from "./pages/dictionary/Dictionary";
+import Ranking from "./pages/dictionary/Ranking";
+import TodayWord from "./pages/dictionary/TodayWord";
 import Test from "./pages/Test";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import MyPage from "./pages/MyPage";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import MyPage from "./pages/mypage/MyPage";
 import AdminPage from "./pages/Admin/AdminPage";
 import NotFound from "./pages/NotFound";
-import WordDetail from "./pages/WordDetail";
+import WordDetail from "./pages/dictionary/WordDetail";
 // 비밀번호 찾기 페이지 라우팅
-import FindPassword from "./pages/FindPassword";
+import FindPassword from "./pages/auth/FindPassword";
 // 비밀번호 재설정
-import ResetPassword from "./pages/ResetPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 // 네이버 소셜 로그인
-import OAuthCallback from "./pages/OAuthCallback";
+import OAuthCallback from "./pages/auth/OAuthCallback";
 
-import QuizMain from "./pages/QuizMain";
-import MultipleChoiceQuiz from "./pages/MultipleChoiceQuiz";
-import InitialSoundQuiz from "./pages/InitialSoundQuiz";
-import SubjectiveQuiz from "./pages/SubjectiveQuiz";
+import QuizMain from "./pages/game/QuizMain";
+import MultipleChoiceQuiz from "./pages/game/MultipleChoiceQuiz";
+import InitialSoundQuiz from "./pages/game/InitialSoundQuiz";
+import SubjectiveQuiz from "./pages/game/SubjectiveQuiz";
 
 function App() {
   return (

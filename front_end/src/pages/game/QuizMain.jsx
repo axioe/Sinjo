@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "../css/Game.css";
+import "../../css/game/Game.css";
 
 /**
  * 게임 종류 선택 (REQ-GAME-01)

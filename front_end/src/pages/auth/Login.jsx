@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext";
-import { login as loginApi } from "../api/userApi";
-import "../css/Login.css";
-import SocialLogin from "../components/SocialLogin";
+import { useAuth } from "../../AuthContext";
+import { login as loginApi } from "../../api/userApi";
+import "../../css/auth/Login.css";
+import SocialLogin from "../../components/auth/SocialLogin";
 
 function Login() {
   const [email, setEmail] = useState("");
