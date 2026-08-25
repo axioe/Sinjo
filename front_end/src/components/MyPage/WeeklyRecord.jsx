@@ -1,13 +1,64 @@
+import { useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa";
+import { getMyAttendance } from "../../api/quizApi";
+import { toLocalDateKey } from "../../utils/date";
+import AttendanceCalendarModal from "./AttendanceCalendarModal";
 
-function WeeklyRecord({ records }) {
+const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
+
+/** 오늘이 속한 주의 월요일부터 일요일까지 7개 Date 를 돌려준다. */
+function getThisWeekDates() {
+  const today = new Date();
+  const day = today.getDay(); // 0(일) ~ 6(토)
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+  monday.setHours(0, 0, 0, 0);
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+/**
+ * 이번 주 사용 기록 (REQ-MY-01).
+ *
+ * 출석 체크는 QuizAttempt(게임/퀴즈 플레이) 기록 기준이다 - 번역·즐겨찾기는 아직
+ * 서버에 저장되지 않아(myPageSampleData.js 참고) 출석 신호로 쓸 수 있는 게 이것뿐이다.
+ * activeDates 를 못 불러온 동안(null)에는 아무 날도 체크하지 않은 채로 보여준다.
+ */
+function WeeklyRecord({ activityItems }) {
+  const [activeDates, setActiveDates] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+
+    getMyAttendance().then((dates) => {
+      if (alive) setActiveDates(dates);
+    });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const activeDateSet = new Set(activeDates ?? []);
+  const weekDates = getThisWeekDates();
+  const records = weekDates.map((date, i) => ({
+    day: DAY_LABELS[i],
+    used: activeDateSet.has(toLocalDateKey(date)),
+  }));
   const usedCount = records.filter((r) => r.used).length;
 
   return (
     <section className="mypage-card">
       <div className="mypage-card-head">
         <h2 className="mypage-card-title">이번 주 사용 기록</h2>
-        <button type="button" className="mypage-more">
+        <button type="button" className="mypage-more" onClick={() => setShowAll(true)}>
           전체 보기 <span aria-hidden="true">›</span>
         </button>
       </div>
@@ -26,6 +77,14 @@ function WeeklyRecord({ records }) {
       <p className="mypage-week-summary">
         이번 주 {usedCount}일 사용했어요! <span aria-hidden="true">🔥</span>
       </p>
+
+      {showAll && (
+        <AttendanceCalendarModal
+          activeDates={activeDateSet}
+          activityItems={activityItems}
+          onClose={() => setShowAll(false)}
+        />
+      )}
     </section>
   );
 }

@@ -12,7 +12,6 @@ import {
   ACTIVITY_SUMMARY_PLACEHOLDERS,
   BADGES,
   POINT_BALANCE,
-  WEEKLY_RECORD,
 } from "../data/myPageSampleData";
 import { getMyQuizStats } from "../api/quizApi";
 import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
@@ -23,8 +22,9 @@ import "../css/MyPage.css";
  * 화면구조 가이드라인 6장: 변환 이력 / 즐겨찾기 / 테스트·게임 결과 / 계정 설정
  *
  * 프로필은 서버에서 받은 실제 회원 정보를 쓴다.
- * 활동 요약의 "게임 플레이" 카드는 QuizAttempt 기반 실데이터다(quizApi.getMyQuizStats).
- * 그 외 카드(저장한 번역/즐겨찾기/테스트, 배지, 이번 주 기록)는 아직 서버 API 가 없어
+ * 활동 요약의 "게임 플레이" 카드와 "이번 주 사용 기록"(전체 보기 달력 포함)은
+ * QuizAttempt 기반 실데이터다(quizApi.getMyQuizStats / getMyAttendance).
+ * 그 외 카드(저장한 번역/즐겨찾기/테스트, 배지)는 아직 서버 API 가 없어
  * 샘플 데이터거나 "준비 중" 상태다 - 해당 기능을 만드는 사람이 채워 넣을 자리다.
  * 즐겨찾기 토글과 삭제는 화면에서 즉시 반영되지만 새로고침하면 되돌아간다.
  *
@@ -103,7 +103,7 @@ function MyPage() {
       <div className="mypage-side">
         <ActivitySummary items={activityItems} />
         <BadgePoints badges={BADGES} point={POINT_BALANCE} />
-        <WeeklyRecord records={WEEKLY_RECORD} />
+        <WeeklyRecord activityItems={activityItems} />
       </div>
 
       {showPasswordModal && (

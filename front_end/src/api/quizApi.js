@@ -115,3 +115,18 @@ export async function getMyQuizStats() {
     return null;
   }
 }
+
+/**
+ * 마이페이지 "이번 주 사용 기록" / 활동 통계 달력용 출석 날짜(yyyy-MM-dd 문자열 배열).
+ * 로그인하지 않았거나 조회에 실패하면 null 을 돌려준다 - 호출하는 쪽에서
+ * null 이면 출석 표시 없이 빈 상태로 보여준다.
+ */
+export async function getMyAttendance() {
+  try {
+    const { activeDates } = await request("/api/quiz/attendance");
+    return activeDates ?? [];
+  } catch (error) {
+    console.warn("[quizApi] 출석 기록 조회 실패", error);
+    return null;
+  }
+}
