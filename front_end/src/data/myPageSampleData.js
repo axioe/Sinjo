@@ -69,14 +69,3 @@ export const BADGES = [
 ];
 
 export const POINT_BALANCE = 1250;
-
-/** 이번 주 사용 기록. 월요일부터 순서대로. */
-export const WEEKLY_RECORD = [
-  { day: "월", used: true },
-  { day: "화", used: true },
-  { day: "수", used: true },
-  { day: "목", used: true },
-  { day: "금", used: true },
-  { day: "토", used: false },
-  { day: "일", used: false },
-];

@@ -30,6 +30,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final PasswordResetTokenRepository tokenRepository;
     private final JavaMailSender mailSender;
+    private final AttendanceService attendanceService;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -62,6 +63,7 @@ public class UserService {
         }
 
         user.updateLastLoginAt();
+        attendanceService.checkIn(user.getId());
 
         String token = jwtProvider.createToken(user.getId(), user.getEmail(), user.getRole());
         return new UserDto.LoginResponse(token, UserDto.Response.from(user));
