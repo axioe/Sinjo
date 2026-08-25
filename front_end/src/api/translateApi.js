@@ -12,6 +12,13 @@ import { request } from "./client";
  * 정리할 때 package.json 에서 axios 의존성을 빼도 된다.
  */
 
+/** 번역 이력 저장 (REQ-AUTH-02) */
+export const saveTranslation = (payload) =>
+  request("/api/mypage/history", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
 /** TODO: 백엔드에 번역 API 가 생기면 주소를 맞춘다. (예: POST /api/translate) */
 export const translate = (keyword) =>
   //request("/api/words/search", { method: "POST", body: JSON.stringify(payload), });
@@ -19,4 +26,27 @@ export const translate = (keyword) =>
     method: "GET",
 });
 
-export default { translate };
+/** 마이페이지 - 번역 기록 조회 (REQ-AUTH-02) */
+export const getMyTranslations = async (page = 0, size = 5) => {
+  const list = await request(`/api/mypage/history?page=${page}&size=${size}`, {
+    method: "GET",
+  });
+
+  // 백엔드 응답 필드 → 화면(RecentTranslations)이 쓰는 필드로 변환
+  return list.map((t) => ({
+  id: t.id,
+  source: t.originalText,
+  result: t.translatedText,
+  createdAt: t.createdAt
+  ? t.createdAt.slice(0, 16).replace("T", " ").replaceAll("-", ".")
+  : "",
+  favorite: false,
+}));
+}
+
+// 나의 활동 요약 : 저장한 번역
+
+export const getMyTranslationCount = () =>
+  request("/api/mypage/history/count", { method: "GET" });
+
+export default { translate, getMyTranslations, getMyTranslationCount, saveTranslation };

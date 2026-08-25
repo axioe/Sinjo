@@ -5,6 +5,7 @@ import com.slangs.sinjo.dto.WordAnswer;
 import com.slangs.sinjo.dto.WordQuery;
 import com.slangs.sinjo.dto.WordSearchResponse;
 import com.slangs.sinjo.entity.Word;
+import com.slangs.sinjo.repository.TranslationsRepository;
 import com.slangs.sinjo.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class WordRagService {
     private final WordRepository wordRepository;
     private final WordSearchService searchService;
     private final WordAnswerService answerService;
+//    번역 기록 연동
+    private final TranslationsRepository translationsRepository;
 
     /**
      * 신조어 질문
