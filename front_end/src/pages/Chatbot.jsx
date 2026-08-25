@@ -133,8 +133,7 @@ function Chatbot() {
 
   useEffect(() => {
     if (chatAreaRef.current) {
-      chatAreaRef.current.scrollTop =
-        chatAreaRef.current.scrollHeight;
+      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
   }, [messages, loading]);
 
@@ -184,9 +183,7 @@ function Chatbot() {
        * LLM 답변
        */
 
-      const result = await request(
-        `/api/words/ask?${params.toString()}`
-      );
+      const result = await request(`/api/words/ask?${params.toString()}`);
 
       /*
        * ============================
@@ -318,13 +315,11 @@ function Chatbot() {
 
   return (
     <div className="slang-chatbot">
-
       {/* =========================
           Category
       ========================= */}
 
       <div className="category-wrapper">
-
         {/* 왼쪽 이동 버튼 */}
 
         {canScrollLeft && (
@@ -384,8 +379,7 @@ function Chatbot() {
               type="button"
               key={category}
               className={
-                mode === "CHAT" &&
-                selectedCategory === category
+                mode === "CHAT" && selectedCategory === category
                   ? "category active"
                   : "category"
               }
@@ -418,21 +412,12 @@ function Chatbot() {
           Chat Area
       ========================= */}
 
-      <main
-        className="chat-area"
-        ref={chatAreaRef}
-      >
+      <main className="chat-area" ref={chatAreaRef}>
         {messages.length === 0 ? (
-          <Welcome
-            onLearning={() => setMode("LEARNING")}
-            onAsk={ask}
-          />
+          <Welcome onLearning={() => setMode("LEARNING")} onAsk={ask} />
         ) : (
           messages.map((message, index) => (
-            <Message
-              key={index}
-              message={message}
-            />
+            <Message key={index} message={message} />
           ))
         )}
 
@@ -441,16 +426,13 @@ function Chatbot() {
         {loading && (
           <div className="bot-row">
             <div className="bot-avatar">
-              <img
-                src={slang}
-                alt="신조어 AI"
-              />
+              <img src={slang} alt="신조어 AI" />
             </div>
 
             <div className="typing">
-              <span />
-              <span />
-              <span />
+              <span className="thinking-text">
+                생각 중<span className="thinking-dots">...</span>
+              </span>
             </div>
           </div>
         )}
@@ -461,7 +443,6 @@ function Chatbot() {
       ========================= */}
 
       <div className="input-area">
-
         {selectedCategory && (
           <div className="selected-category">
             <span>{selectedCategory}</span>
@@ -477,12 +458,9 @@ function Chatbot() {
         )}
 
         <div className="input-row">
-
           <textarea
             value={question}
-            onChange={(event) =>
-              setQuestion(event.target.value)
-            }
+            onChange={(event) => setQuestion(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={
               selectedCategory
@@ -499,16 +477,12 @@ function Chatbot() {
             type="button"
             className="send-button"
             onClick={() => ask()}
-            disabled={
-              loading ||
-              !question.trim()
-            }
+            disabled={loading || !question.trim()}
             aria-label="질문 보내기"
             title="질문 보내기"
           >
             <span>↑</span>
           </button>
-
         </div>
 
         <div className="input-help">
@@ -525,10 +499,7 @@ function Chatbot() {
  * ==============================
  */
 
-function Welcome({
-  onLearning,
-  onAsk,
-}) {
+function Welcome({ onLearning, onAsk }) {
   const suggestions = [
     "럭키비키 뜻이 뭐야?",
     "요즘 많이 쓰는 신조어 알려줘",
@@ -537,27 +508,17 @@ function Welcome({
 
   return (
     <div className="welcome">
-
       <div className="welcome-icon">
-        <img
-          src={slang}
-          alt="신조어 AI"
-        />
+        <img src={slang} alt="신조어 AI" />
       </div>
 
       <h2>신조어가 궁금하신가요?</h2>
 
-      <p>
-        궁금한 신조어를 물어보세요.
-      </p>
+      <p>궁금한 신조어를 물어보세요.</p>
 
       <div className="suggestions">
         {suggestions.map((text) => (
-          <button
-            type="button"
-            key={text}
-            onClick={() => onAsk(text)}
-          >
+          <button type="button" key={text} onClick={() => onAsk(text)}>
             "{text}"
           </button>
         ))}
@@ -582,7 +543,6 @@ function Welcome({
  */
 
 function Message({ message }) {
-
   /*
    * 사용자
    */
@@ -590,9 +550,7 @@ function Message({ message }) {
   if (message.type === "user") {
     return (
       <div className="user-row">
-        <div className="user-message">
-          {message.text}
-        </div>
+        <div className="user-message">{message.text}</div>
       </div>
     );
   }
@@ -604,24 +562,14 @@ function Message({ message }) {
   if (message.type === "ai") {
     return (
       <div className="bot-row">
-
         <div className="bot-avatar">
-          <img
-            src={slang}
-            alt="신조어 AI"
-          />
+          <img src={slang} alt="신조어 AI" />
         </div>
 
         <div className="bot-message ai-message">
+          <div className="ai-label">✨ AI 답변</div>
 
-          <div className="ai-label">
-            ✨ AI 답변
-          </div>
-
-          <div className="answer">
-            {message.text}
-          </div>
-
+          <div className="answer">{message.text}</div>
         </div>
       </div>
     );
@@ -636,21 +584,14 @@ function Message({ message }) {
   if (!data || !data.found) {
     return (
       <div className="bot-row">
-
         <div className="bot-avatar">
-          <img
-            src={slang}
-            alt="신조어 AI"
-          />
+          <img src={slang} alt="신조어 AI" />
         </div>
 
         <div className="bot-message">
-
           <div className="answer">
-            {data?.answer ||
-              "관련 정보를 찾지 못했어요."}
+            {data?.answer || "관련 정보를 찾지 못했어요."}
           </div>
-
         </div>
       </div>
     );
@@ -658,34 +599,22 @@ function Message({ message }) {
 
   return (
     <div className="bot-row">
-
       <div className="bot-avatar">
-        <img
-          src={slang}
-          alt="신조어 AI"
-        />
+        <img src={slang} alt="신조어 AI" />
       </div>
 
       <div className="bot-message">
-
-        <div className="answer">
-          {data.answer}
-        </div>
+        <div className="answer">{data.answer}</div>
 
         {data.word && (
           <div className="word-card">
-
-            <div className="word-title">
-              {data.word}
-            </div>
+            <div className="word-title">{data.word}</div>
 
             {data.category && (
               <div className="word-item">
                 <span>카테고리</span>
 
-                <strong>
-                  {data.category}
-                </strong>
+                <strong>{data.category}</strong>
               </div>
             )}
 
@@ -693,9 +622,7 @@ function Message({ message }) {
               <div className="word-item">
                 <span>의미</span>
 
-                <strong>
-                  {data.meaning}
-                </strong>
+                <strong>{data.meaning}</strong>
               </div>
             )}
 
@@ -703,15 +630,11 @@ function Message({ message }) {
               <div className="word-item">
                 <span>예문</span>
 
-                <strong>
-                  {data.example}
-                </strong>
+                <strong>{data.example}</strong>
               </div>
             )}
-
           </div>
         )}
-
       </div>
     </div>
   );

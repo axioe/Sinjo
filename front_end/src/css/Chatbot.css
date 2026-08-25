@@ -639,13 +639,17 @@
    Typing
 ================================= */
 
+/* =================================
+   Thinking
+================================= */
+
 .typing {
   display: flex;
   align-items: center;
 
-  gap: 4px;
+  min-height: 48px;
 
-  padding: 15px 18px;
+  padding: 12px 17px;
 
   background: #ffffff;
 
@@ -653,37 +657,48 @@
 
   border-radius: 18px 18px 18px 4px;
 
+  color: #888888;
+
+  font-size: 13px;
+
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.typing span {
-  width: 6px;
-  height: 6px;
+.thinking-text {
+  display: inline-flex;
+  align-items: center;
 
-  background: #999999;
-
-  border-radius: 50%;
-
-  animation: blink 1.2s infinite;
+  font-weight: 500;
 }
 
-.typing span:nth-child(2) {
-  animation-delay: 0.15s;
+.thinking-dots {
+  display: inline-block;
+
+  width: 0;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  animation: thinkingDots 1.4s steps(4, end) infinite;
 }
 
-.typing span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes blink {
-  0%,
-  60%,
-  100% {
-    opacity: 0.3;
+@keyframes thinkingDots {
+  0% {
+    width: 0;
   }
 
-  30% {
-    opacity: 1;
+  25% {
+    width: 5px;
+  }
+
+  50% {
+    width: 10px;
+  }
+
+  75%,
+  100% {
+    width: 15px;
   }
 }
 
