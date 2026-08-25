@@ -5,6 +5,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 
 import { getWords, likeWord as likeWordApi } from "../api/wordApi";
+import {
+  getMyFavorites,
+  addFavorite,
+  removeFavorite,
+} from "../api/favoriteApi";
 
 const CATEGORY_OPTIONS = ["일상", "인터넷", "게임", "SNS", "직장", "기타"];
 
@@ -44,16 +49,7 @@ function Dictionary() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [favoriteIds, setFavoriteIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem("dictionaryFavorites");
-
-      return saved ? JSON.parse(saved) : [];
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
-  });
+  const [favoriteIds, setFavoriteIds] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [selectedInitial, setSelectedInitial] = useState("전체");
@@ -164,12 +160,25 @@ function Dictionary() {
     };
   }, []);
 
-  /**
-   * 즐겨찾기 저장
+    /**
+   * 즐겨찾기 불러오기 (REQ-MY-01)
+   *
+   * [수정] localStorage 대신 서버 목록으로 별표 상태를 맞춘다.
+   * 브라우저에만 저장하면 다른 기기에서 안 보이고 마이페이지와도 어긋난다.
    */
   useEffect(() => {
-    localStorage.setItem("dictionaryFavorites", JSON.stringify(favoriteIds));
-  }, [favoriteIds]);
+    let alive = true;
+
+    getMyFavorites(0, 1000)
+      .then((list) => {
+        if (alive) setFavoriteIds(list.map((f) => f.wordId));
+      })
+      .catch(console.error);
+
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const categories = ["전체", ...CATEGORY_OPTIONS];
 
@@ -438,24 +447,54 @@ function Dictionary() {
     }
   };
 
-  /**
-   * 즐겨찾기
+    /**
+   * 즐겨찾기 토글 (REQ-MY-01)
+   * 먼저 화면에 반영하고, 서버 요청이 실패하면 되돌린다.
    */
-  const toggleFavorite = (id) => {
-    setFavoriteIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((favoriteId) => favoriteId !== id);
-      }
+  const toggleFavorite = async (id) => {
+    const wasFavorite = favoriteIds.includes(id);
 
-      return [...prev, id];
-    });
+    setFavoriteIds((prev) =>
+      wasFavorite
+        ? prev.filter((favoriteId) => favoriteId !== id)
+        : [...prev, id],
+    );
+
+    try {
+      if (wasFavorite) {
+        await removeFavorite(id);
+      } else {
+        await addFavorite(id);
+      }
+    } catch (err) {
+      console.error(err);
+
+      setFavoriteIds((prev) =>
+        wasFavorite
+          ? [...prev, id]
+          : prev.filter((favoriteId) => favoriteId !== id),
+      );
+
+      setError("즐겨찾기 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    }
   };
 
   const isFavorite = (id) => favoriteIds.includes(id);
 
-  const resetFavorites = () => {
+  const resetFavorites = async () => {
+    const previousIds = [...favoriteIds];
+
     setFavoriteIds([]);
     setCurrentPage(1);
+
+    try {
+      await Promise.all(previousIds.map((id) => removeFavorite(id)));
+    } catch (err) {
+      console.error(err);
+
+      setFavoriteIds(previousIds);
+      setError("즐겨찾기 해제에 실패했습니다.");
+    }
   };
 
   /**
