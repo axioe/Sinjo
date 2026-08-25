@@ -5,10 +5,13 @@ import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.entity.QuizWord;
+import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.entity.Word;
 import com.slangs.sinjo.exception.DuplicateQuizWordException;
 import com.slangs.sinjo.exception.DuplicateWordException;
 import com.slangs.sinjo.exception.NotFoundException;
+import com.slangs.sinjo.repository.AttendanceRepository;
+import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.QuizRepository;
 import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.repository.WordRepository;
@@ -30,6 +33,8 @@ public class AdminService {
     private final WordRepository wordRepository;
     private final UserRepository userRepository;
     private final QuizRepository quizRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final AttendanceRepository attendanceRepository;
 
     /**
      * 관리자 페이지 첫 화면의 요약 숫자
@@ -121,6 +126,59 @@ public class AdminService {
                 .stream()
                 .map(UserDto.AdminUserRow::from)
                 .toList();
+    }
+
+    /**
+     * [추가] 회원 권한 부여/해제.
+     * adminId 는 이 API 를 호출한 관리자 본인이다 - 자기 자신의 권한을 스스로
+     * 바꾸면 실수로 관리자 권한을 잃고 관리자 화면에서 튕겨나갈 수 있어 막는다.
+     */
+    @Transactional
+    public UserDto.AdminUserRow updateUserRole(Long adminId, Long targetId, AdminDto.UpdateRoleRequest request) {
+        if (adminId != null && adminId.equals(targetId)) {
+            throw new IllegalArgumentException("자기 자신의 권한은 변경할 수 없습니다.");
+        }
+
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new NotFoundException("해당 회원을 찾을 수 없습니다."));
+
+        target.setRole(request.role());
+
+        return UserDto.AdminUserRow.from(target);
+    }
+
+    /** [추가] 회원 닉네임 수정. 이메일은 로그인 식별자라 바꾸지 않는다. */
+    @Transactional
+    public UserDto.AdminUserRow updateUser(Long targetId, AdminDto.UpdateUserRequest request) {
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new NotFoundException("해당 회원을 찾을 수 없습니다."));
+
+        target.setNickname(request.nickname().trim());
+
+        return UserDto.AdminUserRow.from(target);
+    }
+
+    /**
+     * [추가] 회원 삭제.
+     * QuizAttempt/Attendance 는 User 를 FK 로 참조해서(nullable = false) 먼저 지우지
+     * 않으면 외래키 제약 위반으로 500 이 난다. Favorites/Translations/LearningHistory
+     * 는 userId 를 Long 컬럼으로만 들고 있어(FK 아님) 제약에 걸리지는 않지만, 삭제
+     * 후에도 데이터가 남는다 - 필요해지면 별도로 정리한다.
+     */
+    @Transactional
+    public void deleteUser(Long adminId, Long targetId) {
+        if (adminId != null && adminId.equals(targetId)) {
+            throw new IllegalArgumentException("자기 자신은 삭제할 수 없습니다.");
+        }
+
+        if (!userRepository.existsById(targetId)) {
+            throw new NotFoundException("해당 회원을 찾을 수 없습니다.");
+        }
+
+        quizAttemptRepository.deleteByUserId(targetId);
+        attendanceRepository.deleteByUserId(targetId);
+
+        userRepository.deleteById(targetId);
     }
 
     // ---- 퀴즈 관리 --------------------------------------------------------
