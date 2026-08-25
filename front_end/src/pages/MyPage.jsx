@@ -101,10 +101,6 @@ function MyPage() {
 
       {isStats ? (
         <div className="mypage-main mypage-main-wide">
-          <ProfileCard
-            profile={user}
-            onChangePassword={() => setShowPasswordModal(true)}
-          />
           <ActivityStatsPanel activeDates={attendanceDateSet} activityItems={activityItems} />
         </div>
       ) : (
