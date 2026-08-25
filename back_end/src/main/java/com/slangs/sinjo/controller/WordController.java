@@ -107,10 +107,8 @@ public class WordController {
     @GetMapping("/search")
     public WordSearchResponse search(
             @RequestParam (defaultValue = "") String category,
-            @RequestParam String question,
-//            유저 아이디 별 기록 연동
-            @AuthenticationPrincipal Long userId) {
-        return wordRagService.search(category, question, userId);
+            @RequestParam String question) {
+        return wordRagService.search(category, question);
     }
     @GetMapping("/categories")
     public List<String> findCategories(){
