@@ -37,4 +37,9 @@ export const getMyTranslations = async (page = 0, size = 5) => {
 }));
 }
 
-export default { translate, getMyTranslations };
+// 나의 활동 요약 : 저장한 번역
+
+export const getMyTranslationCount = () =>
+  request("/api/mypage/history/count", { method: "GET" });
+
+export default { translate, getMyTranslations, getMyTranslationCount };

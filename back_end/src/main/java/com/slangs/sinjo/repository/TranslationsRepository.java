@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TranslationsRepository extends JpaRepository<Translations, Long> {
     Page<Translations> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+    long countByUserId(Long userId);
 }

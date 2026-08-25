@@ -23,4 +23,10 @@ public class MyPageController {
         Long userId = 1L;
         return ResponseEntity.ok(myPageService.getHistory(userId, page, size));
     }
+
+    @GetMapping("/history/count")
+    public ResponseEntity<Long> getHistoryCount() {
+        Long userId = 1L;
+        return ResponseEntity.ok(myPageService.getTranslationCount(userId));
+    }
 }

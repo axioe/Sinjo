@@ -26,4 +26,8 @@ public class MyPageService {
                 .map(TranslationDto::from)
                 .toList();
     }
+
+    public long getTranslationCount(Long userId) {
+        return translationsRepository.countByUserId(userId);
+    }
 }

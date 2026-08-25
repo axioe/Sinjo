@@ -16,7 +16,7 @@ import {
 } from "../data/myPageSampleData";
 import { getMyQuizStats } from "../api/quizApi";
 import PasswordChangeModal from "../components/MyPage/PasswordChangeModal";
-import { getMyTranslations } from "../api/translateApi";
+import { getMyTranslations, getMyTranslationCount } from "../api/translateApi";
 import "../css/MyPage.css";
 
 /**
@@ -38,6 +38,7 @@ function MyPage() {
   const { user } = useAuth();
   const [activeMenu, setActiveMenu] = useState("home");
   const [translations, setTranslations] = useState([]);
+  const [translationCount, setTranslationCount] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [gameStats, setGameStats] = useState(null); // null: 아직 못 불러옴 → "준비 중"으로 표시
 
@@ -54,6 +55,12 @@ function MyPage() {
       })
       .catch(console.error);
 
+    getMyTranslationCount()
+      .then((count) => {
+        if (alive) setTranslationCount(count);
+      })
+      .catch(console.error);
+
     return () => {
       alive = false;
     };
@@ -61,7 +68,13 @@ function MyPage() {
 
   // 원래 카드 순서(저장한 번역 / 즐겨찾기 / 게임 플레이 / 테스트 완료)를 그대로 유지한다.
   const activityItems = [
-    { ...ACTIVITY_SUMMARY_PLACEHOLDERS[0], ready: false },
+    {
+      ...ACTIVITY_SUMMARY_PLACEHOLDERS[0],
+      ready: translationCount !== null,
+      value: translationCount ?? 0,
+      diff: 0,
+    },
+
     { ...ACTIVITY_SUMMARY_PLACEHOLDERS[1], ready: false },
     {
       key: "game",
