@@ -208,21 +208,6 @@ function AdminWords() {
             </button>
           )}
         </div>
-
-        <div className="admin-form-actions">
-          <button
-            type="submit"
-            className="admin-btn primary"
-            disabled={submitting}
-          >
-            {submitting ? "처리 중..." : editingId ? "수정하기" : "등록하기"}
-          </button>
-          {editingId && (
-            <button type="button" className="admin-btn" onClick={resetForm}>
-              취소
-            </button>
-          )}
-        </div>
       </form>
 
       {loading ? (

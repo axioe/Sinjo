@@ -5,11 +5,17 @@
 .ai-learning {
   width: 100%;
   height: 100%;
+
   min-height: 0;
+
   display: flex;
   flex-direction: column;
-  background: #f8f9fb;
+
+  background: #f7f8fb;
+
   overflow-y: auto;
+
+  color: #252535;
 }
 
 
@@ -18,33 +24,68 @@
 ================================= */
 
 .learning-header {
-  height: 58px;
+  height: 60px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  background: #ffffff;
-  border-bottom: 1px solid #eeeeee;
+
+  padding: 0 15px;
+
   flex-shrink: 0;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #eeeeF2;
 }
 
 .learning-back {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
   border: none;
-  background: transparent;
-  font-size: 22px;
+  border-radius: 9px;
+
+  background: #f5f6f8;
+
+  color: #555b66;
+
+  font-size: 20px;
+
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.learning-back:hover {
+  background: #eceef2;
+
+  transform: translateX(-1px);
+}
+
+.learning-back:active {
+  transform: scale(0.95);
 }
 
 .learning-title {
-  font-size: 16px;
-  font-weight: 700;
   color: #252535;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  letter-spacing: -0.2px;
 }
 
 .learning-header-space {
-  width: 32px;
+  width: 34px;
 }
 
 
@@ -54,22 +95,37 @@
 
 .learning-progress {
   width: 100%;
-  height: 4px;
-  background: #eeeeee;
+  height: 5px;
+
   flex-shrink: 0;
+
+  background: #ececf1;
 }
 
 .learning-progress > div {
   height: 100%;
-  background: #7667e8;
+
+  background: linear-gradient(
+    90deg,
+    #6659d6,
+    #8175e6
+  );
+
+  border-radius: 0 999px 999px 0;
+
   transition: width 0.3s ease;
 }
 
 .learning-count {
-  padding: 14px 18px 0;
+  padding: 12px 18px 0;
+
   text-align: right;
-  font-size: 13px;
-  color: #999999;
+
+  color: #9a9da5;
+
+  font-size: 11px;
+  font-weight: 600;
+
   flex-shrink: 0;
 }
 
@@ -79,32 +135,47 @@
 ================================= */
 
 .learning-question {
-  padding: 35px 20px 20px;
+  padding: 28px 20px 18px;
+
   text-align: center;
+
   flex-shrink: 0;
 }
 
 .learning-label {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+
   padding: 6px 10px;
-  border-radius: 20px;
-  background: #eeeaff;
-  color: #695bd7;
-  font-size: 12px;
-  font-weight: 700;
+
+  border-radius: 999px;
+
+  background: #f0edff;
+
+  color: #6659d6;
+
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .learning-question h2 {
-  margin: 18px 0 10px;
-  color: #20202a;
+  margin: 16px 0 8px;
+
+  color: #20212a;
+
   font-size: 28px;
   line-height: 1.3;
+
+  letter-spacing: -0.5px;
 }
 
 .learning-question p {
   margin: 0;
-  color: #888888;
-  font-size: 14px;
+
+  color: #90939b;
+
+  font-size: 12px;
+
   line-height: 1.5;
 }
 
@@ -114,41 +185,55 @@
 ================================= */
 
 .learning-answers {
-  padding: 10px 14px 4px;
+  padding: 8px 14px 4px;
+
   flex-shrink: 0;
 }
 
 .learning-answer {
   width: 100%;
   min-height: 54px;
-  margin-bottom: 10px;
-  padding: 10px 14px;
+
+  margin-bottom: 9px;
+
+  padding: 10px 13px;
+
   display: flex;
   align-items: center;
 
-  border: 2px solid #dddddd;
-  border-radius: 12px;
+  border: 1px solid #e0e1e6;
+
+  border-radius: 13px;
 
   background: #ffffff;
-  color: #333333;
 
-  font-size: 14px;
+  color: #373941;
+
+  font-size: 13px;
   line-height: 1.45;
+
   text-align: left;
 
   cursor: pointer;
 
+  box-shadow:
+    0 2px 6px rgba(17, 24, 39, 0.03);
+
   transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color 0.16s ease,
+    background 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
 .learning-answer:hover {
-  border-color: #bdb5f3;
+  border-color: #cfc8fa;
+
   background: #faf9ff;
-  box-shadow: 0 3px 10px rgba(118, 103, 232, 0.08);
+
+  box-shadow:
+    0 5px 13px rgba(102, 89, 214, 0.08);
+
   transform: translateY(-1px);
 }
 
@@ -157,11 +242,12 @@
 }
 
 
-/* Answer Letter */
+/* Letter */
 
 .learning-answer > span {
   width: 28px;
   height: 28px;
+
   margin-right: 10px;
 
   display: flex;
@@ -173,34 +259,48 @@
   border-radius: 50%;
 
   background: #f0edff;
+
   color: #6659d6;
 
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
 }
 
 
-/* Correct */
+/* =================================
+   Correct
+================================= */
 
 .learning-answer.correct {
-  border-color: #61b77b;
+  border-color: #66b57e;
+
   background: #effaf2;
+
+  color: #2e7045;
 }
 
 .learning-answer.correct > span {
-  background: #61b77b;
+  background: #55ae73;
+
   color: #ffffff;
 }
 
 
-/* Wrong */
+/* =================================
+   Wrong
+================================= */
 
 .learning-answer.wrong {
-  border-color: #e27676;
-  background: #fff1f1;
+  border-color: #e17a7a;
+
+  background: #fff2f2;
+
+  color: #914646;
 }
 
 .learning-answer.wrong > span {
-  background: #e27676;
+  background: #df7373;
+
   color: #ffffff;
 }
 
@@ -211,60 +311,61 @@
 
 .learning-explanation {
   margin: 8px 14px 20px;
-  padding: 16px;
+
+  padding: 15px;
+
+  border: 1px solid #e3defd;
 
   border-radius: 14px;
+
   background: #ffffff;
-  border: 1px solid #e9e7f8;
 
-  box-shadow: 0 2px 8px rgba(50, 40, 100, 0.04);
+  box-shadow:
+    0 4px 14px rgba(102, 89, 214, 0.07);
 
-  text-align: center;
+  text-align: left;
 }
-
-
-/* Result Message */
 
 .learning-explanation strong {
   display: block;
 
   color: #6659d6;
-  font-size: 14px;
+
+  font-size: 13px;
+  font-weight: 800;
+
   line-height: 1.4;
 }
 
-
-/* Explanation Text */
-
 .learning-explanation p {
-  margin: 10px 0 14px;
+  margin: 8px 0 14px;
 
-  color: #555555;
-  font-size: 13px;
-  line-height: 1.6;
+  color: #5d6068;
 
-  text-align: center;
+  font-size: 12px;
+
+  line-height: 1.65;
 }
 
 
-/* Next Button */
+/* Next */
 
 .learning-explanation button {
-  display: block;
-
   width: 100%;
-  height: 44px;
+  height: 43px;
 
-  margin-top: 12px;
+  margin-top: 4px;
 
   border: none;
+
   border-radius: 10px;
 
-  background: #7667e8;
+  background: #6659d6;
+
   color: #ffffff;
 
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
 
   cursor: pointer;
 
@@ -275,8 +376,12 @@
 }
 
 .learning-explanation button:hover {
-  background: #695bd7;
-  box-shadow: 0 4px 10px rgba(118, 103, 232, 0.2);
+  background: #5749c5;
+
+  box-shadow:
+    0 5px 13px rgba(102, 89, 214, 0.2);
+
+  transform: translateY(-1px);
 }
 
 .learning-explanation button:active {
@@ -293,8 +398,11 @@
 .learning-result {
   flex: 1;
 
+  min-height: 0;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 
@@ -304,47 +412,89 @@
 }
 
 
-/* Loading */
+/* =================================
+   Loading
+================================= */
 
 .learning-loading-icon {
-  font-size: 40px;
-  margin-bottom: 15px;
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 16px;
+
+  border-radius: 50%;
+
+  background: #f0edff;
+
+  font-size: 32px;
 }
 
 .learning-loading h3 {
-  margin: 0 0 8px;
+  margin: 0 0 7px;
 
-  font-size: 16px;
-  color: #333333;
+  color: #33353d;
+
+  font-size: 15px;
+  font-weight: 800;
 }
 
-.learning-loading p,
-.learning-error p,
-.learning-result p {
-  color: #999999;
-  font-size: 13px;
-  line-height: 1.5;
+.learning-loading p {
+  margin: 0;
+
+  color: #999da6;
+
+  font-size: 12px;
 }
 
 
-/* Error */
+/* =================================
+   Error
+================================= */
 
 .learning-error > div {
-  font-size: 40px;
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   margin-bottom: 15px;
+
+  border-radius: 50%;
+
+  background: #f7f7f8;
+
+  font-size: 32px;
+}
+
+.learning-error p {
+  margin: 0 0 18px;
+
+  color: #888c95;
+
+  font-size: 12px;
 }
 
 .learning-error button {
   height: 42px;
-  padding: 0 24px;
+
+  padding: 0 22px;
 
   border: none;
+
   border-radius: 10px;
 
-  background: #7667e8;
+  background: #6659d6;
+
   color: #ffffff;
 
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
 
   cursor: pointer;
 
@@ -355,12 +505,12 @@
 }
 
 .learning-error button:hover {
-  background: #695bd7;
-  box-shadow: 0 4px 10px rgba(118, 103, 232, 0.18);
-}
+  background: #5749c5;
 
-.learning-error button:active {
-  transform: scale(0.98);
+  box-shadow:
+    0 5px 13px rgba(102, 89, 214, 0.18);
+
+  transform: translateY(-1px);
 }
 
 
@@ -369,69 +519,105 @@
 ================================= */
 
 .result-icon {
-  font-size: 50px;
-  margin-bottom: 10px;
+  width: 78px;
+  height: 78px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 14px;
+
+  border-radius: 50%;
+
+  background: #f0edff;
+
+  font-size: 40px;
 }
 
 .learning-result h2 {
   margin: 0;
 
   color: #252535;
+
   font-size: 22px;
   font-weight: 800;
 }
 
 .result-score {
-  margin: 18px 0 5px;
+  margin: 17px 0 5px;
 
   color: #6659d6;
 
-  font-size: 44px;
+  font-size: 46px;
   line-height: 1;
-  font-weight: 800;
+
+  font-weight: 900;
+
   letter-spacing: -1px;
 }
 
 .result-score span {
-  color: #999999;
-  font-size: 20px;
+  color: #999da5;
+
+  font-size: 18px;
+
   font-weight: 600;
 }
 
+.learning-result p {
+  margin: 7px 0 0;
 
-/* Result Buttons */
+  color: #999da5;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+
+/* =================================
+   Result Buttons
+================================= */
 
 .result-buttons {
   width: 100%;
-  margin-top: 25px;
+
+  margin-top: 24px;
 }
 
 .result-buttons button {
   width: 100%;
-  height: 44px;
+  height: 43px;
 
   margin-bottom: 8px;
 
   border: none;
+
   border-radius: 10px;
 
-  background: #7667e8;
+  background: #6659d6;
+
   color: #ffffff;
 
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
 
   cursor: pointer;
 
   transition:
-    transform 0.15s ease,
     background 0.15s ease,
+    transform 0.15s ease,
     box-shadow 0.15s ease;
 }
 
 .result-buttons button:hover {
-  background: #695bd7;
+  background: #5749c5;
+
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(118, 103, 232, 0.18);
+
+  box-shadow:
+    0 5px 13px rgba(102, 89, 214, 0.18);
 }
 
 .result-buttons button:active {
@@ -439,15 +625,17 @@
 }
 
 
-/* Secondary Button */
+/* Secondary */
 
 .result-buttons button.secondary {
-  background: #eeeeee;
-  color: #555555;
+  background: #f0f1f3;
+
+  color: #555a63;
 }
 
 .result-buttons button.secondary:hover {
-  background: #e5e5e5;
+  background: #e7e8eb;
+
   box-shadow: none;
 }
 
@@ -457,33 +645,33 @@
 ================================= */
 
 @media (max-width: 480px) {
-
   .learning-question {
-    padding: 28px 18px 18px;
+    padding: 25px 17px 17px;
   }
 
   .learning-question h2 {
-    font-size: 26px;
+    font-size: 25px;
   }
 
   .learning-answers {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 11px;
+    padding-right: 11px;
   }
 
   .learning-answer {
-    min-height: 52px;
-    padding: 9px 12px;
-    font-size: 13px;
+    min-height: 51px;
+
+    padding: 9px 11px;
+
+    font-size: 12.5px;
   }
 
   .learning-explanation {
-    margin-left: 12px;
-    margin-right: 12px;
+    margin-left: 11px;
+    margin-right: 11px;
   }
 
   .learning-title {
-    font-size: 15px;
+    font-size: 14px;
   }
-
 }
