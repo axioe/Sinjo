@@ -1,6 +1,8 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.TranslationDto;
+import com.slangs.sinjo.dto.TranslationSaveRequest;
+import com.slangs.sinjo.entity.TranslationMode;
 import com.slangs.sinjo.entity.Translations;
 import com.slangs.sinjo.repository.TranslationsRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,4 +32,25 @@ public class MyPageService {
     public long getTranslationCount(Long userId) {
         return translationsRepository.countByUserId(userId);
     }
+
+    /**
+     * 번역 이력 저장 (REQ-AUTH-02)
+     * 클래스에 readOnly = true 가 걸려 있어 쓰기 메서드에는 @Transactional 을 따로 붙인다.
+     */
+    @Transactional
+    public void saveHistory(Long userId, TranslationSaveRequest request) {
+
+        if (userId == null) return;
+
+        translationsRepository.save(
+                Translations.builder()
+                        .userId(userId)
+                        .mode(TranslationMode.EXPLAIN)
+                        .originalText(request.originalText())
+                        .translatedText(request.translatedText())
+                        .explanation(request.explanation())
+                        .build()
+        );
+    }
 }
+

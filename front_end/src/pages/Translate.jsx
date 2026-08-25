@@ -1,7 +1,7 @@
 import "../css/Translate.css";
 import { useState } from "react";
 import { FaArrowRight, FaCopy } from "react-icons/fa";
-import { translate } from "../api/translateApi";
+import { translate, saveTranslation } from "../api/translateApi";
 
 /**
  * [수정] 임시 사전을 컴포넌트 밖으로 빼고 Map 으로 바꿨다.
@@ -58,6 +58,12 @@ function Translate() {
           ...withoutDuplicate,
         ].slice(0, MAX_HISTORY);
       });
+
+      saveTranslation({
+        originalText: keyword,
+        translatedText: translation,
+        explanation: result.wordAnswers[0].answer,
+      }).catch(console.error);
     }
   };
 

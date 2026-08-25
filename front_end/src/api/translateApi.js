@@ -12,6 +12,13 @@ import { request } from "./client";
  * 정리할 때 package.json 에서 axios 의존성을 빼도 된다.
  */
 
+/** 번역 이력 저장 (REQ-AUTH-02) */
+export const saveTranslation = (payload) =>
+  request("/api/mypage/history", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
 /** TODO: 백엔드에 번역 API 가 생기면 주소를 맞춘다. (예: POST /api/translate) */
 export const translate = (keyword) =>
   //request("/api/words/search", { method: "POST", body: JSON.stringify(payload), });
@@ -42,4 +49,4 @@ export const getMyTranslations = async (page = 0, size = 5) => {
 export const getMyTranslationCount = () =>
   request("/api/mypage/history/count", { method: "GET" });
 
-export default { translate, getMyTranslations, getMyTranslationCount };
+export default { translate, getMyTranslations, getMyTranslationCount, saveTranslation };

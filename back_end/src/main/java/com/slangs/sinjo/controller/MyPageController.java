@@ -1,6 +1,7 @@
 package com.slangs.sinjo.controller;
 
 import com.slangs.sinjo.dto.TranslationDto;
+import com.slangs.sinjo.dto.TranslationSaveRequest;
 import com.slangs.sinjo.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,15 @@ public class MyPageController {
     ) {
 
         return ResponseEntity.ok(myPageService.getTranslationCount(userId));
+    }
+
+    @PostMapping("/history")
+    public ResponseEntity<Void> saveHistory(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody TranslationSaveRequest request
+    ) {
+
+        myPageService.saveHistory(userId, request);
+        return ResponseEntity.ok().build();
     }
 }
