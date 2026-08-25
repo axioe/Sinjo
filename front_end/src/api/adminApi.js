@@ -21,6 +21,15 @@ export const deleteWord = (id) =>
 
 export const getUsers = () => request("/api/admin/users");
 
+export const updateUserRole = (id, role) =>
+  request(`/api/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify({ role }) });
+
+export const updateUser = (id, payload) =>
+  request(`/api/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+
+export const deleteUser = (id) =>
+  request(`/api/admin/users/${id}`, { method: "DELETE" });
+
 export const getQuizWords = () => request("/api/admin/quizzes");
 
 export const createQuizWord = (payload) =>

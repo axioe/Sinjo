@@ -21,4 +21,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
      */
     @Query("SELECT a.attendanceDate FROM Attendance a WHERE a.user.id = :userId")
     List<LocalDate> findAttendanceDateByUserId(@Param("userId") Long userId);
+
+    /** 관리자가 회원을 삭제할 때 먼저 지운다 - user_id 가 FK(nullable = false)라 남아있으면 삭제가 막힌다. */
+    void deleteByUserId(Long userId);
 }

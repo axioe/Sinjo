@@ -1,6 +1,8 @@
 package com.slangs.sinjo.dto;
 
+import com.slangs.sinjo.entity.Role;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -62,6 +64,26 @@ public class AdminDto {
             String description,
 
             List<String> options
+    ) {
+    }
+
+    /**
+     * [추가] 관리자 회원 관리 - 권한 부여/해제 요청.
+     */
+    public record UpdateRoleRequest(
+            @NotNull(message = "권한을 선택해 주세요.")
+            Role role
+    ) {
+    }
+
+    /**
+     * [추가] 관리자 회원 관리 - 닉네임 수정 요청.
+     * 이메일은 로그인 식별자라 관리자 화면에서도 바꾸지 않는다.
+     */
+    public record UpdateUserRequest(
+            @NotBlank(message = "닉네임을 입력해 주세요.")
+            @Size(min = 2, max = 20, message = "닉네임은 2~20자여야 합니다.")
+            String nickname
     ) {
     }
 }

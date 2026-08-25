@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,6 +62,29 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDto.AdminUserRow>> getUsers() {
         return ResponseEntity.ok(adminService.getUsers());
+    }
+
+    @PatchMapping("/users/{id}/role")
+    public ResponseEntity<UserDto.AdminUserRow> updateUserRole(
+            @AuthenticationPrincipal Long adminId,
+            @PathVariable Long id,
+            @Valid @RequestBody AdminDto.UpdateRoleRequest request) {
+        return ResponseEntity.ok(adminService.updateUserRole(adminId, id, request));
+    }
+
+    @PatchMapping("/users/{id}")
+    public ResponseEntity<UserDto.AdminUserRow> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminDto.UpdateUserRequest request) {
+        return ResponseEntity.ok(adminService.updateUser(id, request));
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal Long adminId,
+            @PathVariable Long id) {
+        adminService.deleteUser(adminId, id);
+        return ResponseEntity.noContent().build();
     }
 
     // ---- 퀴즈 관리 --------------------------------------------------------
