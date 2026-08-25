@@ -463,7 +463,7 @@ function Dictionary() {
     try {
       if (wasFavorite) {
         await removeFavorite(id);
-      } else {
+      } else { 
         await addFavorite(id);
       }
     } catch (err) {
