@@ -1066,7 +1066,7 @@ function Dictionary() {
 
           {sortType === "likes" && <strong>❤️ 좋아요순</strong>}
 
-          {sortType === "views" && <strong>👁 조회순</strong>}
+          {sortType === "views" && <strong>👀 조회순</strong>}
 
           <span className="filter-count">{result.length}개</span>
         </div>
