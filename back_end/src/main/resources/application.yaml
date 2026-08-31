@@ -18,6 +18,13 @@ spring:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
 
+  # [추가] STT 음성 업로드용. 기본값(파일당 1MB)이면 몇 초만 녹음해도
+  # Whisper 에 닿기 전에 Spring 이 먼저 잘라버린다. Whisper 자체 상한이 25MB 라 맞춘다.
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
   datasource:
     url: jdbc:postgresql://43.201.127.52:55432/sinjodb
     # [수정] 기본값을 넣었다. 환경변수를 등록하지 않은 팀원의 IntelliJ 에서
