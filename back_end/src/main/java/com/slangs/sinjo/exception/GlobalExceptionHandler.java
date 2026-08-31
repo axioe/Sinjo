@@ -78,4 +78,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage()));
     }
+
+    /** [추가] Whisper 호출 실패. 우리 쪽 잘못이 아니라 외부 API 문제라 502 로 구분한다. */
+    @ExceptionHandler(SttTranscriptionException.class)
+    public ResponseEntity<ErrorResponse> handleSttTranscription(SttTranscriptionException e) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(ErrorResponse.of(e.getMessage()));
+    }
 }

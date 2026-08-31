@@ -1,7 +1,8 @@
 import "../../css/dictionary/Translate.css";
-import { useState } from "react";
-import { FaArrowRight, FaCopy } from "react-icons/fa";
+import { useRef, useState } from "react";
+import { FaArrowRight, FaCopy, FaMicrophone, FaStop } from "react-icons/fa";
 import { translate, saveTranslation } from "../../api/translateApi";
+import { transcribeAudio } from "../../api/sttApi";
 
 /**
  * [수정] 임시 사전을 컴포넌트 밖으로 빼고 Map 으로 바꿨다.
@@ -30,6 +31,75 @@ function Translate() {
   const [notice, setNotice] = useState("");
   const [word, setWord] = useState("");
   const [example, setExample] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+
+  /**
+   * 음성 인식(STT, REQ-TR-STT).
+   * 인식된 텍스트는 입력창에 채워 넣기만 하고 자동으로 번역하지 않는다 -
+   * Whisper 가 신조어를 발음이 비슷한 표준어로 잘못 받아적을 수 있어서,
+   * 사용자가 확인·수정한 뒤 직접 "번역하기"를 누르게 한다.
+   */
+  const startRecording = async () => {
+    setNotice("");
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setNotice("이 브라우저에서는 음성 인식을 지원하지 않습니다.");
+      return;
+    }
+
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setNotice("마이크 권한이 필요합니다. 브라우저 설정에서 허용해 주세요.");
+      return;
+    }
+
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "";
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+    chunksRef.current = [];
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data);
+    };
+
+    recorder.onstop = async () => {
+      // 스트림을 계속 열어두면 브라우저 탭에 마이크 사용 중 표시가 남는다.
+      stream.getTracks().forEach((track) => track.stop());
+
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+      setIsTranscribing(true);
+
+      try {
+        const text = await transcribeAudio(blob);
+        setInput((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+      } catch (err) {
+        setNotice(err.message);
+      } finally {
+        setIsTranscribing(false);
+      }
+    };
+
+    recorder.start();
+    mediaRecorderRef.current = recorder;
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+  };
+
+  const handleMicClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const handleTranslate = async () => {
     const keyword = input.trim(); // [수정] " 억까" 처럼 공백이 섞여도 찾도록
@@ -107,15 +177,34 @@ function Translate() {
       <div className="translate-box">
         {/* 입력 */}
         <div className="left">
-          <h3>신조어 입력</h3>
+          <div className="left-head">
+            <h3>신조어 입력</h3>
+
+            <button
+              type="button"
+              className={`mic-btn ${isRecording ? "recording" : ""}`}
+              onClick={handleMicClick}
+              disabled={isTranscribing}
+              aria-label={isRecording ? "녹음 중지" : "음성으로 입력"}
+              title={isRecording ? "녹음 중지" : "음성으로 입력"}
+            >
+              {isRecording ? <FaStop /> : <FaMicrophone />}
+            </button>
+          </div>
 
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="번역할 신조어를 입력하세요. (Ctrl + Enter 로 번역)"
+            placeholder="번역할 신조어를 입력하거나 마이크 버튼으로 말해보세요. (Ctrl + Enter 로 번역)"
             aria-label="번역할 신조어"
           />
+
+          {(isRecording || isTranscribing) && (
+            <p className="mic-status" role="status">
+              {isRecording ? "듣고 있어요... 다시 누르면 멈춰요." : "인식 중..."}
+            </p>
+          )}
         </div>
 
         {/* 결과 */}
