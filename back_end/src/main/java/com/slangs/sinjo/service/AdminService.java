@@ -37,6 +37,13 @@ public class AdminService {
     private final AttendanceRepository attendanceRepository;
 
     /**
+     * [추가] 객관식 퀴즈 오답 보기 최소 개수.
+     * 이보다 적으면(0~1개) 객관식 게임에서 보기가 정답 1개뿐인 채로 나가
+     * 문제로서 의미가 없어진다.
+     */
+    private static final int MIN_QUIZ_OPTIONS = 2;
+
+    /**
      * 관리자 페이지 첫 화면의 요약 숫자
      */
     @Transactional(readOnly = true)
@@ -199,10 +206,13 @@ public class AdminService {
             throw new DuplicateQuizWordException(word);
         }
 
+        List<String> options = cleanOptions(request.options());
+        validateOptions(options);
+
         QuizWord saved = quizRepository.save(new QuizWord(
                 word,
                 request.answer().trim(),
-                cleanOptions(request.options()),
+                options,
                 request.description() == null ? null : request.description().trim()
         ));
 
@@ -220,10 +230,13 @@ public class AdminService {
             throw new DuplicateQuizWordException(word);
         }
 
+        List<String> options = cleanOptions(request.options());
+        validateOptions(options);
+
         target.update(
                 word,
                 request.answer().trim(),
-                cleanOptions(request.options()),
+                options,
                 request.description() == null ? null : request.description().trim()
         );
 
@@ -247,5 +260,14 @@ public class AdminService {
                 .map(String::trim)
                 .filter(option -> !option.isBlank())
                 .toList();
+    }
+
+    /** [추가] 오답 보기 개수를 최소 기준(cleanOptions 로 빈 값을 걸러낸 뒤) 검증한다. */
+    private void validateOptions(List<String> options) {
+        if (options.size() < MIN_QUIZ_OPTIONS) {
+            throw new IllegalArgumentException(
+                    "오답 보기를 " + MIN_QUIZ_OPTIONS + "개 이상 입력해 주세요."
+            );
+        }
     }
 }
