@@ -16,7 +16,19 @@ public class QuizWord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    /**
+     * [수정] unique 제약을 없앴다. 같은 단어라도 객관식용/초성용처럼 문제를
+     * 여러 개 만들 수 있어야 하는데, 예전엔 유니크 제약 때문에 단어당 문제
+     * 하나만 등록할 수 있었다.
+     *
+     * 참고: ddl-auto=update 는 스키마에서 뺀 제약을 실제 DB 에서 자동으로
+     * 지워주지 않는다. quiz_word.word 에 걸려 있던 제약(quiz_word_word_key)은
+     * 지웠지만, 같은 컬럼의 유니크 인덱스(ukjaovc04gegcjxbfrnpmn5nitt)가
+     * 다른 작업과 겹쳐 아직 남아 있다 - 그게 정리되기 전까지는 중복 단어
+     * 등록이 GlobalExceptionHandler.handleDataIntegrityViolation 에서 409 로
+     * 막힌다. 인덱스가 정리되면 이 코드는 손댈 필요 없이 그대로 동작한다.
+     */
+    @Column(nullable = false)
     private String word; // 신조어 (예: "억까")
 
     @Column(nullable = false, length = 500)

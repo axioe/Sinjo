@@ -7,7 +7,6 @@ import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.entity.QuizWord;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.entity.Word;
-import com.slangs.sinjo.exception.DuplicateQuizWordException;
 import com.slangs.sinjo.exception.DuplicateWordException;
 import com.slangs.sinjo.exception.NotFoundException;
 import com.slangs.sinjo.repository.AttendanceRepository;
@@ -189,6 +188,9 @@ public class AdminService {
     }
 
     // ---- 퀴즈 관리 --------------------------------------------------------
+    // [수정] 같은 단어로 문제를 두 개 이상(예: 객관식용/초성용) 만들 수 있어야 해서
+    // 등록/수정 시 하던 중복 단어 검사(existsByWord)를 없앴다. QuizWord.word 의
+    // unique 제약도 함께 뺐다 - 자세한 이유는 QuizWord.word 필드 주석 참고.
 
     @Transactional(readOnly = true)
     public List<QuizWordDto> getQuizWords() {
@@ -201,10 +203,6 @@ public class AdminService {
     @Transactional
     public QuizWordDto createQuizWord(AdminDto.QuizWordRequest request) {
         String word = request.word().trim();
-
-        if (quizRepository.existsByWord(word)) {
-            throw new DuplicateQuizWordException(word);
-        }
 
         List<String> options = cleanOptions(request.options());
         validateOptions(options);
@@ -226,10 +224,6 @@ public class AdminService {
                 .orElseThrow(() -> new NotFoundException("해당 퀴즈 문제를 찾을 수 없습니다."));
 
         String word = request.word().trim();
-
-        if (quizRepository.existsByWordAndIdNot(word, id)) {
-            throw new DuplicateQuizWordException(word);
-        }
 
         List<String> options = cleanOptions(request.options());
         validateOptions(options);
