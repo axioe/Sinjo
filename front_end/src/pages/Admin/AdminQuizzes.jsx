@@ -4,6 +4,7 @@ import {
   createQuizWord,
   updateQuizWord,
   deleteQuizWord,
+  getWords,
 } from "../../api/adminApi";
 
 const EMPTY_FORM = {
@@ -11,6 +12,7 @@ const EMPTY_FORM = {
   answer: "",
   description: "",
   optionsText: "",
+  wordId: null,
 };
 
 /** 백엔드 AdminService.MIN_QUIZ_OPTIONS 와 같은 값이어야 한다. */
@@ -25,9 +27,18 @@ const MIN_OPTIONS = 2;
  * 그 문제는 객관식 게임에서 보기가 정답 1개뿐인 채로 나가 문제로서 의미가
  * 없어지기 때문에, 등록 전에 화면에서부터 막는다(서버도 같은 기준으로 다시
  * 검증한다 - AdminService.validateOptions).
+ *
+ * [추가] 사전 연동 (REQ-QUIZ-LINK).
+ * "사전에서 가져오기"로 용어 관리(Word)에 이미 있는 단어를 고르면 신조어/뜻이
+ * 자동으로 채워진다 - 같은 단어를 용어 관리와 퀴즈 관리 두 곳에 따로 입력해야
+ * 하던 문제를 줄인다. wordId 는 FK 가 아니라 참고용 Long 이라(Favorites.wordId
+ * 와 같은 방식) 사전에서 그 단어를 지워도 이 퀴즈 문제는 그대로 남는다.
+ * 사전 쪽 뜻이 바뀌었을 때는 "사전에서 다시 가져오기"로 다시 채워 넣고 저장해야
+ * 반영된다 - 조용히 자동으로 바뀌면 관리자가 모르는 새 정답이 바뀔 수 있어서다.
  */
 function AdminQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
+  const [words, setWords] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
@@ -42,6 +53,11 @@ function AdminQuizzes() {
   };
 
   useEffect(load, []);
+  useEffect(() => {
+    getWords()
+      .then(setWords)
+      .catch(console.error);
+  }, []);
 
   const setField = (name) => (e) => {
     setForm((prev) => ({ ...prev, [name]: e.target.value }));
@@ -79,7 +95,37 @@ function AdminQuizzes() {
       .split("\n")
       .map((option) => option.trim())
       .filter(Boolean),
+    wordId: form.wordId,
   });
+
+  /** 사전에서 단어를 고르면 신조어/뜻을 그 자리에서 채워 넣는다. */
+  const handleSelectWord = (e) => {
+    const wordId = e.target.value ? Number(e.target.value) : null;
+
+    if (!wordId) {
+      setForm((prev) => ({ ...prev, wordId: null }));
+      return;
+    }
+
+    const selected = words.find((w) => w.id === wordId);
+    if (!selected) return;
+
+    setForm((prev) => ({
+      ...prev,
+      wordId,
+      word: selected.word,
+      answer: selected.meaning,
+    }));
+    setErrors((prev) => ({ ...prev, word: undefined, answer: undefined, form: undefined }));
+  };
+
+  /** 연동된 문제의 신조어/뜻을 사전의 지금 값으로 다시 채운다. 저장을 눌러야 반영된다. */
+  const handleRefetchFromWord = () => {
+    const selected = words.find((w) => w.id === form.wordId);
+    if (!selected) return;
+
+    setForm((prev) => ({ ...prev, word: selected.word, answer: selected.meaning }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -113,6 +159,7 @@ function AdminQuizzes() {
       answer: item.answer,
       description: item.description || "",
       optionsText: (item.options || []).join("\n"),
+      wordId: item.wordId ?? null,
     });
 
     setErrors({});
@@ -154,7 +201,22 @@ function AdminQuizzes() {
         {errors.form && <p className="admin-alert">{errors.form}</p>}
 
         <div className="admin-field">
-          <label htmlFor="quiz-word">신조어</label>
+          <label htmlFor="quiz-word-source">사전에서 가져오기</label>
+          <select id="quiz-word-source" value={form.wordId ?? ""} onChange={handleSelectWord}>
+            <option value="">직접 입력</option>
+            {words.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.word}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="admin-field">
+          <label htmlFor="quiz-word">
+            신조어
+            {form.wordId && <span className="admin-badge admin"> 사전 연동</span>}
+          </label>
           <input
             id="quiz-word"
             value={form.word}
@@ -172,6 +234,15 @@ function AdminQuizzes() {
             onChange={setField("answer")}
             placeholder="예: 억지로 까기"
           />
+          {form.wordId && (
+            <button
+              type="button"
+              className="admin-btn small admin-refetch-btn"
+              onClick={handleRefetchFromWord}
+            >
+              사전에서 다시 가져오기
+            </button>
+          )}
           {errors.answer && (
             <p className="admin-field-error">{errors.answer}</p>
           )}
@@ -232,6 +303,7 @@ function AdminQuizzes() {
                 <th>ID</th>
                 <th>신조어</th>
                 <th>뜻</th>
+                <th>사전 연동</th>
                 <th>힌트/예문</th>
                 <th>오답 보기</th>
                 <th>관리</th>
@@ -249,6 +321,14 @@ function AdminQuizzes() {
                   <td className="admin-td-word">{item.word}</td>
 
                   <td>{item.answer}</td>
+
+                  <td>
+                    {item.wordId ? (
+                      <span className="admin-badge admin">연동됨</span>
+                    ) : (
+                      <span className="admin-badge">직접 입력</span>
+                    )}
+                  </td>
 
                   <td className="admin-td-example">{item.description}</td>
 

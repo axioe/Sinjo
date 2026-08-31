@@ -49,6 +49,8 @@ public class AdminDto {
      * [추가] 퀴즈 문제 등록/수정 요청.
      * options 는 객관식 오답 보기다. 최소 개수(AdminService.MIN_QUIZ_OPTIONS) 검증은
      * 빈 값을 걸러낸 뒤에 해야 해서 여기 @Size 대신 서비스 레이어에서 한다.
+     * wordId 는 사전 연동 - REQ-QUIZ-LINK. 사전에서 단어를 골라 만든 문제면 그 Word.id,
+     * 직접 입력한 문제면 null 이다.
      */
     public record QuizWordRequest(
 
@@ -63,7 +65,9 @@ public class AdminDto {
             @Size(max = 500, message = "힌트/예문은 500자 이하여야 합니다.")
             String description,
 
-            List<String> options
+            List<String> options,
+
+            Long wordId
     ) {
     }
 

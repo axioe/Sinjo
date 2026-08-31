@@ -19,6 +19,7 @@ public class QuizWordDto {
     private final String answer;
     private final List<String> options;
     private final String description;
+    private final Long wordId;
 
     public QuizWordDto(QuizWord quizWord) {
         this.id = quizWord.getId();
@@ -29,5 +30,6 @@ public class QuizWordDto {
         // ArrayList 로 감싸 트랜잭션이 살아있는 지금 내용을 읽어(초기화해) 둔다.
         this.options = new ArrayList<>(quizWord.getOptions());
         this.description = quizWord.getDescription();
+        this.wordId = quizWord.getWordId();
     }
 }
