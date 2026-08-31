@@ -214,6 +214,16 @@
   color: #c9364a;
 }
 
+/* 정답 자체가 아니라 "정답 확인" 요청이 실패했을 때(quizApi.checkAnswer 참고) */
+.quiz-submit-error {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--c-danger-tint);
+  color: #c9364a;
+  font-size: 13px;
+}
+
 .quiz-submit {
   width: 100%;
   padding: 16px;
