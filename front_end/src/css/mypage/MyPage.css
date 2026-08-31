@@ -522,6 +522,59 @@
   background: var(--c-primary-hover);
 }
 
+/* ---- 게임 기록 ------------------------------------------------------------ */
+.mypage-game-list {
+  display: grid;
+  gap: 2px;
+}
+
+.mypage-game-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 12px;
+  border-radius: 12px;
+  transition: background 120ms ease;
+}
+
+.mypage-game-item:hover {
+  background: var(--c-sunken);
+}
+
+.mypage-game-type {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mypage-game-type.purple { background: #f3effe; color: var(--c-primary); }
+.mypage-game-type.mint   { background: #eafaf3; color: var(--c-mint); }
+.mypage-game-type.pink   { background: #fdeef4; color: var(--c-pink); }
+
+.mypage-game-score {
+  flex: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.mypage-game-percent {
+  margin-left: 6px;
+  color: var(--c-text-muted);
+  font-family: var(--font-body, inherit);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.mypage-game-date {
+  flex-shrink: 0;
+  color: var(--c-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 /* ---- 이번 주 사용 기록 ---------------------------------------------------- */
 .mypage-week {
   display: grid;
