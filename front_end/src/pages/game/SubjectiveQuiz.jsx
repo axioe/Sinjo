@@ -14,6 +14,7 @@ function SubjectiveQuiz() {
   const [checking, setChecking] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -37,10 +38,13 @@ function SubjectiveQuiz() {
     if (!input.trim() || checking) return;
 
     setChecking(true);
+    setSubmitError("");
     try {
       const result = await checkAnswer(current, input.trim(), QUIZ_TYPE.SUBJECTIVE);
       setFeedback(result);
       if (result.correct) setScore((prev) => prev + 1);
+    } catch (err) {
+      setSubmitError(err.message);
     } finally {
       setChecking(false);
     }
@@ -64,6 +68,7 @@ function SubjectiveQuiz() {
     setIndex(0);
     setInput("");
     setFeedback(null);
+    setSubmitError("");
     setScore(0);
     setFinished(false);
     setLoading(true);
@@ -130,6 +135,10 @@ function SubjectiveQuiz() {
               ? "정답입니다!"
               : `아쉬워요. 정답은 '${feedback.correctAnswer}' 입니다.`}
           </div>
+        )}
+
+        {submitError && (
+          <p className="quiz-submit-error" role="alert">{submitError}</p>
         )}
 
         {feedback === null ? (

@@ -58,6 +58,16 @@ const normalize = (value) => String(value ?? "").replace(/\s/g, "").toLowerCase(
  * 즉 게임 세 개가 전부 채점되지 않는 상태였다.
  *
  * quizType 을 함께 보내야 백엔드가 종류에 맞게 채점한다.
+ *
+ * [수정] 로컬 채점 폴백은 quiz.answer 가 있을 때만 쓴다.
+ * quiz.answer 는 quizSampleData.js(서버가 아예 꺼져 있을 때 쓰는 샘플)에만 있고,
+ * 실제 백엔드가 내려주는 QuizDto.MultipleChoice/InitialSound/Subjective 는
+ * 정답을 브라우저에 노출하지 않으려고 애초에 답을 안 담아 보낸다(MultipleChoice
+ * 의 word 도 "뜻"이 아니라 "신조어"라 답 대신 쓸 수 없다). 그래서 이전에는
+ * "문제는 정상 수신, /check 요청만 실패"하는 상황(예: 순간적인 네트워크 오류)에서
+ * quiz.answer ?? quiz.word 가 전부 undefined 라 세 종류 다 무조건 오답 처리됐다 -
+ * 사용자가 맞는 답을 냈어도 틀렸다고 나온 것이다. 정답을 알 방법이 없는 경우엔
+ * 채점을 흉내 내지 않고 실패를 그대로 알려서, 화면이 다시 시도하도록 한다.
  */
 export async function checkAnswer(quiz, answer, quizType) {
   try {
@@ -73,14 +83,19 @@ export async function checkAnswer(quiz, answer, quizType) {
       correct: Boolean(result.correct),
       correctAnswer: result.correctAnswer ?? "",
     };
-  } catch {
-    // 서버가 없을 때: 문제에 들어 있는 answer 와 직접 비교한다.
-    // 공백을 지우고 비교해 "혼 밥" 처럼 띄어 쓴 답도 정답으로 처리한다.
-    const expected = quiz.answer ?? quiz.word ?? "";
-    return {
-      correct: normalize(expected) === normalize(answer),
-      correctAnswer: expected,
-    };
+  } catch (error) {
+    if (quiz.answer != null) {
+      // 샘플 데이터: 문제 안에 정답이 그대로 들어 있으니 직접 비교한다.
+      // 공백을 지우고 비교해 "혼 밥" 처럼 띄어 쓴 답도 정답으로 처리한다.
+      const expected = quiz.answer;
+      return {
+        correct: normalize(expected) === normalize(answer),
+        correctAnswer: expected,
+      };
+    }
+
+    console.warn("[quizApi] 정답 확인 실패", error);
+    throw new Error("정답 확인에 실패했습니다. 다시 시도해 주세요.");
   }
 }
 

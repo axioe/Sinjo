@@ -14,6 +14,7 @@ function MultipleChoiceQuiz() {
   const [checking, setChecking] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     // [수정] 화면을 벗어난 뒤 응답이 도착해 setState 가 호출되는 것을 막는다.
@@ -38,11 +39,17 @@ function MultipleChoiceQuiz() {
     if (!selected || checking) return;
 
     setChecking(true);
+    setSubmitError("");
     try {
       // [수정] 퀴즈 종류를 함께 보낸다. 서버가 종류에 맞게 채점한다.
       const result = await checkAnswer(current, selected, QUIZ_TYPE.MULTIPLE_CHOICE);
       setFeedback(result);
       if (result.correct) setScore((prev) => prev + 1);
+    } catch (err) {
+      // [수정] checkAnswer 가 정답을 알 수 없는 상황(quizApi.js 참고)에서는
+      // 조용히 오답 처리하는 대신 에러를 던진다. 여기서 받아 안내만 하고,
+      // feedback 은 null 로 남겨 사용자가 같은 문제를 다시 제출할 수 있게 한다.
+      setSubmitError(err.message);
     } finally {
       setChecking(false);
     }
@@ -66,6 +73,7 @@ function MultipleChoiceQuiz() {
     setIndex(0);
     setSelected("");
     setFeedback(null);
+    setSubmitError("");
     setScore(0);
     setFinished(false);
     setLoading(true);
@@ -121,6 +129,10 @@ function MultipleChoiceQuiz() {
               ? "정답입니다!"
               : `아쉬워요. 정답은 '${feedback.correctAnswer}' 입니다.`}
           </div>
+        )}
+
+        {submitError && (
+          <p className="quiz-submit-error" role="alert">{submitError}</p>
         )}
 
         {feedback === null ? (
