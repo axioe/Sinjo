@@ -25,8 +25,6 @@ public class WordRagService {
     private final WordRepository wordRepository;
     private final WordSearchService searchService;
     private final WordAnswerService answerService;
-//    번역 기록 연동
-    private final TranslationsRepository translationsRepository;
 
     /**
      * 신조어 질문
