@@ -59,12 +59,20 @@ function MultipleChoiceQuiz() {
     }
   };
 
+  // [수정] 문제 목록은 그대로 두고 index/score 만 초기화했더니
+  // "다시 하기"를 눌러도 방금 풀었던 5문제가 같은 순서로 다시 나왔다.
+  // 새로 불러와야 랜덤 5문제가 다시 섞인다(QuizService.findRandomQuizzes 참고).
   const handleRetry = () => {
     setIndex(0);
     setSelected("");
     setFeedback(null);
     setScore(0);
     setFinished(false);
+    setLoading(true);
+
+    getMultipleChoiceQuiz()
+      .then(setQuizzes)
+      .finally(() => setLoading(false));
   };
 
   // [수정] 로딩 중과 "문제가 없음" 을 구분한다.
