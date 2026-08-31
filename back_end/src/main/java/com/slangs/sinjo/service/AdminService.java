@@ -213,7 +213,8 @@ public class AdminService {
                 word,
                 request.answer().trim(),
                 options,
-                request.description() == null ? null : request.description().trim()
+                request.description() == null ? null : request.description().trim(),
+                request.wordId()
         ));
 
         return new QuizWordDto(saved);
@@ -237,7 +238,8 @@ public class AdminService {
                 word,
                 request.answer().trim(),
                 options,
-                request.description() == null ? null : request.description().trim()
+                request.description() == null ? null : request.description().trim(),
+                request.wordId()
         );
 
         return new QuizWordDto(target);

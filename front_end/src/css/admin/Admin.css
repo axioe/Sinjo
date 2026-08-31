@@ -296,3 +296,8 @@
   background: var(--c-primary);
   color: #fff;
 }
+
+.admin-refetch-btn {
+  display: block;
+  margin-top: 6px;
+}
