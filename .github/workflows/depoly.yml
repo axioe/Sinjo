@@ -39,7 +39,7 @@ jobs:
           context: ${{ matrix.context }}
           push: true
           build-args: |
-            VITE_KAKAO_JS_KEY=${{ secrets.VITE_KAKAO_JS_KEY }}
+            VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.imagename }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.imagename }}:${{ github.sha }}
