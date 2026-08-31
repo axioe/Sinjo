@@ -1,5 +1,6 @@
 package com.slangs.sinjo.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -60,13 +61,6 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(e.getMessage()));
     }
 
-    /** [추가] 관리자 화면에서 퀴즈 단어를 중복 등록하려 한 경우 */
-    @ExceptionHandler(DuplicateQuizWordException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateQuizWord(DuplicateQuizWordException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.of(e.getMessage()));
-    }
-
     /** [추가] 없는 자원을 수정·삭제하려 한 경우 */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
@@ -84,5 +78,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleSttTranscription(SttTranscriptionException e) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(ErrorResponse.of(e.getMessage()));
+    }
+
+    /**
+     * [추가] DB 제약 위반을 잡아 500 대신 409 로 내려준다.
+     *
+     * QuizWord.word 의 unique 제약(애플리케이션 레벨 검사)은 없앴지만, 지금 DB 에는
+     * 같은 컬럼에 다른 팀원이 작업 중이라 아직 못 지운 유니크 인덱스가 남아 있다.
+     * 그 인덱스가 남아있는 동안에는 여기서 걸리고, 나중에 정리되면 이 핸들러는
+     * 그냥 안 쓰이게 될 뿐 코드를 다시 고칠 필요는 없다.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of("이미 등록된 값이거나 처리할 수 없는 요청입니다."));
     }
 }
