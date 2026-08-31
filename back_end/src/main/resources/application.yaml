@@ -26,7 +26,7 @@ spring:
       max-request-size: 25MB
 
   datasource:
-    url: jdbc:postgresql://43.201.127.52:55432/sinjodb
+    url: ${DB_URL}
     # [수정] 기본값을 넣었다. 환경변수를 등록하지 않은 팀원의 IntelliJ 에서
     # "Could not resolve placeholder 'DB_USERNAME'" 으로 앱이 아예 뜨지 않던 문제를 막는다.
     # 배포 시에는 반드시 환경변수로 덮어쓸 것.
@@ -93,3 +93,12 @@ logging:
     org.hibernate.SQL: debug
     # 바인딩 파라미터(? 자리에 실제로 들어간 값)까지 보고 싶을 때만 주석을 푼다.
     # org.hibernate.orm.jdbc.bind: trace
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+app:
+  frontend-url: ${ALLOWED_ORIGINS:https://YOUR_DOMAIN}
+  allowed-origins: ${ALLOWED_ORIGINS:https://YOUR_DOMAIN}
