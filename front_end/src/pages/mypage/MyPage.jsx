@@ -14,7 +14,8 @@ import {
   BADGES,
   POINT_BALANCE,
 } from "../../data/myPageSampleData";
-import { getMyQuizStats } from "../../api/quizApi";
+import { getMyQuizStats, getMyGameHistory } from "../../api/quizApi";
+import GameHistory from "../../components/MyPage/GameHistory";
 import { getMyAttendance } from "../../api/attendanceApi";
 import PasswordChangeModal from "../../components/MyPage/PasswordChangeModal";
 import { getMyTranslations, getMyTranslationCount } from "../../api/translateApi";
@@ -35,7 +36,8 @@ import {
  * 나머지 카드(즐겨찾기/테스트, 배지, 이번 주 기록)는 아직 서버 API 가 없어
  * 샘플 데이터거나 "준비 중" 상태다 - 해당 기능을 만드는 사람이 채워 넣을 자리다.
  *
- * 사이드바 "번역 저장"(key: saved)을 누르면 본문이 전체 번역 목록으로 바뀐다.
+ * 사이드바 "번역 저장"(key: saved), "즐겨찾기 단어"(key: favorite),
+ * "게임 기록"(key: game)을 누르면 본문이 해당 목록으로 바뀐다.
  * 그 밖의 메뉴는 아직 화면이 없어 "준비 중"만 보여준다.
  */
 function MyPage() {
@@ -46,6 +48,7 @@ function MyPage() {
   const [allTranslations, setAllTranslations] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [favoriteCount, setFavoriteCount] = useState(null);
+  const [gameHistory, setGameHistory] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [gameStats, setGameStats] = useState(null); // null: 아직 못 불러옴 → "준비 중"으로 표시
   const [attendanceDates, setAttendanceDates] = useState(null); // null: 아직 못 불러옴 → 출석 표시 없음
@@ -106,6 +109,23 @@ function MyPage() {
     getMyTranslations(0, 50)
       .then((list) => {
         if (alive) setAllTranslations(list);
+      })
+      .catch(console.error);
+
+    return () => {
+      alive = false;
+    };
+  }, [activeMenu]);
+
+  // "게임 기록" 메뉴를 열 때만 목록을 불러온다.
+  useEffect(() => {
+    if (activeMenu !== "game") return;
+
+    let alive = true;
+
+    getMyGameHistory(0, 50)
+      .then((list) => {
+        if (alive) setGameHistory(list);
       })
       .catch(console.error);
 
@@ -214,7 +234,8 @@ function MyPage() {
 
             {activeMenu !== "home" &&
               activeMenu !== "saved" &&
-              activeMenu !== "favorite" && (
+              activeMenu !== "favorite" &&
+              activeMenu !== "game" && (
                 <section className="mypage-card">
                   <p className="mypage-empty">준비 중입니다.</p>
                 </section>
@@ -226,6 +247,8 @@ function MyPage() {
                 onRemove={handleRemoveFavorite}
               />
             )}
+
+            {activeMenu === "game" && <GameHistory items={gameHistory} />}
           </div>
 
           <div className="mypage-side">

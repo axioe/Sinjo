@@ -115,3 +115,23 @@ export async function getMyQuizStats() {
     return null;
   }
 }
+
+/**
+ * 마이페이지 "게임 기록" 목록. translateApi.getMyTranslations 와 같은 패턴이다.
+ * 실패하면 호출하는 쪽에서 처리하도록 그대로 던진다.
+ */
+export const getMyGameHistory = async (page = 0, size = 5) => {
+  const list = await request(`/api/mypage/games?page=${page}&size=${size}`, {
+    method: "GET",
+  });
+
+  return list.map((g) => ({
+    id: g.id,
+    quizType: g.quizType,
+    score: g.score,
+    total: g.total,
+    createdAt: g.createdAt
+      ? g.createdAt.slice(0, 16).replace("T", " ").replaceAll("-", ".")
+      : "",
+  }));
+};

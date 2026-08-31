@@ -1,12 +1,15 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.FavoritesDto;
+import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.TranslationDto;
 import com.slangs.sinjo.dto.TranslationSaveRequest;
 import com.slangs.sinjo.entity.Favorites;
+import com.slangs.sinjo.entity.QuizAttempt;
 import com.slangs.sinjo.entity.TranslationMode;
 import com.slangs.sinjo.entity.Translations;
 import com.slangs.sinjo.repository.FavoritesRepository;
+import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.TranslationsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,7 @@ public class MyPageService {
 
     private final TranslationsRepository translationsRepository;
     private final FavoritesRepository favoritesRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
 
     /* ===================== 변환 이력 (REQ-AUTH-02) ===================== */
 
@@ -98,5 +102,16 @@ public class MyPageService {
         if (userId == null) return;
 
         favoritesRepository.deleteByUserIdAndWordId(userId, wordId);
+    }
+
+    /* ===================== 게임 기록 (REQ-MY-01) ===================== */
+
+    public List<QuizAttemptDto> getGameHistory(Long userId, int page, int size) {
+        Page<QuizAttempt> result = quizAttemptRepository
+                .findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size));
+
+        return result.getContent().stream()
+                .map(QuizAttemptDto::from)
+                .toList();
     }
 }
