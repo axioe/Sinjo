@@ -47,8 +47,8 @@ public class AdminDto {
 
     /**
      * [추가] 퀴즈 문제 등록/수정 요청.
-     * options 는 객관식 오답 보기다 - 비워 둬도 등록은 되지만,
-     * 그 문제는 객관식 게임에서 정답 보기 1개만 나오게 된다.
+     * options 는 객관식 오답 보기다. 최소 개수(AdminService.MIN_QUIZ_OPTIONS) 검증은
+     * 빈 값을 걸러낸 뒤에 해야 해서 여기 @Size 대신 서비스 레이어에서 한다.
      */
     public record QuizWordRequest(
 

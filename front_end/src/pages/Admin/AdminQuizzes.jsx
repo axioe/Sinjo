@@ -13,13 +13,18 @@ const EMPTY_FORM = {
   optionsText: "",
 };
 
+/** 백엔드 AdminService.MIN_QUIZ_OPTIONS 와 같은 값이어야 한다. */
+const MIN_OPTIONS = 2;
+
 /**
  * 퀴즈 관리 (게임 문제 은행)
  * QuizWord 를 등록·수정·삭제한다 - /game 의 객관식/초성/주관식 3개 게임이
  * 전부 이 표에서 랜덤으로 문제를 뽑아 간다(QuizService.findRandomQuizzes 참고).
  *
- * optionsText 는 줄바꿈으로 구분한 객관식 오답 보기다. 비워도 등록은 되지만
- * 그 문제는 객관식 게임에서 정답 보기 1개만 나오게 된다.
+ * optionsText 는 줄바꿈으로 구분한 객관식 오답 보기다. 최소 개수를 안 채우면
+ * 그 문제는 객관식 게임에서 보기가 정답 1개뿐인 채로 나가 문제로서 의미가
+ * 없어지기 때문에, 등록 전에 화면에서부터 막는다(서버도 같은 기준으로 다시
+ * 검증한다 - AdminService.validateOptions).
  */
 function AdminQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
@@ -52,6 +57,15 @@ function AdminQuizzes() {
 
     if (!form.answer.trim()) {
       found.answer = "뜻(정답)을 입력해 주세요.";
+    }
+
+    const optionCount = form.optionsText
+      .split("\n")
+      .map((option) => option.trim())
+      .filter(Boolean).length;
+
+    if (optionCount < MIN_OPTIONS) {
+      found.optionsText = `오답 보기를 ${MIN_OPTIONS}개 이상 입력해 주세요.`;
     }
 
     return found;
@@ -175,7 +189,7 @@ function AdminQuizzes() {
 
         <div className="admin-field">
           <label htmlFor="quiz-options">
-            객관식 오답 보기 (한 줄에 하나씩, 선택)
+            객관식 오답 보기 (한 줄에 하나씩, 최소 {MIN_OPTIONS}개)
           </label>
           <textarea
             id="quiz-options"
@@ -184,6 +198,9 @@ function AdminQuizzes() {
             onChange={setField("optionsText")}
             placeholder={"예:\n답정너\n낄끼빠빠\n존버"}
           />
+          {errors.optionsText && (
+            <p className="admin-field-error">{errors.optionsText}</p>
+          )}
         </div>
 
         <div className="admin-form-actions">
