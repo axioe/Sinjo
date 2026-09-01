@@ -2,9 +2,12 @@ import { request } from "./client";
 
 /** 즐겨찾기 단어 목록 (REQ-MY-01) */
 export const getMyFavorites = async (page = 0, size = 5) => {
-  const list = await request(`/api/mypage/favorites?page=${page}&size=${size}`, {
-    method: "GET",
-  });
+  const list = await request(
+    `/api/mypage/favorites?page=${page}&size=${size}`,
+    {
+      method: "GET",
+    },
+  );
 
   return list.map((f) => ({
     id: f.id,

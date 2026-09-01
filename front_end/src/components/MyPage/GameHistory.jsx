@@ -1,47 +1,184 @@
-import { FaGamepad } from "react-icons/fa";
+import {
+  FaGamepad,
+  FaCheckCircle,
+  FaCalendarAlt,
+  FaTrophy,
+} from "react-icons/fa";
 
 const TYPE_LABEL = {
-  MULTIPLE_CHOICE: { label: "객관식", tone: "purple" },
-  INITIAL_SOUND: { label: "초성", tone: "mint" },
-  SUBJECTIVE: { label: "주관식", tone: "pink" },
+  MULTIPLE_CHOICE: {
+    label: "객관식",
+    tone: "purple",
+    icon: "◆",
+  },
+  INITIAL_SOUND: {
+    label: "초성",
+    tone: "mint",
+    icon: "✓",
+  },
+  SUBJECTIVE: {
+    label: "주관식",
+    tone: "pink",
+    icon: "✎",
+  },
 };
 
-/** 게임 기록 1행. quizType 이 알 수 없는 값이면 그대로 보여준다(방어적으로). */
 function typeInfo(quizType) {
-  return TYPE_LABEL[quizType] ?? { label: quizType, tone: "purple" };
+  return (
+    TYPE_LABEL[quizType] ?? {
+      label: quizType || "알 수 없음",
+      tone: "purple",
+      icon: "•",
+    }
+  );
 }
 
-/**
- * 게임 기록 (REQ-MY-01).
- * QuizAttempt 기반 실데이터다 - 회차마다 어떤 게임을, 몇 점 맞혔는지 보여준다.
- * 정답/오답 내용까지는 저장하지 않아(QuizAttempt 에 점수만 있음) 점수만 표시한다.
- */
-function GameHistory({ items }) {
+function formatDate(value) {
+  if (!value) {
+    return "-";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function GameHistory({ items = [], loading = false }) {
+  if (loading) {
+    return (
+      <section className="mypage-card mypage-game-card">
+        <div className="mypage-card-head">
+          <div>
+            <span className="mypage-card-eyebrow">GAME HISTORY</span>
+
+            <h2 className="mypage-card-title">
+              <FaGamepad className="mypage-card-title-icon" />
+              게임 기록
+            </h2>
+          </div>
+        </div>
+
+        <div className="mypage-game-loading">
+          <FaGamepad />
+          <span>게임 기록을 불러오는 중입니다...</span>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="mypage-card">
+    <section className="mypage-card mypage-game-card">
       <div className="mypage-card-head">
-        <h2 className="mypage-card-title">
-          <FaGamepad className="mypage-card-title-icon" />
-          게임 기록
-        </h2>
+        <div>
+          <span className="mypage-card-eyebrow">GAME HISTORY</span>
+
+          <h2 className="mypage-card-title">
+            <FaGamepad className="mypage-card-title-icon" />
+            게임 기록
+          </h2>
+        </div>
+
+        <span className="mypage-game-count">
+          총 <strong>{items.length}</strong>회
+        </span>
       </div>
 
       {items.length === 0 ? (
-        <p className="mypage-empty">아직 플레이한 게임이 없습니다.</p>
+        <div className="mypage-game-empty">
+          <div className="mypage-game-empty-icon">
+            <FaGamepad />
+          </div>
+
+          <strong>아직 플레이한 게임이 없습니다.</strong>
+
+          <p>게임을 플레이하면 기록이 이곳에 표시됩니다.</p>
+        </div>
       ) : (
         <ul className="mypage-game-list">
-          {items.map((item) => {
-            const { label, tone } = typeInfo(item.quizType);
-            const percent = item.total > 0 ? Math.round((item.score / item.total) * 100) : 0;
+          {items.map((item, index) => {
+            const { label, tone, icon } = typeInfo(item.quizType);
+
+            const score = Number(item.score) || 0;
+            const total = Number(item.total) || 0;
+
+            const percent =
+              total > 0
+                ? Math.min(100, Math.round((score / total) * 100))
+                : 0;
 
             return (
-              <li key={item.id} className="mypage-game-item">
-                <span className={`mypage-game-type ${tone}`}>{label}</span>
-                <span className="mypage-game-score">
-                  {item.score} / {item.total}
-                  <span className="mypage-game-percent">({percent}%)</span>
-                </span>
-                <span className="mypage-game-date">{item.createdAt}</span>
+              <li
+                key={item.id ?? `${item.createdAt}-${index}`}
+                className="mypage-game-item"
+              >
+                <div className={`mypage-game-type-icon ${tone}`}>
+                  {icon}
+                </div>
+
+                <div className="mypage-game-info">
+                  <div className="mypage-game-info-top">
+                    <span className={`mypage-game-type ${tone}`}>
+                      {label}
+                    </span>
+
+                    {percent >= 80 && (
+                      <span className="mypage-game-best">
+                        <FaTrophy />
+                        좋은 점수
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mypage-game-score-row">
+                    <strong>
+                      {score}
+                      <span>/ {total}</span>
+                    </strong>
+
+                    <span className="mypage-game-percent">
+                      {percent}%
+                    </span>
+                  </div>
+
+                  <div className="mypage-game-progress">
+                    <span
+                      className={tone}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+
+                  <div className="mypage-game-date">
+                    <FaCalendarAlt />
+                    <span>{formatDate(item.createdAt)}</span>
+                  </div>
+                </div>
+
+                <div
+                  className={`mypage-game-result ${
+                    percent >= 80
+                      ? "high"
+                      : percent >= 50
+                        ? "middle"
+                        : "low"
+                  }`}
+                >
+                  <FaCheckCircle />
+                  <span>
+                    {percent >= 80
+                      ? "우수"
+                      : percent >= 50
+                        ? "보통"
+                        : "도전"}
+                  </span>
+                </div>
               </li>
             );
           })}
