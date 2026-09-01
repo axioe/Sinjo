@@ -32,9 +32,11 @@ import {
  *
  * 프로필은 서버에서 받은 실제 회원 정보를 쓴다.
  * 활동 요약의 "게임 플레이" 카드는 QuizAttempt 기반 실데이터다(quizApi.getMyQuizStats).
- * "저장한 번역" 카드는 translations 테이블 기준 실데이터다.
- * 나머지 카드(즐겨찾기/테스트, 배지, 이번 주 기록)는 아직 서버 API 가 없어
- * 샘플 데이터거나 "준비 중" 상태다 - 해당 기능을 만드는 사람이 채워 넣을 자리다.
+ * "저장한 번역"/"즐겨찾기 단어" 카드도 각각 translations/favorites 테이블 기준
+ * 실데이터다. "이번 주 사용 기록"/활동 통계 달력은 로그인 출석 기반 실데이터다
+ * (attendanceApi.getMyAttendance - 로그인 성공 시 서버가 자동 기록한다).
+ * 나머지(테스트 완료, 배지)는 아직 서버 API 가 없어 샘플 데이터거나 "준비 중"
+ * 상태다 - 해당 기능을 만드는 사람이 채워 넣을 자리다.
  *
  * 사이드바 "번역 저장"(key: saved), "즐겨찾기 단어"(key: favorite),
  * "게임 기록"(key: game)을 누르면 본문이 해당 목록으로 바뀐다.
@@ -77,6 +79,14 @@ function MyPage() {
         if (alive) setFavoriteCount(count);
       })
       .catch(console.error);
+
+    // [수정] getMyAttendance import 만 있고 실제 호출이 빠져 있었다 - "번역 저장"
+    // 기능을 합치는 과정에서 누락된 것으로 보인다. attendanceDates 가 계속 null 로
+    // 남아 실제로는 로그인 때마다 서버에 출석이 정상 기록되고 있어도(AttendanceService.
+    // checkIn) 이번 주 사용 기록/활동 통계 달력에는 체크가 하나도 안 뜨고 있었다.
+    getMyAttendance().then((dates) => {
+      if (alive) setAttendanceDates(dates);
+    });
 
     return () => {
       alive = false;
