@@ -1,44 +1,18 @@
-import { FaStar, FaComments, FaGamepad, FaCoins } from "react-icons/fa";
+import { FaCoins } from "react-icons/fa";
+import BadgeGrid from "./BadgeGrid";
 
-const ICONS = {
-  explorer: FaStar,
-  master: FaComments,
-  player: FaGamepad,
-};
-
-function BadgePoints({ badges, point }) {
+/** "전체 보기"는 모달이 아니라 사이드바의 "활동 통계" 메뉴로 이동한다(onViewAll). */
+function BadgePoints({ badges, point, onViewAll }) {
   return (
     <section className="mypage-card">
       <div className="mypage-card-head">
         <h2 className="mypage-card-title">나의 배지 &amp; 포인트</h2>
-        <button type="button" className="mypage-more">
+        <button type="button" className="mypage-more" onClick={onViewAll}>
           전체 보기 <span aria-hidden="true">›</span>
         </button>
       </div>
 
-      <div className="mypage-badge-grid">
-        {badges.map(({ key, name, desc, current, goal, tone }) => {
-          const Icon = ICONS[key];
-          const percent = Math.min(Math.round((current / goal) * 100), 100);
-
-          return (
-            <div key={key} className={`mypage-badge ${tone}`}>
-              <span className="mypage-badge-hex">
-                <Icon />
-              </span>
-              <p className="mypage-badge-name">{name}</p>
-              <p className="mypage-badge-desc">{desc}</p>
-
-              <div className="mypage-badge-bar">
-                <div className="mypage-badge-fill" style={{ width: `${percent}%` }} />
-              </div>
-              <p className="mypage-badge-count">
-                {current} / {goal}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+      <BadgeGrid badges={badges} />
 
       <div className="mypage-point">
         <span className="mypage-point-label">

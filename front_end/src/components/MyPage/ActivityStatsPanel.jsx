@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { toLocalDateKey } from "../../utils/date";
 import ActivitySummary from "./ActivitySummary";
+import BadgeGrid from "./BadgeGrid";
 
 const WEEKDAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -29,8 +30,9 @@ function getMonthCells(year, month) {
  * "활동 통계" 메뉴로 이동해 이 컴포넌트가 렌더링된다(MyPage.jsx 참고).
  *
  * activeDates: Set<"yyyy-MM-dd">. activityItems: MyPage 에서 계산한 활동 요약 배열 그대로.
+ * badges: BadgePoints 의 "전체 보기"로 들어와도 같은 배지 목록을 볼 수 있게 그대로 받는다.
  */
-function ActivityStatsPanel({ activeDates, activityItems }) {
+function ActivityStatsPanel({ activeDates, activityItems, badges }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
 
@@ -94,6 +96,11 @@ function ActivityStatsPanel({ activeDates, activityItems }) {
       </section>
 
       <ActivitySummary items={activityItems} />
+
+      <section className="mypage-card">
+        <h2 className="mypage-card-title">나의 배지</h2>
+        <BadgeGrid badges={badges} />
+      </section>
     </>
   );
 }
