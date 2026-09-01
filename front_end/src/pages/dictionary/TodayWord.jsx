@@ -1,6 +1,7 @@
 import "../../css/dictionary/TodayWord.css";
 import { useEffect, useMemo, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
 import { getWords } from "../../api/wordApi";
 
 /**
@@ -45,6 +46,12 @@ function TodayWord() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [searchParams] = useSearchParams();
+
+  /* =======================================================
+     신조어 데이터 가져오기
+  ======================================================= */
+
   useEffect(() => {
     let alive = true;
 
@@ -81,32 +88,12 @@ function TodayWord() {
    * 1. 전체 신조어 중 조회수가 높은 순서로 정렬
    * 2. 조회수 상위 5개만 선택
    * 3. 오늘 날짜를 seed로 사용해서 랜덤 순서로 섞음
-   *
-   * 결과:
-   *
-   * 오늘:
-   * A, B, C, D, E
-   * ↓
-   * C, A, E, B, D
-   *
-   * 새로고침:
-   * C, A, E, B, D
-   *
-   * 다음 날:
-   * 조회수 상위 5개를 다시 선정하고
-   * 새로운 날짜 seed로 다시 섞음
    */
   const todayWords = useMemo(() => {
     if (allWords.length === 0) {
       return [];
     }
 
-    /**
-     * 조회수 높은 순으로 정렬한다.
-     *
-     * 원본 allWords를 변경하지 않도록
-     * [...allWords]로 복사한 뒤 정렬한다.
-     */
     const topFive = [...allWords]
       .sort((a, b) => {
         const viewsA = Number(a.views ?? 0);
@@ -116,13 +103,45 @@ function TodayWord() {
       })
       .slice(0, 5);
 
-    /**
-     * 오늘 날짜를 seed로 사용한다.
-     *
-     * 따라서 같은 날에는 항상 같은 순서가 나온다.
-     */
     return shuffleWithSeed(topFive, todaySeed());
   }, [allWords]);
+
+  /* =======================================================
+     메인 페이지에서 선택한 단어 처리
+
+     Main에서
+
+     /today?wordId=단어ID
+
+     형태로 전달한다.
+
+     id가 없는 데이터라면 word 값을 대신 사용한다.
+  ======================================================= */
+
+  useEffect(() => {
+    if (todayWords.length === 0) {
+      return;
+    }
+
+    const wordId = searchParams.get("wordId");
+
+    if (!wordId) {
+      setCursor(0);
+      return;
+    }
+
+    const selectedIndex = todayWords.findIndex((word) => {
+      const currentId = word.id ?? word.word;
+
+      return String(currentId) === String(wordId);
+    });
+
+    if (selectedIndex !== -1) {
+      setCursor(selectedIndex);
+    } else {
+      setCursor(0);
+    }
+  }, [todayWords, searchParams]);
 
   /**
    * 현재 보여줄 신조어

@@ -13,6 +13,7 @@ import { getRankingWords, getWords } from "../api/wordApi";
 
 import "../css/Main.css";
 import ChatbotFloating from "./chatbot/ChatbotFloating";
+
 /* =========================================================
    오늘의 신조어와 동일한 날짜 기준
 ========================================================= */
@@ -134,10 +135,11 @@ function Main() {
   }, []);
 
   /* =======================================================
-     오늘의 신조어
+     오늘의 신조어 5개
 
-     getWords() → 날짜 기준으로 동일하게 섞음
-     → 오늘의 첫 번째 단어를 메인에 표시
+     TodayWord 페이지와 동일하게
+     조회수 높은 순으로 5개를 먼저 선택한 뒤
+     날짜 기준으로 섞는다.
   ======================================================= */
 
   const todayWords = useMemo(() => {
@@ -145,10 +147,36 @@ function Main() {
       return [];
     }
 
-    return shuffleWithSeed(allWords, todaySeed()).slice(0, 5);
+    const topFive = [...allWords]
+      .sort((a, b) => {
+        const viewsA = Number(a.views ?? 0);
+        const viewsB = Number(b.views ?? 0);
+
+        return viewsB - viewsA;
+      })
+      .slice(0, 5);
+
+    return shuffleWithSeed(topFive, todaySeed());
   }, [allWords]);
 
-  const today = todayWords[0] ?? null;
+  /* =======================================================
+     오늘의 신조어
+
+     위에서 선정된 5개 중 하나를 랜덤으로 선택한다.
+
+     Math.random()을 사용하기 때문에
+     메인 페이지를 새로고침하면 다시 랜덤으로 선택된다.
+  ======================================================= */
+
+  const today = useMemo(() => {
+    if (todayWords.length === 0) {
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * todayWords.length);
+
+    return todayWords[randomIndex];
+  }, [todayWords]);
 
   return (
     <div>
@@ -270,10 +298,8 @@ function Main() {
                 <>
                   <span className="today-label">오늘 배워볼 표현</span>
 
-                  {/* 실제 getWords()에서 받은 today.word */}
                   <h2 className="today-word">{today.word}</h2>
 
-                  {/* 실제 getWords()에서 받은 today.meaning */}
                   <p className="today-meaning">{today.meaning}</p>
                 </>
               ) : (
@@ -281,7 +307,17 @@ function Main() {
               )}
             </div>
 
-            <Link to="/today" className="today-button">
+            {/* 현재 메인에 표시된 단어를 TodayWord 페이지로 전달 */}
+            <Link
+              to={
+                today
+                  ? `/today?wordId=${encodeURIComponent(
+                      today.id ?? today.word,
+                    )}`
+                  : "/today"
+              }
+              className="today-button"
+            >
               오늘의 신조어 보기
               <FaArrowRight />
             </Link>
@@ -373,6 +409,7 @@ function Main() {
           </div>
         </section>
       </main>
+
       {/* 신조어 챗봇 */}
       <ChatbotFloating />
     </div>
