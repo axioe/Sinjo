@@ -62,10 +62,4 @@ export const ACTIVITY_SUMMARY_PLACEHOLDERS = [
   { key: "test", label: "테스트 완료", tone: "pink" },
 ];
 
-export const BADGES = [
-  { key: "explorer", name: "신조어 탐험가", desc: "100개 단어 학습", current: 71, goal: 100, tone: "purple" },
-  { key: "master", name: "번역 마스터", desc: "50번 번역 저장", current: 32, goal: 50, tone: "mint" },
-  { key: "player", name: "게임 고수", desc: "20회 게임 플레이", current: 18, goal: 20, tone: "pink" },
-];
-
 export const POINT_BALANCE = 1250;

@@ -11,7 +11,6 @@ import WeeklyRecord from "../../components/MyPage/WeeklyRecord";
 import ActivityStatsPanel from "../../components/MyPage/ActivityStatsPanel";
 import {
   ACTIVITY_SUMMARY_PLACEHOLDERS,
-  BADGES,
   POINT_BALANCE,
 } from "../../data/myPageSampleData";
 import { getMyQuizStats, getMyGameHistory } from "../../api/quizApi";
@@ -169,6 +168,42 @@ function MyPage() {
     { ...ACTIVITY_SUMMARY_PLACEHOLDERS[2], ready: false },
   ];
 
+  /**
+   * [추가] 나의 배지 & 포인트 - REQ-MY-01.
+   * 단어 번역/게임 플레이는 이미 있는 실데이터(translationCount/gameStats)를
+   * 그대로 쓴다. 최대 횟수(번역 50회, 게임 20회)는 아직 기준이 확정되지
+   * 않아 우선 정한 값이다 - 나중에 바뀌면 여기 goal 만 고치면 된다.
+   *
+   * 게시판 이용은 아직 백엔드 기능 자체가 없어 prototype: true 로 자리만
+   * 잡아둔다. 게시판 기능이 만들어지면 이 항목에 current/goal 을 채우고
+   * prototype 을 빼기만 하면 된다(BadgeGrid 참고).
+   */
+  const badges = [
+    {
+      key: "translate",
+      name: "단어 번역",
+      desc: "번역 50회 달성",
+      current: translationCount ?? 0,
+      goal: 50,
+      tone: "purple",
+    },
+    {
+      key: "game",
+      name: "게임 플레이",
+      desc: "게임 20회 플레이",
+      current: gameStats?.totalPlays ?? 0,
+      goal: 20,
+      tone: "mint",
+    },
+    {
+      key: "board",
+      name: "게시판 이용",
+      desc: "게시판 기능 준비 중",
+      tone: "pink",
+      prototype: true,
+    },
+  ];
+
   const attendanceDateSet = new Set(attendanceDates ?? []);
   const isStats = activeMenu === "stats";
 
@@ -214,6 +249,7 @@ function MyPage() {
           <ActivityStatsPanel
             activeDates={attendanceDateSet}
             activityItems={activityItems}
+            badges={badges}
           />
         </div>
       ) : (
@@ -263,7 +299,11 @@ function MyPage() {
 
           <div className="mypage-side">
             <ActivitySummary items={activityItems} />
-            <BadgePoints badges={BADGES} point={POINT_BALANCE} />
+            <BadgePoints
+              badges={badges}
+              point={POINT_BALANCE}
+              onViewAll={() => setActiveMenu("stats")}
+            />
             <WeeklyRecord
               activeDates={attendanceDateSet}
               onViewAll={() => setActiveMenu("stats")}
