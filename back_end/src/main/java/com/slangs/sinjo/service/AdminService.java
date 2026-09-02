@@ -10,6 +10,7 @@ import com.slangs.sinjo.entity.Word;
 import com.slangs.sinjo.exception.DuplicateWordException;
 import com.slangs.sinjo.exception.NotFoundException;
 import com.slangs.sinjo.repository.AttendanceRepository;
+import com.slangs.sinjo.repository.PointTransactionRepository;
 import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.QuizRepository;
 import com.slangs.sinjo.repository.UserRepository;
@@ -34,6 +35,7 @@ public class AdminService {
     private final QuizRepository quizRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final AttendanceRepository attendanceRepository;
+    private final PointTransactionRepository pointTransactionRepository;
 
     /**
      * [추가] 객관식 퀴즈 오답 보기 최소 개수.
@@ -166,10 +168,10 @@ public class AdminService {
 
     /**
      * [추가] 회원 삭제.
-     * QuizAttempt/Attendance 는 User 를 FK 로 참조해서(nullable = false) 먼저 지우지
-     * 않으면 외래키 제약 위반으로 500 이 난다. Favorites/Translations/LearningHistory
-     * 는 userId 를 Long 컬럼으로만 들고 있어(FK 아님) 제약에 걸리지는 않지만, 삭제
-     * 후에도 데이터가 남는다 - 필요해지면 별도로 정리한다.
+     * QuizAttempt/Attendance/PointTransaction 은 User 를 FK 로 참조해서(nullable = false)
+     * 먼저 지우지 않으면 외래키 제약 위반으로 500 이 난다. Favorites/Translations/
+     * LearningHistory 는 userId 를 Long 컬럼으로만 들고 있어(FK 아님) 제약에 걸리지는
+     * 않지만, 삭제 후에도 데이터가 남는다 - 필요해지면 별도로 정리한다.
      */
     @Transactional
     public void deleteUser(Long adminId, Long targetId) {
@@ -183,6 +185,7 @@ public class AdminService {
 
         quizAttemptRepository.deleteByUserId(targetId);
         attendanceRepository.deleteByUserId(targetId);
+        pointTransactionRepository.deleteByUserId(targetId);
 
         userRepository.deleteById(targetId);
     }

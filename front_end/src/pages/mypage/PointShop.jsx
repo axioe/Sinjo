@@ -1,54 +1,79 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaCoins, FaShoppingBag, FaCheck } from "react-icons/fa";
 
 import "../../css/mypage/PointShop.css";
-import { POINT_BALANCE } from "./MyPage";
+import { getMyPoints, getShopItems, purchaseItem } from "../../api/pointApi";
 
-const ITEMS = [
-  {
-    id: 1,
+/**
+ * 상점 아이템의 아이콘/설명/색상 - 화면 전용 정보라 서버에는 없다(id/name/price 만 옴).
+ * 서버 카탈로그(PointService.SHOP_ITEMS)와 id 가 반드시 일치해야 한다.
+ */
+const PRESENTATION = {
+  1: {
     icon: "🎨",
-    name: "프로필 테마",
     description: "마이페이지 프로필을 나만의 분위기로 꾸밀 수 있어요.",
-    price: 300,
     color: "purple",
   },
-  {
-    id: 2,
+  2: {
     icon: "🏷️",
-    name: "닉네임 뱃지",
     description: "프로필에 특별한 닉네임 뱃지를 표시할 수 있어요.",
-    price: 500,
     color: "blue",
   },
-  {
-    id: 3,
+  3: {
     icon: "✨",
-    name: "반짝반짝 효과",
     description: "프로필에 특별한 반짝임 효과를 추가할 수 있어요.",
-    price: 700,
     color: "yellow",
   },
-  {
-    id: 4,
+  4: {
     icon: "👑",
-    name: "VIP 뱃지",
     description: "특별한 VIP 뱃지로 프로필을 꾸밀 수 있어요.",
-    price: 1000,
     color: "pink",
   },
-];
+};
 
 function PointShop() {
   const navigate = useNavigate();
 
+  const [balance, setBalance] = useState(0);
+  const [items, setItems] = useState([]);
   const [purchasedIds, setPurchasedIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [purchasingId, setPurchasingId] = useState(null);
 
-  const handlePurchase = (item) => {
-    if (POINT_BALANCE < item.price) {
+  useEffect(() => {
+    let alive = true;
+
+    const load = async () => {
+      try {
+        const [points, shop] = await Promise.all([
+          getMyPoints(),
+          getShopItems(),
+        ]);
+
+        if (!alive) return;
+
+        setBalance(points?.balance ?? 0);
+        setItems(shop?.items ?? []);
+        setPurchasedIds(shop?.purchasedItemIds ?? []);
+      } catch (error) {
+        console.error("포인트 상점 조회 실패:", error);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    };
+
+    load();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const handlePurchase = async (item) => {
+    if (balance < item.price) {
       window.alert(
-        `포인트가 부족합니다.\n\n현재 포인트: ${POINT_BALANCE.toLocaleString()}P`,
+        `포인트가 부족합니다.\n\n현재 포인트: ${balance.toLocaleString()}P`,
       );
 
       return;
@@ -57,31 +82,34 @@ function PointShop() {
     const confirmed = window.confirm(
       `${item.name}을(를) 구매하시겠습니까?\n\n` +
         `가격: ${item.price.toLocaleString()}P\n` +
-        `현재 포인트: ${POINT_BALANCE.toLocaleString()}P`,
+        `현재 포인트: ${balance.toLocaleString()}P`,
     );
 
     if (!confirmed) {
       return;
     }
 
-    /*
-     * 현재 포인트 구매 API가 연결되지 않았기 때문에
-     * 실제 구매 처리는 하지 않는다.
-     *
-     * 추후:
-     *
-     * const result = await purchasePointItem(item.id);
-     *
-     * 형태로 교체하면 된다.
-     */
-    window.alert(`${item.name} 구매 기능은 현재 준비 중입니다.`);
+    setPurchasingId(item.id);
 
-    /*
-     * 실제 API 연결 시에는 이 부분을
-     * API 성공 이후 실행하면 된다.
-     */
-    setPurchasedIds((prev) => [...prev, item.id]);
+    try {
+      const result = await purchaseItem(item.id);
+
+      setBalance(result.balance);
+      setPurchasedIds((prev) => [...prev, item.id]);
+    } catch (error) {
+      window.alert(error.message ?? "구매에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setPurchasingId(null);
+    }
   };
+
+  if (loading) {
+    return (
+      <main className="point-shop-page">
+        <p className="point-shop-loading">포인트 상점을 불러오는 중...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="point-shop-page">
@@ -132,7 +160,7 @@ function PointShop() {
             <span>MY POINT</span>
 
             <strong>
-              {POINT_BALANCE.toLocaleString()}
+              {balance.toLocaleString()}
               <small>P</small>
             </strong>
           </div>
@@ -168,25 +196,26 @@ function PointShop() {
             <p>원하는 아이템을 선택해 보세요.</p>
           </div>
 
-          <div className="point-shop-count">{ITEMS.length} ITEMS</div>
+          <div className="point-shop-count">{items.length} ITEMS</div>
         </div>
 
         <div className="point-shop-grid">
-          {ITEMS.map((item) => {
-            const canPurchase = POINT_BALANCE >= item.price;
-
+          {items.map((item) => {
+            const { icon, description, color } = PRESENTATION[item.id] ?? {};
+            const canPurchase = balance >= item.price;
             const purchased = purchasedIds.includes(item.id);
+            const purchasing = purchasingId === item.id;
 
             return (
               <article
                 key={item.id}
-                className={`point-shop-item ${item.color}`}
+                className={`point-shop-item ${color ?? ""}`}
               >
                 <div className="point-shop-item-bg" aria-hidden="true" />
 
                 <div className="point-shop-item-top">
                   <div className="point-shop-item-icon" aria-hidden="true">
-                    {item.icon}
+                    {icon}
                   </div>
 
                   <span className="point-shop-item-tag">ITEM</span>
@@ -195,7 +224,7 @@ function PointShop() {
                 <div className="point-shop-item-content">
                   <h3>{item.name}</h3>
 
-                  <p>{item.description}</p>
+                  <p>{description}</p>
                 </div>
 
                 <div className="point-shop-item-bottom">
@@ -213,7 +242,7 @@ function PointShop() {
                     className={
                       purchased ? "purchased" : !canPurchase ? "disabled" : ""
                     }
-                    disabled={!canPurchase || purchased}
+                    disabled={!canPurchase || purchased || purchasing}
                     onClick={() => handlePurchase(item)}
                   >
                     {purchased ? (
@@ -224,7 +253,11 @@ function PointShop() {
                     ) : (
                       <>
                         <FaShoppingBag aria-hidden="true" />
-                        {canPurchase ? "구매하기" : "포인트 부족"}
+                        {purchasing
+                          ? "구매 중..."
+                          : canPurchase
+                            ? "구매하기"
+                            : "포인트 부족"}
                       </>
                     )}
                   </button>

@@ -26,6 +26,13 @@
   color: #29243d;
 }
 
+.point-shop-loading {
+  padding: 120px 0;
+  text-align: center;
+  color: var(--shop-text-soft);
+  font-size: 15px;
+}
+
 /* =========================================================
    HERO
 ========================================================= */

@@ -10,5 +10,8 @@ public interface TranslationsRepository extends JpaRepository<Translations, Long
 
     void deleteByUserIdAndOriginalText(Long userId, String originalText);
 
+    /** MyPageService.saveHistory 에서 포인트를 새 번역에만 적립하려고 저장 전에 확인한다. */
+    boolean existsByUserIdAndOriginalText(Long userId, String originalText);
+
     long countByUserId(Long userId);
 }
