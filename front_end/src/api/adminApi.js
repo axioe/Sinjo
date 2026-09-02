@@ -40,3 +40,14 @@ export const updateQuizWord = (id, payload) =>
 
 export const deleteQuizWord = (id) =>
   request(`/api/admin/quizzes/${id}`, { method: "DELETE" });
+
+export const getPointShopItems = () => request("/api/admin/point-shop-items");
+
+export const createPointShopItem = (payload) =>
+  request("/api/admin/point-shop-items", { method: "POST", body: JSON.stringify(payload) });
+
+export const updatePointShopItem = (id, payload) =>
+  request(`/api/admin/point-shop-items/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+
+export const deletePointShopItem = (id) =>
+  request(`/api/admin/point-shop-items/${id}`, { method: "DELETE" });

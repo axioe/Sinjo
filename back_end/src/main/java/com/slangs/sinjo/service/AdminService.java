@@ -1,15 +1,18 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.AdminDto;
+import com.slangs.sinjo.dto.PointDto;
 import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
+import com.slangs.sinjo.entity.PointShopItem;
 import com.slangs.sinjo.entity.QuizWord;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.entity.Word;
 import com.slangs.sinjo.exception.DuplicateWordException;
 import com.slangs.sinjo.exception.NotFoundException;
 import com.slangs.sinjo.repository.AttendanceRepository;
+import com.slangs.sinjo.repository.PointShopItemRepository;
 import com.slangs.sinjo.repository.PointTransactionRepository;
 import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.QuizRepository;
@@ -36,6 +39,7 @@ public class AdminService {
     private final QuizAttemptRepository quizAttemptRepository;
     private final AttendanceRepository attendanceRepository;
     private final PointTransactionRepository pointTransactionRepository;
+    private final PointShopItemRepository pointShopItemRepository;
 
     /**
      * [추가] 객관식 퀴즈 오답 보기 최소 개수.
@@ -248,6 +252,47 @@ public class AdminService {
             throw new NotFoundException("해당 퀴즈 문제를 찾을 수 없습니다.");
         }
         quizRepository.deleteById(id);
+    }
+
+    // ---- 포인트 상점 관리 ---------------------------------------------------
+    // [추가] PointService.SHOP_ITEMS 고정 Map 을 대체하는 관리자 CRUD.
+    // itemId 는 PointTransaction 에 FK 가 아니라 참고용 Long 으로만 남아 있어서
+    // (QuizWord.wordId 와 같은 방식) 항목을 지워도 이미 산 기록의 "포인트 상점
+    // 구매: 상품명" 문구는 그대로 남고, 상점 목록에서만 사라진다.
+
+    @Transactional(readOnly = true)
+    public List<PointDto.ShopItem> getPointShopItems() {
+        return pointShopItemRepository.findAllByOrderByIdAsc()
+                .stream()
+                .map(item -> new PointDto.ShopItem(item.getId(), item.getName(), item.getPrice()))
+                .toList();
+    }
+
+    @Transactional
+    public PointDto.ShopItem createPointShopItem(AdminDto.PointShopItemRequest request) {
+        PointShopItem saved = pointShopItemRepository.save(
+                new PointShopItem(request.name().trim(), request.price())
+        );
+
+        return new PointDto.ShopItem(saved.getId(), saved.getName(), saved.getPrice());
+    }
+
+    @Transactional
+    public PointDto.ShopItem updatePointShopItem(Long id, AdminDto.PointShopItemRequest request) {
+        PointShopItem target = pointShopItemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("해당 상품을 찾을 수 없습니다."));
+
+        target.update(request.name().trim(), request.price());
+
+        return new PointDto.ShopItem(target.getId(), target.getName(), target.getPrice());
+    }
+
+    @Transactional
+    public void deletePointShopItem(Long id) {
+        if (!pointShopItemRepository.existsById(id)) {
+            throw new NotFoundException("해당 상품을 찾을 수 없습니다.");
+        }
+        pointShopItemRepository.deleteById(id);
     }
 
     /** 빈 문자열/공백만 있는 오답 보기를 걸러낸다. */
