@@ -1,6 +1,7 @@
 package com.slangs.sinjo.controller;
 
 import com.slangs.sinjo.dto.FavoritesDto;
+import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.TranslationDto;
 import com.slangs.sinjo.dto.TranslationSaveRequest;
 import com.slangs.sinjo.service.MyPageService;
@@ -79,5 +80,16 @@ public class MyPageController {
 
         myPageService.removeFavorite(userId, wordId);
         return ResponseEntity.noContent().build();
+    }
+
+    /* ===================== 게임 기록 (REQ-MY-01) ===================== */
+
+    @GetMapping("/games")
+    public ResponseEntity<List<QuizAttemptDto>> getGameHistory(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return ResponseEntity.ok(myPageService.getGameHistory(userId, page, size));
     }
 }

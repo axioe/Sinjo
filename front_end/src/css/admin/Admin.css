@@ -1,0 +1,323 @@
+/* ==========================================================================
+   관리자 페이지 (REQ-ADM-01)
+   화면구조 가이드라인 7장: 좌측 사이드 메뉴 + 우측 테이블형 콘텐츠
+   ========================================================================== */
+
+.admin {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 24px 0 40px;
+}
+
+/* ---- 좌측 메뉴 ------------------------------------------------------------ */
+.admin-sidebar {
+  padding: 16px;
+  background: var(--c-surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-sidebar-title {
+  margin-bottom: 12px;
+  padding: 0 12px;
+  color: var(--c-text-muted);
+  font-size: 12px;
+}
+
+.admin-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 4px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--c-text-sub);
+  font-size: 14px;
+  text-align: left;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.admin-menu-item:hover {
+  background: var(--c-primary-tint);
+  color: var(--c-primary);
+}
+
+.admin-menu-item.active {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+/* ---- 우측 콘텐츠 ---------------------------------------------------------- */
+.admin-content {
+  padding: 28px;
+  background: var(--c-surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-title {
+  margin-bottom: 6px;
+  font-size: 22px;
+}
+
+.admin-desc {
+  margin-bottom: 16px;
+  color: var(--c-text-sub);
+  font-size: 13px;
+}
+
+.admin-loading,
+.admin-error {
+  padding: 60px;
+  text-align: center;
+  color: var(--c-text-sub);
+}
+
+.admin-error {
+  color: var(--c-danger);
+}
+
+/* ---- 대시보드 ------------------------------------------------------------- */
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.admin-stat {
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.admin-stat.purple {
+  background: var(--c-primary-tint);
+}
+.admin-stat.mint {
+  background: #eafaf3;
+}
+.admin-stat.pink {
+  background: #fdeef4;
+}
+
+.admin-stat-label {
+  margin-bottom: 6px;
+  color: var(--c-text-sub);
+  font-size: 13px;
+}
+
+.admin-stat-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+/* ---- 등록 · 수정 폼 -------------------------------------------------------- */
+.admin-form {
+  padding: 20px;
+  margin-bottom: 28px;
+  background: var(--c-sunken);
+  border-radius: 16px;
+}
+
+.admin-form-title {
+  margin-bottom: 16px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.admin-field {
+  margin-bottom: 14px;
+}
+
+.admin-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--c-text-sub);
+  font-size: 13px;
+}
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  font: inherit;
+  color: var(--c-text);
+}
+
+.admin-field textarea {
+  resize: vertical;
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 4px rgba(109, 74, 255, 0.12);
+}
+
+.admin-field-error {
+  margin-top: 6px;
+  color: var(--c-danger);
+  font-size: 12px;
+}
+
+.admin-alert {
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: var(--c-danger-tint);
+  border-radius: 12px;
+  color: var(--c-danger);
+  font-size: 13px;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* ---- 버튼 ---------------------------------------------------------------- */
+.admin-btn {
+  padding: 12px 20px;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: 14px;
+}
+
+.admin-btn:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.admin-btn.primary {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
+.admin-btn.primary:hover {
+  background: var(--c-primary-hover);
+  color: #fff;
+}
+
+.admin-btn.primary:disabled {
+  background: #eceaf3;
+  border-color: #eceaf3;
+  color: #b3aec4;
+  cursor: not-allowed;
+}
+
+.admin-btn.small {
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.admin-btn.danger:hover {
+  border-color: var(--c-danger);
+  color: var(--c-danger);
+}
+
+/* ---- 테이블 -------------------------------------------------------------- */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--c-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  color: var(--c-text-sub);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--c-sunken);
+}
+
+/* 수정 중인 행을 눈에 띄게 한다. 폼과 목록이 떨어져 있어 헷갈리기 쉽다. */
+.admin-table tr.editing {
+  background: var(--c-primary-tint);
+}
+
+.admin-td-word {
+  font-family: var(--font-display);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-td-example {
+  color: var(--c-text-sub);
+}
+
+.admin-td-actions {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* ---- 권한 배지 ------------------------------------------------------------ */
+.admin-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--c-border);
+  color: var(--c-text-sub);
+  font-size: 11px;
+}
+
+.admin-badge.admin {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+.admin-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.admin-btn.excel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #1d6f42;
+  background: #fff;
+  color: #1d6f42;
+}
+
+.admin-btn.excel:hover:not(:disabled) {
+  background: #1d6f42;
+  color: #fff;
+}
+.admin-refetch-btn {
+  display: block;
+  margin-top: 6px;
+}

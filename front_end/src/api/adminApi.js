@@ -21,6 +21,15 @@ export const deleteWord = (id) =>
 
 export const getUsers = () => request("/api/admin/users");
 
+export const updateUserRole = (id, role) =>
+  request(`/api/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify({ role }) });
+
+export const updateUser = (id, payload) =>
+  request(`/api/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+
+export const deleteUser = (id) =>
+  request(`/api/admin/users/${id}`, { method: "DELETE" });
+
 export const getQuizWords = () => request("/api/admin/quizzes");
 
 export const createQuizWord = (payload) =>
@@ -48,3 +57,13 @@ export async function uploadWordsExcel(formData) {
 
   return res.json();
 }
+export const getPointShopItems = () => request("/api/admin/point-shop-items");
+
+export const createPointShopItem = (payload) =>
+  request("/api/admin/point-shop-items", { method: "POST", body: JSON.stringify(payload) });
+
+export const updatePointShopItem = (id, payload) =>
+  request(`/api/admin/point-shop-items/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+
+export const deletePointShopItem = (id) =>
+  request(`/api/admin/point-shop-items/${id}`, { method: "DELETE" });

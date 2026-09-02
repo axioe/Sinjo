@@ -1,6 +1,7 @@
 package com.slangs.sinjo.controller;
 
 import com.slangs.sinjo.dto.AdminDto;
+import com.slangs.sinjo.dto.PointDto;
 import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -82,6 +84,29 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getUsers());
     }
 
+    @PatchMapping("/users/{id}/role")
+    public ResponseEntity<UserDto.AdminUserRow> updateUserRole(
+            @AuthenticationPrincipal Long adminId,
+            @PathVariable Long id,
+            @Valid @RequestBody AdminDto.UpdateRoleRequest request) {
+        return ResponseEntity.ok(adminService.updateUserRole(adminId, id, request));
+    }
+
+    @PatchMapping("/users/{id}")
+    public ResponseEntity<UserDto.AdminUserRow> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminDto.UpdateUserRequest request) {
+        return ResponseEntity.ok(adminService.updateUser(id, request));
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal Long adminId,
+            @PathVariable Long id) {
+        adminService.deleteUser(adminId, id);
+        return ResponseEntity.noContent().build();
+    }
+
     // ---- 퀴즈 관리 --------------------------------------------------------
 
     @GetMapping("/quizzes")
@@ -103,6 +128,32 @@ public class AdminController {
     @DeleteMapping("/quizzes/{id}")
     public ResponseEntity<Void> deleteQuizWord(@PathVariable Long id) {
         adminService.deleteQuizWord(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ---- 포인트 상점 관리 --------------------------------------------------
+
+    @GetMapping("/point-shop-items")
+    public ResponseEntity<List<PointDto.ShopItem>> getPointShopItems() {
+        return ResponseEntity.ok(adminService.getPointShopItems());
+    }
+
+    @PostMapping("/point-shop-items")
+    public ResponseEntity<PointDto.ShopItem> createPointShopItem(
+            @Valid @RequestBody AdminDto.PointShopItemRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.createPointShopItem(request));
+    }
+
+    @PutMapping("/point-shop-items/{id}")
+    public ResponseEntity<PointDto.ShopItem> updatePointShopItem(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminDto.PointShopItemRequest request) {
+        return ResponseEntity.ok(adminService.updatePointShopItem(id, request));
+    }
+
+    @DeleteMapping("/point-shop-items/{id}")
+    public ResponseEntity<Void> deletePointShopItem(@PathVariable Long id) {
+        adminService.deletePointShopItem(id);
         return ResponseEntity.noContent().build();
     }
 }

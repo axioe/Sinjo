@@ -1,0 +1,294 @@
+/* ==========================================================================
+   신조어 게임 (REQ-GAME-01)
+   원래 Tailwind 클래스로 작성돼 있었으나 Tailwind 가 설치돼 있지 않아
+   스타일이 전혀 먹지 않는 상태였다. 프로젝트 방식(순수 CSS)으로 옮겼다.
+   ========================================================================== */
+
+.quiz-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 0 20px;
+}
+
+/* ---- 종류 선택 ----------------------------------------------------------- */
+.quiz-select-title {
+  margin-bottom: 8px;
+  font-size: 30px;
+  text-align: center;
+}
+
+.quiz-select-desc {
+  margin-bottom: 32px;
+  color: var(--c-text-sub);
+  text-align: center;
+}
+
+.quiz-select-list {
+  display: grid;
+  gap: 16px;
+}
+
+.quiz-select-card {
+  display: block;
+  padding: 24px;
+  background: var(--c-surface);
+  border: 2px solid transparent;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+
+.quiz-select-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--c-primary);
+}
+
+.quiz-select-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  /* 당당해는 개성이 강해 이런 짧은 포인트에만 쓴다. */
+  font-family: var(--font-point);
+  font-size: 13px;
+}
+
+.quiz-select-card.multiple .quiz-select-badge {
+  background: var(--c-primary-tint);
+  color: var(--c-primary);
+}
+.quiz-select-card.initial .quiz-select-badge {
+  background: var(--c-mint-tint);
+  color: #1d8f6d;
+}
+.quiz-select-card.subjective .quiz-select-badge {
+  background: var(--c-pink-tint);
+  color: #c93b6e;
+}
+
+.quiz-select-name {
+  margin-bottom: 6px;
+  font-size: 19px;
+}
+
+.quiz-select-hint {
+  color: var(--c-text-sub);
+  font-size: 14px;
+}
+
+/* ---- 문제 화면 ----------------------------------------------------------- */
+.quiz-back {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--c-text-sub);
+  font-size: 14px;
+}
+
+.quiz-back:hover {
+  color: var(--c-primary);
+  text-decoration: underline;
+}
+
+.quiz-card {
+  padding: 32px;
+  background: var(--c-surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.quiz-label {
+  margin-bottom: 4px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--c-primary);
+}
+
+.quiz-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  color: var(--c-text-sub);
+  font-size: 13px;
+}
+
+.quiz-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--c-primary-tint);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--c-primary);
+  border-radius: 999px;
+  transition: width 250ms ease;
+}
+
+.quiz-question {
+  margin-bottom: 24px;
+  font-size: 21px;
+}
+
+.quiz-hint {
+  margin-bottom: 20px;
+  color: var(--c-text-sub);
+  font-size: 14px;
+}
+
+/* 초성은 크게 보여줘야 해서 포인트 폰트를 쓴다. */
+.quiz-initial {
+  padding: 28px;
+  margin-bottom: 20px;
+  background: var(--c-sunken);
+  border-radius: 16px;
+  color: var(--c-mint);
+  font-family: var(--font-point);
+  font-size: 42px;
+  letter-spacing: 10px;
+  text-align: center;
+  /* 공백 없이 긴 단어(초성 10자 이상)도 카드 밖으로 넘치지 않도록 */
+  overflow-wrap: anywhere;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.quiz-option {
+  padding: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  text-align: left;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.quiz-option:hover:not(:disabled) {
+  background: var(--c-sunken);
+}
+
+.quiz-option.selected {
+  background: var(--c-primary-tint);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  font-family: var(--font-display);
+}
+
+.quiz-input {
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 20px;
+  background: var(--c-sunken);
+  border: 1px solid transparent;
+  border-radius: 14px;
+}
+
+.quiz-input:focus {
+  outline: none;
+  background: var(--c-surface);
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 4px rgba(109, 74, 255, 0.15);
+}
+
+.quiz-feedback {
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  font-size: 14px;
+}
+
+.quiz-feedback.correct {
+  background: var(--c-mint-tint);
+  color: #1d8f6d;
+}
+
+.quiz-feedback.wrong {
+  background: var(--c-danger-tint);
+  color: #c9364a;
+}
+
+/* 정답 자체가 아니라 "정답 확인" 요청이 실패했을 때(quizApi.checkAnswer 참고) */
+.quiz-submit-error {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--c-danger-tint);
+  color: #c9364a;
+  font-size: 13px;
+}
+
+.quiz-submit {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 16px;
+}
+
+.quiz-submit:hover:not(:disabled) {
+  background: var(--c-primary-hover);
+}
+
+.quiz-submit:disabled {
+  background: #eceaf3;
+  color: #b3aec4;
+  cursor: not-allowed;
+}
+
+/* ---- 결과 --------------------------------------------------------------- */
+.quiz-result {
+  padding: 44px 32px;
+  background: var(--c-surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.quiz-result-score {
+  margin-bottom: 8px;
+  font-family: var(--font-point);
+  font-size: 46px;
+  color: var(--c-primary);
+}
+
+.quiz-result-desc {
+  margin-bottom: 28px;
+  color: var(--c-text-sub);
+}
+
+.quiz-result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.quiz-result-actions button,
+.quiz-result-actions a {
+  padding: 14px 28px;
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  background: var(--c-surface);
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+.quiz-result-actions .primary {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
+.quiz-loading {
+  padding: 80px;
+  color: var(--c-text-sub);
+  text-align: center;
+}

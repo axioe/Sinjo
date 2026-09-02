@@ -16,10 +16,6 @@
 
   box-sizing: border-box;
 
-  /*
-    메인 페이지와 어울리는 보라색 계열 배경
-    너무 진하지 않게 은은한 그라데이션 적용
-  */
   background: linear-gradient(135deg, #ffffff 0%, #faf8ff 45%, #f1edff 100%);
 
   border: 1px solid #ddd5ff;
@@ -34,7 +30,6 @@
   z-index: 100;
 }
 
-/* 헤더 상단에 아주 은은한 보라색 포인트 */
 .header::before {
   content: "";
 
@@ -68,10 +63,6 @@
   display: flex;
   align-items: center;
 
-  /*
-    기존 30px보다 살짝 줄여서
-    로고와 메뉴 사이가 자연스럽게 연결되도록 조정
-  */
   margin-right: 24px;
 }
 
@@ -84,7 +75,6 @@
 
   text-decoration: none;
 
-  /* 이미지를 살짝 위로 */
   transform: translateY(-2px);
 
   transition:
@@ -93,7 +83,6 @@
 }
 
 .logo a:hover {
-  /* 기존 -1px 대신 위로 올라가는 효과 유지 */
   transform: translateY(-3px);
 
   opacity: 0.95;
@@ -153,8 +142,6 @@
 
   transform: translateY(-1px);
 }
-
-/* 메뉴 밑줄 */
 
 .nav-menu a::after {
   content: "";
