@@ -206,19 +206,19 @@ function AdminPointShop() {
                   >
                     <td>{item.id}</td>
 
-                    <td className="admin-td-word">{item.name}</td>
+                    <td className="admin-td-word">
+                      <button
+                        type="button"
+                        className="admin-td-word-btn"
+                        onClick={() => handleEdit(item)}
+                      >
+                        {item.name}
+                      </button>
+                    </td>
 
                     <td>{item.price.toLocaleString()}P</td>
 
                     <td className="admin-td-actions">
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => handleEdit(item)}
-                      >
-                        수정
-                      </button>
-
                       <button
                         type="button"
                         className="admin-btn small danger"

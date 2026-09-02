@@ -295,25 +295,25 @@ function AdminWords() {
                   >
                     <td>{item.id}</td>
 
-                    <td className="admin-td-word">{item.word}</td>
+                    <td className="admin-td-word">
+                      <button
+                        type="button"
+                        className="admin-td-word-btn"
+                        onClick={() => handleEdit(item)}
+                      >
+                        {item.word}
+                      </button>
+                    </td>
 
                     <td>{item.category?.trim() || "기타"}</td>
 
-                    <td>{item.meaning}</td>
+                    <td className="admin-td-wrap">{item.meaning}</td>
 
-                    <td className="admin-td-example">{item.example}</td>
+                    <td className="admin-td-example admin-td-wrap">{item.example}</td>
 
                     <td>{item.likes}</td>
 
                     <td className="admin-td-actions">
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => handleEdit(item)}
-                      >
-                        수정
-                      </button>
-
                       <button
                         type="button"
                         className="admin-btn small danger"
