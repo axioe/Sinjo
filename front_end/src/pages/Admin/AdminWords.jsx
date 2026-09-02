@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getWords,
   createWord,
   updateWord,
   deleteWord,
+  uploadWordsExcel,
 } from "../../api/adminApi";
+import { FaFileExcel } from "react-icons/fa";
 
 const CATEGORY_OPTIONS = ["게임", "인터넷", "일상", "자기계발", "직장", "기타"];
 
@@ -26,6 +28,8 @@ function AdminWords() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fileRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = () => {
     getWords()
@@ -124,14 +128,67 @@ function AdminWords() {
     setErrors({});
   };
 
+  const handleExcelUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+
+  setUploading(true);
+  setErrors({});
+
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const result = await uploadWordsExcel(fd);
+
+    let msg = `총 ${result.totalRows}행 중 ${result.successCount}건 등록`;
+    if (result.skipCount > 0) msg += `, ${result.skipCount}건 중복 제외`;
+    if (result.failures?.length > 0) {
+      msg += `\n\n[실패 ${result.failures.length}건]\n` + result.failures.join("\n");
+    }
+    alert(msg);
+
+    load();
+  } catch (err) {
+    setErrors({ form: err.message });
+  } finally {
+    setUploading(false);
+  }
+};
+
   return (
     <>
       <h1 className="admin-title">용어 관리</h1>
 
       <form className="admin-form" onSubmit={handleSubmit} noValidate>
-        <p className="admin-form-title">
-          {editingId ? "신조어 수정" : "신조어 등록"}
-        </p>
+        <div className="admin-form-header">
+          <p className="admin-form-title">
+            {editingId ? "신조어 수정" : "신조어 등록"}
+          </p>
+
+          {!editingId && (
+            <>
+              <button
+                type="button"
+                className="admin-btn excel"
+                onClick={() => fileRef.current.click()}
+                disabled={uploading}
+              >
+                <FaFileExcel />
+                {uploading ? "업로드 중..." : "엑셀 일괄 등록"}
+              </button>
+
+              <input
+                type="file"
+                ref={fileRef}
+                onChange={handleExcelUpload}
+                accept=".xlsx,.xls"
+                style={{ display: "none" }}
+              />
+            </>
+          )}
+        </div>
 
         {errors.form && <p className="admin-alert">{errors.form}</p>}
 

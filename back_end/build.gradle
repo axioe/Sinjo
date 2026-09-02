@@ -50,6 +50,9 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+
+//    엑셀 업로드 기능 추가
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
 }
 
 dependencyManagement {

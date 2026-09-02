@@ -297,6 +297,26 @@
   color: #fff;
 }
 
+.admin-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.admin-btn.excel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #1d6f42;
+  background: #fff;
+  color: #1d6f42;
+}
+
+.admin-btn.excel:hover:not(:disabled) {
+  background: #1d6f42;
+  color: #fff;
+}
 .admin-refetch-btn {
   display: block;
   margin-top: 6px;

@@ -6,13 +6,16 @@ import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.service.AdminService;
+import com.slangs.sinjo.service.WordExcelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -28,6 +31,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final WordExcelService wordExcelService;
 
     @GetMapping("/summary")
     public ResponseEntity<AdminDto.Summary> summary() {
@@ -56,6 +60,21 @@ public class AdminController {
     public ResponseEntity<Void> deleteWord(@PathVariable Long id) {
         adminService.deleteWord(id);
         return ResponseEntity.noContent().build();
+    }
+
+//    엑셀 업로드 기능 추가
+    @PostMapping("/words/excel")
+    public ResponseEntity<?> uploadExcel(@RequestParam("file") MultipartFile file) {
+        String name = file.getOriginalFilename();
+        if (name == null || !(name.endsWith(".xlsx") || name.endsWith(".xls"))) {
+            return ResponseEntity.badRequest().body("엑셀 파일만 업로드할 수 있습니다.");
+        }
+
+        try {
+            return ResponseEntity.ok(wordExcelService.upload(file));
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().body("파일을 읽지 못했습니다.");
+        }
     }
 
     // ---- 회원 관리 --------------------------------------------------------
