@@ -7,8 +7,16 @@ import { getMyPoints, getShopItems, purchaseItem } from "../../api/pointApi";
 
 /**
  * 상점 아이템의 아이콘/설명/색상 - 화면 전용 정보라 서버에는 없다(id/name/price 만 옴).
- * 서버 카탈로그(PointService.SHOP_ITEMS)와 id 가 반드시 일치해야 한다.
+ * 관리자 페이지(AdminPointShop)에서 등록한 초기 4개 상품의 id 와 맞춰 둔 값이다.
+ * 관리자가 새 상품을 추가하면 이 매핑에 없는 id 가 들어올 수 있어 DEFAULT_PRESENTATION 으로
+ * 대체한다 - 새 상품 전용 아이콘/설명이 필요해지면 여기 항목을 추가하면 된다.
  */
+const DEFAULT_PRESENTATION = {
+  icon: "🎁",
+  description: "포인트로 교환할 수 있는 아이템이에요.",
+  color: "purple",
+};
+
 const PRESENTATION = {
   1: {
     icon: "🎨",
@@ -201,7 +209,8 @@ function PointShop() {
 
         <div className="point-shop-grid">
           {items.map((item) => {
-            const { icon, description, color } = PRESENTATION[item.id] ?? {};
+            const { icon, description, color } =
+              PRESENTATION[item.id] ?? DEFAULT_PRESENTATION;
             const canPurchase = balance >= item.price;
             const purchased = purchasedIds.includes(item.id);
             const purchasing = purchasingId === item.id;

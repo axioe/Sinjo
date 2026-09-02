@@ -1,6 +1,7 @@
 package com.slangs.sinjo.controller;
 
 import com.slangs.sinjo.dto.AdminDto;
+import com.slangs.sinjo.dto.PointDto;
 import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
@@ -108,6 +109,32 @@ public class AdminController {
     @DeleteMapping("/quizzes/{id}")
     public ResponseEntity<Void> deleteQuizWord(@PathVariable Long id) {
         adminService.deleteQuizWord(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ---- 포인트 상점 관리 --------------------------------------------------
+
+    @GetMapping("/point-shop-items")
+    public ResponseEntity<List<PointDto.ShopItem>> getPointShopItems() {
+        return ResponseEntity.ok(adminService.getPointShopItems());
+    }
+
+    @PostMapping("/point-shop-items")
+    public ResponseEntity<PointDto.ShopItem> createPointShopItem(
+            @Valid @RequestBody AdminDto.PointShopItemRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.createPointShopItem(request));
+    }
+
+    @PutMapping("/point-shop-items/{id}")
+    public ResponseEntity<PointDto.ShopItem> updatePointShopItem(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminDto.PointShopItemRequest request) {
+        return ResponseEntity.ok(adminService.updatePointShopItem(id, request));
+    }
+
+    @DeleteMapping("/point-shop-items/{id}")
+    public ResponseEntity<Void> deletePointShopItem(@PathVariable Long id) {
+        adminService.deletePointShopItem(id);
         return ResponseEntity.noContent().build();
     }
 }
