@@ -31,7 +31,11 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final UserRepository userRepository;
+    private final PointService pointService;
     private static final int DEFAULT_QUIZ_COUNT = 5;
+
+    /** [추가] 정답 1개당 적립 포인트. PointService.SHOP_ITEMS 참고 - 가격 기준으로 정한 값이다. */
+    private static final int QUIZ_CORRECT_POINT = 10;
 
     // 1. 객관식 퀴즈 목록 생성
     public List<QuizDto.MultipleChoice> getMultipleChoiceQuizzes() {
@@ -150,6 +154,8 @@ public class QuizService {
         quizAttemptRepository.save(
                 new QuizAttempt(user, request.quizType(), request.score(), request.total())
         );
+
+        pointService.earn(userId, request.score() * QUIZ_CORRECT_POINT, "게임 플레이");
     }
 
     /**

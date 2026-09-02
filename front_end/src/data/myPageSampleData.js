@@ -61,5 +61,3 @@ export const ACTIVITY_SUMMARY_PLACEHOLDERS = [
   { key: "favorite", label: "즐겨찾기 단어", tone: "mint" },
   { key: "test", label: "테스트 완료", tone: "pink" },
 ];
-
-export const POINT_BALANCE = 1250;

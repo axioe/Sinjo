@@ -18,6 +18,7 @@ import { ACTIVITY_SUMMARY_PLACEHOLDERS } from "../../data/myPageSampleData";
 
 import { getMyQuizStats, getMyGameHistory } from "../../api/quizApi";
 import { getMyAttendance } from "../../api/attendanceApi";
+import { getMyPoints } from "../../api/pointApi";
 
 import {
   getMyTranslations,
@@ -29,8 +30,6 @@ import {
   getMyFavoriteCount,
   removeFavorite,
 } from "../../api/favoriteApi";
-
-export const POINT_BALANCE = 1250;
 
 const MENU = {
   HOME: "home",
@@ -56,6 +55,8 @@ function MyPage() {
   const [gameStats, setGameStats] = useState(null);
 
   const [attendanceDates, setAttendanceDates] = useState(null);
+
+  const [pointBalance, setPointBalance] = useState(null);
 
   const [loading, setLoading] = useState({
     home: true,
@@ -88,12 +89,14 @@ function MyPage() {
           translationsCount,
           favoritesCount,
           attendance,
+          points,
         ] = await Promise.all([
           getMyQuizStats(),
           getMyTranslations(0, 5),
           getMyTranslationCount(),
           getMyFavoriteCount(),
           getMyAttendance(),
+          getMyPoints(),
         ]);
 
         if (!alive) return;
@@ -103,6 +106,7 @@ function MyPage() {
         setTranslationCount(translationsCount);
         setFavoriteCount(favoritesCount);
         setAttendanceDates(attendance ?? []);
+        setPointBalance(points?.balance ?? 0);
       } catch (error) {
         console.error("마이페이지 기본 데이터 조회 실패:", error);
       } finally {
@@ -512,7 +516,7 @@ function MyPage() {
 
               <BadgePoints
                 badges={badges}
-                point={POINT_BALANCE}
+                point={pointBalance ?? 0}
                 onViewAll={() =>
                   setActiveMenu(MENU.STATS)
                 }

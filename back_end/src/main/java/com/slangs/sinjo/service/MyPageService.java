@@ -27,6 +27,10 @@ public class MyPageService {
     private final TranslationsRepository translationsRepository;
     private final FavoritesRepository favoritesRepository;
     private final QuizAttemptRepository quizAttemptRepository;
+    private final PointService pointService;
+
+    /** [추가] 번역 저장 1건당 적립 포인트. PointService.SHOP_ITEMS 참고 - 가격 기준으로 정한 값이다. */
+    private static final int TRANSLATE_SAVE_POINT = 10;
 
     /* ===================== 변환 이력 (REQ-AUTH-02) ===================== */
 
@@ -52,6 +56,12 @@ public class MyPageService {
 
         if (userId == null) return;
 
+        // [수정] 같은 단어를 다시 조회하면 지우고 새로 쌓는 방식이라, 저장 자체는 항상
+        // 일어난다. 포인트는 "새로운" 번역일 때만 적립해야 한다 - 안 그러면 같은
+        // 단어를 반복 조회하는 것만으로 포인트를 무한히 쌓을 수 있다(삭제→재생성이
+        // 매번 새 저장으로 보이기 때문). 그래서 삭제하기 전에 원래 있었는지부터 본다.
+        boolean isNewTranslation = !translationsRepository.existsByUserIdAndOriginalText(userId, request.originalText());
+
         // 같은 단어를 다시 조회하면 기존 기록을 지우고 새로 쌓는다(번역 페이지 동작과 맞춤).
         translationsRepository.deleteByUserIdAndOriginalText(userId, request.originalText());
 
@@ -64,6 +74,10 @@ public class MyPageService {
                         .explanation(request.explanation())
                         .build()
         );
+
+        if (isNewTranslation) {
+            pointService.earn(userId, TRANSLATE_SAVE_POINT, "번역 저장");
+        }
     }
 
     /* ===================== 즐겨찾기 (REQ-MY-01) ===================== */
