@@ -1,0 +1,98 @@
+/* =========================================================
+   WEEKLY RECORD (components/MyPage/WeeklyRecord.jsx)
+========================================================= */
+
+.mypage-week {
+  display: grid;
+
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+
+  gap: 5px;
+
+  margin: 0 0 12px;
+  padding: 0;
+
+  list-style: none;
+}
+
+.mypage-week-item {
+  min-width: 0;
+
+  display: grid;
+
+  justify-items: center;
+
+  gap: 7px;
+}
+
+.mypage-week-day {
+  color: #898391;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.mypage-week-dot {
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border: 1px solid #ebe7f1;
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  color: transparent;
+
+  font-size: 9px;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mypage-week-dot.used {
+  border-color: var(--mypage-primary);
+
+  background: var(--mypage-primary);
+
+  color: #ffffff;
+
+  box-shadow: 0 4px 10px rgba(109, 74, 255, 0.16);
+}
+
+.mypage-week-summary {
+  margin: 0;
+
+  color: #85808d;
+
+  font-size: 11px;
+}
+
+.mypage-week-summary span {
+  margin-left: 2px;
+}
+
+@media (max-width: 600px) {
+  .mypage-week {
+    gap: 3px;
+  }
+  .mypage-week-dot {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+@media (max-width: 400px) {
+  .mypage-week-dot {
+    width: 23px;
+    height: 23px;
+  }
+}

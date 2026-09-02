@@ -1,3 +1,4 @@
+import "../../css/mypage/ActivitySummary.css";
 import { FaBookmark, FaStar, FaGamepad, FaClipboardList } from "react-icons/fa";
 
 const ICONS = {

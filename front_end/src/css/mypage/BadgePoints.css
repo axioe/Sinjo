@@ -1,0 +1,125 @@
+/* =========================================================
+   BADGE POINTS (components/MyPage/BadgePoints.jsx)
+========================================================= */
+
+.mypage-point {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 18px;
+  padding: 13px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--mypage-border);
+  border-radius: 15px;
+
+  background: #faf9ff;
+}
+
+.mypage-point-info {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.mypage-point-icon {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #fff6d7;
+
+  color: #e4a91c;
+
+  font-size: 14px;
+}
+
+.mypage-point-label {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #9892a2;
+
+  font-size: 9px;
+}
+
+.mypage-point-value {
+  display: block;
+
+  color: var(--mypage-primary);
+
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.mypage-point-value small {
+  margin-left: 2px;
+
+  font-size: 10px;
+}
+
+.mypage-point-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+
+  min-height: 35px;
+
+  padding: 0 12px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: var(--mypage-primary);
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mypage-point-btn:hover {
+  background: var(--mypage-primary-dark);
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 5px 12px rgba(109, 74, 255, 0.2);
+}
+
+@media (max-width: 600px) {
+  .mypage-point {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+  .mypage-point-btn {
+    width: 100%;
+  }
+}

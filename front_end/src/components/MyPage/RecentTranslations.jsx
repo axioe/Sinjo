@@ -1,3 +1,4 @@
+import "../../css/mypage/RecentTranslations.css";
 import { useEffect, useState } from "react";
 import { FaCopy, FaRegStar, FaStar, FaTrash, FaTimes } from "react-icons/fa";
 

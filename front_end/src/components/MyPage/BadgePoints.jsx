@@ -1,3 +1,4 @@
+import "../../css/mypage/BadgePoints.css";
 import { useNavigate } from "react-router-dom";
 import { FaCoins, FaStore } from "react-icons/fa";
 

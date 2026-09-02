@@ -71,14 +71,6 @@ function MyPage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   /*
-   * 번역 상세 모달
-   *
-   * 선택한 번역 기록을 저장한다.
-   * null이면 모달을 닫은 상태다.
-   */
-  const [selectedTranslation, setSelectedTranslation] = useState(null);
-
-  /*
    * 기본 마이페이지 데이터
    */
   useEffect(() => {
@@ -296,39 +288,6 @@ function MyPage() {
   const isStats = activeMenu === MENU.STATS;
 
   /*
-   * 번역 기록 클릭
-   */
-  const handleTranslationClick = (translation) => {
-    setSelectedTranslation(translation);
-  };
-
-  /*
-   * 번역 상세 모달 닫기
-   */
-  const handleCloseTranslationDetail = () => {
-    setSelectedTranslation(null);
-  };
-
-  /*
-   * ESC로 상세 모달 닫기
-   */
-  useEffect(() => {
-    if (!selectedTranslation) return;
-
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        setSelectedTranslation(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedTranslation]);
-
-  /*
    * 번역 즐겨찾기
    */
   const handleToggleFavorite = (id) => {
@@ -344,18 +303,6 @@ function MyPage() {
 
     setTranslations(toggleFavorite);
     setAllTranslations(toggleFavorite);
-
-    /*
-     * 현재 상세 모달에 열린 번역도 즉시 반영
-     */
-    setSelectedTranslation((prev) => {
-      if (!prev || prev.id !== id) return prev;
-
-      return {
-        ...prev,
-        favorite: !prev.favorite,
-      };
-    });
   };
 
   /*
@@ -374,11 +321,6 @@ function MyPage() {
     setTranslationCount((prev) =>
       prev == null ? prev : Math.max(0, prev - 1),
     );
-
-    /*
-     * 삭제된 기록이 상세 모달에 열려 있었다면 닫는다.
-     */
-    setSelectedTranslation((prev) => (prev?.id === id ? null : prev));
   };
 
   /*
@@ -416,7 +358,6 @@ function MyPage() {
               loading={loading.home}
               onToggleFavorite={handleToggleFavorite}
               onDelete={handleDelete}
-              onItemClick={handleTranslationClick}
             />
 
             <QuickMenu />
@@ -450,7 +391,6 @@ function MyPage() {
               loading={loading.saved}
               onToggleFavorite={handleToggleFavorite}
               onDelete={handleDelete}
-              onItemClick={handleTranslationClick}
             />
           </section>
         );
@@ -528,14 +468,6 @@ function MyPage() {
       {showPasswordModal && (
         <PasswordChangeModal onClose={() => setShowPasswordModal(false)} />
       )}
-
-      {selectedTranslation && (
-        <TranslationDetailModal
-          translation={selectedTranslation}
-          onClose={handleCloseTranslationDetail}
-          onToggleFavorite={handleToggleFavorite}
-        />
-      )}
     </>
   );
 }
@@ -554,145 +486,6 @@ function PageHeader({ eyebrow, title, description }) {
         <p>{description}</p>
       </div>
     </header>
-  );
-}
-
-/*
- * 번역 상세 모달
- */
-function TranslationDetailModal({ translation, onClose, onToggleFavorite }) {
-  const source =
-    translation.sourceText ??
-    translation.source ??
-    translation.text ??
-    translation.word ??
-    "";
-
-  const result =
-    translation.translatedText ??
-    translation.result ??
-    translation.translation ??
-    "";
-
-  const language =
-    translation.language ??
-    translation.targetLanguage ??
-    translation.lang ??
-    null;
-
-  const createdAt =
-    translation.createdAt ??
-    translation.createdDate ??
-    translation.date ??
-    translation.createdAtText ??
-    null;
-
-  const isFavorite = translation.favorite ?? translation.isFavorite ?? false;
-
-  const formatDate = (value) => {
-    if (!value) return "날짜 정보 없음";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(value);
-    }
-
-    return date.toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  return (
-    <div
-      className="translation-detail-backdrop"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <section
-        className="translation-detail-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="translation-detail-title"
-      >
-        <div className="translation-detail-header">
-          <div>
-            <span className="translation-detail-eyebrow">
-              TRANSLATION DETAIL
-            </span>
-
-            <h2 id="translation-detail-title">번역 기록</h2>
-          </div>
-
-          <button
-            type="button"
-            className="translation-detail-close"
-            onClick={onClose}
-            aria-label="닫기"
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="translation-detail-body">
-          <div className="translation-detail-meta">
-            <span className="translation-detail-tag">
-              {language || "TRANSLATION"}
-            </span>
-
-            <span className="translation-detail-date">
-              {formatDate(createdAt)}
-            </span>
-          </div>
-
-          <div className="translation-detail-box source">
-            <div className="translation-detail-label">원문</div>
-
-            <p>{source || "원문이 없습니다."}</p>
-          </div>
-
-          <div className="translation-detail-arrow">↓</div>
-
-          <div className="translation-detail-box result">
-            <div className="translation-detail-label">번역 결과</div>
-
-            <p>{result || "번역 결과가 없습니다."}</p>
-          </div>
-
-          <div className="translation-detail-actions">
-            <button
-              type="button"
-              className={`translation-detail-favorite ${
-                isFavorite ? "on" : ""
-              }`}
-              onClick={() => {
-                if (translation.id != null) {
-                  onToggleFavorite(translation.id);
-                }
-              }}
-            >
-              <span>{isFavorite ? "★" : "☆"}</span>
-              {isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
-            </button>
-
-            <button
-              type="button"
-              className="translation-detail-confirm"
-              onClick={onClose}
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      </section>
-    </div>
   );
 }
 
