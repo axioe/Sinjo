@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getWords,
   createWord,
   updateWord,
   deleteWord,
 } from "../../api/adminApi";
+import { FaFileExcel } from "react-icons/fa";
 
 const CATEGORY_OPTIONS = ["게임", "인터넷", "일상", "자기계발", "직장", "기타"];
 
@@ -26,6 +27,8 @@ function AdminWords() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fileRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = () => {
     getWords()
@@ -124,14 +127,63 @@ function AdminWords() {
     setErrors({});
   };
 
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 같은 파일을 다시 골라도 onChange 가 뜨도록 값을 비운다
+    e.target.value = "";
+
+    setUploading(true);
+    setErrors({});
+
+    try {
+      const form = new FormData();
+      form.append("file", file);
+
+      // TODO: 백엔드 연결 후 uploadWordsExcel(form) 로 교체
+      console.log("업로드할 파일:", file.name, file.size);
+
+      load(); // 등록 후 목록 갱신
+    } catch (err) {
+      setErrors({ form: err.message });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <>
       <h1 className="admin-title">용어 관리</h1>
 
       <form className="admin-form" onSubmit={handleSubmit} noValidate>
-        <p className="admin-form-title">
-          {editingId ? "신조어 수정" : "신조어 등록"}
-        </p>
+        <div className="admin-form-header">
+          <p className="admin-form-title">
+            {editingId ? "신조어 수정" : "신조어 등록"}
+          </p>
+
+          {!editingId && (
+            <>
+              <button
+                type="button"
+                className="admin-btn excel"
+                onClick={() => fileRef.current.click()}
+                disabled={uploading}
+              >
+                <FaFileExcel />
+                {uploading ? "업로드 중..." : "엑셀 일괄 등록"}
+              </button>
+
+              <input
+                type="file"
+                ref={fileRef}
+                onChange={handleExcelUpload}
+                accept=".xlsx,.xls"
+                style={{ display: "none" }}
+              />
+            </>
+          )}
+        </div>
 
         {errors.form && <p className="admin-alert">{errors.form}</p>}
 
