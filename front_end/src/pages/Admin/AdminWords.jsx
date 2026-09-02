@@ -4,6 +4,7 @@ import {
   createWord,
   updateWord,
   deleteWord,
+  uploadWordsExcel,
 } from "../../api/adminApi";
 import { FaFileExcel } from "react-icons/fa";
 
@@ -128,29 +129,33 @@ function AdminWords() {
   };
 
   const handleExcelUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
 
-    // 같은 파일을 다시 골라도 onChange 가 뜨도록 값을 비운다
-    e.target.value = "";
+  setUploading(true);
+  setErrors({});
 
-    setUploading(true);
-    setErrors({});
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
 
-    try {
-      const form = new FormData();
-      form.append("file", file);
+    const result = await uploadWordsExcel(fd);
 
-      // TODO: 백엔드 연결 후 uploadWordsExcel(form) 로 교체
-      console.log("업로드할 파일:", file.name, file.size);
-
-      load(); // 등록 후 목록 갱신
-    } catch (err) {
-      setErrors({ form: err.message });
-    } finally {
-      setUploading(false);
+    let msg = `총 ${result.totalRows}행 중 ${result.successCount}건 등록`;
+    if (result.skipCount > 0) msg += `, ${result.skipCount}건 중복 제외`;
+    if (result.failures?.length > 0) {
+      msg += `\n\n[실패 ${result.failures.length}건]\n` + result.failures.join("\n");
     }
-  };
+    alert(msg);
+
+    load();
+  } catch (err) {
+    setErrors({ form: err.message });
+  } finally {
+    setUploading(false);
+  }
+};
 
   return (
     <>

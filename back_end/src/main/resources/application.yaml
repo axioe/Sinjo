@@ -60,6 +60,10 @@ server:
         http-only: true
         same-site: lax
         secure: false      # EC2 에 HTTPS 로 배포할 때 true
+# 엑셀 업로드 기능 추가
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 app:
   jwt:
