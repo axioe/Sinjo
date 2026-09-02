@@ -273,58 +273,60 @@ function AdminWords() {
         <>
           <p className="admin-desc">전체 {words.length}개</p>
 
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>신조어</th>
-                <th>카테고리</th>
-                <th>뜻</th>
-                <th>예문</th>
-                <th>좋아요</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {words.map((item) => (
-                <tr
-                  key={item.id}
-                  className={editingId === item.id ? "editing" : ""}
-                >
-                  <td>{item.id}</td>
-
-                  <td className="admin-td-word">{item.word}</td>
-
-                  <td>{item.category?.trim() || "기타"}</td>
-
-                  <td>{item.meaning}</td>
-
-                  <td className="admin-td-example">{item.example}</td>
-
-                  <td>{item.likes}</td>
-
-                  <td className="admin-td-actions">
-                    <button
-                      type="button"
-                      className="admin-btn small"
-                      onClick={() => handleEdit(item)}
-                    >
-                      수정
-                    </button>
-
-                    <button
-                      type="button"
-                      className="admin-btn small danger"
-                      onClick={() => handleDelete(item)}
-                    >
-                      삭제
-                    </button>
-                  </td>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>신조어</th>
+                  <th>카테고리</th>
+                  <th>뜻</th>
+                  <th>예문</th>
+                  <th>좋아요</th>
+                  <th>관리</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {words.map((item) => (
+                  <tr
+                    key={item.id}
+                    className={editingId === item.id ? "editing" : ""}
+                  >
+                    <td>{item.id}</td>
+
+                    <td className="admin-td-word">{item.word}</td>
+
+                    <td>{item.category?.trim() || "기타"}</td>
+
+                    <td>{item.meaning}</td>
+
+                    <td className="admin-td-example">{item.example}</td>
+
+                    <td>{item.likes}</td>
+
+                    <td className="admin-td-actions">
+                      <button
+                        type="button"
+                        className="admin-btn small"
+                        onClick={() => handleEdit(item)}
+                      >
+                        수정
+                      </button>
+
+                      <button
+                        type="button"
+                        className="admin-btn small danger"
+                        onClick={() => handleDelete(item)}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </>

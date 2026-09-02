@@ -103,93 +103,95 @@ function AdminUsers() {
 
       {actionError && <p className="admin-alert">{actionError}</p>}
 
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>이메일</th>
-            <th>닉네임</th>
-            <th>권한</th>
-            <th>가입일</th>
-            <th>마지막 접속</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => {
-            const isSelf = me?.id === user.id;
-            const isEditing = editingId === user.id;
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>이메일</th>
+              <th>닉네임</th>
+              <th>권한</th>
+              <th>가입일</th>
+              <th>마지막 접속</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => {
+              const isSelf = me?.id === user.id;
+              const isEditing = editingId === user.id;
 
-            return (
-              <tr key={user.id} className={isEditing ? "editing" : ""}>
-                <td>{user.id}</td>
-                <td>{user.email}</td>
-                <td>
-                  {isEditing ? (
-                    <input
-                      value={nicknameInput}
-                      onChange={(e) => setNicknameInput(e.target.value)}
-                      autoFocus
-                    />
-                  ) : (
-                    user.nickname
-                  )}
-                </td>
-                <td>
-                  <span className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}>
-                    {user.role === "ADMIN" ? "관리자" : "일반"}
-                  </span>
-                </td>
-                <td>{formatDate(user.createdAt)}</td>
-                <td>{formatDate(user.lastLoginAt)}</td>
-                <td className="admin-td-actions">
-                  {isSelf ? (
-                    <span className="admin-desc">본인 계정</span>
-                  ) : isEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        className="admin-btn small primary"
-                        onClick={() => handleSaveNickname(user.id)}
-                        disabled={submitting}
-                      >
-                        저장
-                      </button>
-                      <button type="button" className="admin-btn small" onClick={cancelEdit}>
-                        취소
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => startEdit(user)}
-                      >
-                        닉네임 수정
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => handleToggleRole(user)}
-                      >
-                        {user.role === "ADMIN" ? "일반으로 변경" : "관리자 지정"}
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn small danger"
-                        onClick={() => handleDelete(user)}
-                      >
-                        삭제
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+              return (
+                <tr key={user.id} className={isEditing ? "editing" : ""}>
+                  <td>{user.id}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        value={nicknameInput}
+                        onChange={(e) => setNicknameInput(e.target.value)}
+                        autoFocus
+                      />
+                    ) : (
+                      user.nickname
+                    )}
+                  </td>
+                  <td>
+                    <span className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}>
+                      {user.role === "ADMIN" ? "관리자" : "일반"}
+                    </span>
+                  </td>
+                  <td>{formatDate(user.createdAt)}</td>
+                  <td>{formatDate(user.lastLoginAt)}</td>
+                  <td className="admin-td-actions">
+                    {isSelf ? (
+                      <span className="admin-desc">본인 계정</span>
+                    ) : isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          className="admin-btn small primary"
+                          onClick={() => handleSaveNickname(user.id)}
+                          disabled={submitting}
+                        >
+                          저장
+                        </button>
+                        <button type="button" className="admin-btn small" onClick={cancelEdit}>
+                          취소
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="admin-btn small"
+                          onClick={() => startEdit(user)}
+                        >
+                          닉네임 수정
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-btn small"
+                          onClick={() => handleToggleRole(user)}
+                        >
+                          {user.role === "ADMIN" ? "일반으로 변경" : "관리자 지정"}
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-btn small danger"
+                          onClick={() => handleDelete(user)}
+                        >
+                          삭제
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

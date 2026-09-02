@@ -187,49 +187,51 @@ function AdminPointShop() {
         <>
           <p className="admin-desc">전체 {items.length}개</p>
 
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>상품명</th>
-                <th>가격</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {items.map((item) => (
-                <tr
-                  key={item.id}
-                  className={editingId === item.id ? "editing" : ""}
-                >
-                  <td>{item.id}</td>
-
-                  <td className="admin-td-word">{item.name}</td>
-
-                  <td>{item.price.toLocaleString()}P</td>
-
-                  <td className="admin-td-actions">
-                    <button
-                      type="button"
-                      className="admin-btn small"
-                      onClick={() => handleEdit(item)}
-                    >
-                      수정
-                    </button>
-
-                    <button
-                      type="button"
-                      className="admin-btn small danger"
-                      onClick={() => handleDelete(item)}
-                    >
-                      삭제
-                    </button>
-                  </td>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>상품명</th>
+                  <th>가격</th>
+                  <th>관리</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {items.map((item) => (
+                  <tr
+                    key={item.id}
+                    className={editingId === item.id ? "editing" : ""}
+                  >
+                    <td>{item.id}</td>
+
+                    <td className="admin-td-word">{item.name}</td>
+
+                    <td>{item.price.toLocaleString()}P</td>
+
+                    <td className="admin-td-actions">
+                      <button
+                        type="button"
+                        className="admin-btn small"
+                        onClick={() => handleEdit(item)}
+                      >
+                        수정
+                      </button>
+
+                      <button
+                        type="button"
+                        className="admin-btn small danger"
+                        onClick={() => handleDelete(item)}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </>
