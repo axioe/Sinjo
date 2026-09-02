@@ -31,8 +31,11 @@ import {
   removeFavorite,
 } from "../../api/favoriteApi";
 
+import ProfileEdit from "../../components/MyPage/ProfileEdit";
+
 const MENU = {
   HOME: "home",
+  PROFILE: "profile",
   SAVED: "saved",
   FAVORITE: "favorite",
   GAME: "game",
@@ -363,8 +366,7 @@ function MyPage() {
       return;
     }
 
-    const removeTranslation = (prev) =>
-      prev.filter((item) => item.id !== id);
+    const removeTranslation = (prev) => prev.filter((item) => item.id !== id);
 
     setTranslations(removeTranslation);
     setAllTranslations(removeTranslation);
@@ -376,9 +378,7 @@ function MyPage() {
     /*
      * 삭제된 기록이 상세 모달에 열려 있었다면 닫는다.
      */
-    setSelectedTranslation((prev) =>
-      prev?.id === id ? null : prev,
-    );
+    setSelectedTranslation((prev) => (prev?.id === id ? null : prev));
   };
 
   /*
@@ -392,19 +392,13 @@ function MyPage() {
     try {
       await removeFavorite(wordId);
 
-      setFavorites((prev) =>
-        prev.filter((item) => item.wordId !== wordId),
-      );
+      setFavorites((prev) => prev.filter((item) => item.wordId !== wordId));
 
-      setFavoriteCount((prev) =>
-        prev == null ? prev : Math.max(0, prev - 1),
-      );
+      setFavoriteCount((prev) => (prev == null ? prev : Math.max(0, prev - 1)));
     } catch (error) {
       console.error("즐겨찾기 삭제 실패:", error);
 
-      window.alert(
-        "즐겨찾기 해제에 실패했습니다. 다시 시도해주세요.",
-      );
+      window.alert("즐겨찾기 해제에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -415,9 +409,6 @@ function MyPage() {
           <>
             <ProfileCard
               profile={user}
-              onChangePassword={() =>
-                setShowPasswordModal(true)
-              }
             />
 
             <RecentTranslations
@@ -430,6 +421,19 @@ function MyPage() {
 
             <QuickMenu />
           </>
+        );
+
+      case MENU.PROFILE:
+        return (
+          <section className="mypage-content-section">
+            <PageHeader
+              eyebrow="ACCOUNT"
+              title="유저 정보 변경"
+              description="닉네임과 비밀번호를 변경할 수 있어요."
+            />
+
+            <ProfileEdit onChangePassword={() => setShowPasswordModal(true)} />
+          </section>
         );
 
       case MENU.SAVED:
@@ -477,10 +481,7 @@ function MyPage() {
               description="지금까지 플레이한 게임 기록을 확인하세요."
             />
 
-            <GameHistory
-              items={gameHistory}
-              loading={loading.game}
-            />
+            <GameHistory items={gameHistory} loading={loading.game} />
           </section>
         );
 
@@ -492,10 +493,7 @@ function MyPage() {
   return (
     <>
       <div className="mypage">
-        <MyPageSidebar
-          active={activeMenu}
-          onSelect={setActiveMenu}
-        />
+        <MyPageSidebar active={activeMenu} onSelect={setActiveMenu} />
 
         {isStats ? (
           <main className="mypage-main mypage-main-wide">
@@ -507,9 +505,7 @@ function MyPage() {
           </main>
         ) : (
           <>
-            <main className="mypage-main">
-              {renderContent()}
-            </main>
+            <main className="mypage-main">{renderContent()}</main>
 
             <aside className="mypage-side">
               <ActivitySummary items={activityItems} />
@@ -517,16 +513,12 @@ function MyPage() {
               <BadgePoints
                 badges={badges}
                 point={pointBalance ?? 0}
-                onViewAll={() =>
-                  setActiveMenu(MENU.STATS)
-                }
+                onViewAll={() => setActiveMenu(MENU.STATS)}
               />
 
               <WeeklyRecord
                 activeDates={attendanceDateSet}
-                onViewAll={() =>
-                  setActiveMenu(MENU.STATS)
-                }
+                onViewAll={() => setActiveMenu(MENU.STATS)}
               />
             </aside>
           </>
@@ -534,9 +526,7 @@ function MyPage() {
       </div>
 
       {showPasswordModal && (
-        <PasswordChangeModal
-          onClose={() => setShowPasswordModal(false)}
-        />
+        <PasswordChangeModal onClose={() => setShowPasswordModal(false)} />
       )}
 
       {selectedTranslation && (
@@ -553,17 +543,11 @@ function MyPage() {
 /*
  * 공통 페이지 헤더
  */
-function PageHeader({
-  eyebrow,
-  title,
-  description,
-}) {
+function PageHeader({ eyebrow, title, description }) {
   return (
     <header className="mypage-section-header">
       <div>
-        <span className="mypage-section-eyebrow">
-          {eyebrow}
-        </span>
+        <span className="mypage-section-eyebrow">{eyebrow}</span>
 
         <h1>{title}</h1>
 
@@ -576,11 +560,7 @@ function PageHeader({
 /*
  * 번역 상세 모달
  */
-function TranslationDetailModal({
-  translation,
-  onClose,
-  onToggleFavorite,
-}) {
+function TranslationDetailModal({ translation, onClose, onToggleFavorite }) {
   const source =
     translation.sourceText ??
     translation.source ??
@@ -607,10 +587,7 @@ function TranslationDetailModal({
     translation.createdAtText ??
     null;
 
-  const isFavorite =
-    translation.favorite ??
-    translation.isFavorite ??
-    false;
+  const isFavorite = translation.favorite ?? translation.isFavorite ?? false;
 
   const formatDate = (value) => {
     if (!value) return "날짜 정보 없음";
@@ -651,9 +628,7 @@ function TranslationDetailModal({
               TRANSLATION DETAIL
             </span>
 
-            <h2 id="translation-detail-title">
-              번역 기록
-            </h2>
+            <h2 id="translation-detail-title">번역 기록</h2>
           </div>
 
           <button
@@ -678,21 +653,15 @@ function TranslationDetailModal({
           </div>
 
           <div className="translation-detail-box source">
-            <div className="translation-detail-label">
-              원문
-            </div>
+            <div className="translation-detail-label">원문</div>
 
             <p>{source || "원문이 없습니다."}</p>
           </div>
 
-          <div className="translation-detail-arrow">
-            ↓
-          </div>
+          <div className="translation-detail-arrow">↓</div>
 
           <div className="translation-detail-box result">
-            <div className="translation-detail-label">
-              번역 결과
-            </div>
+            <div className="translation-detail-label">번역 결과</div>
 
             <p>{result || "번역 결과가 없습니다."}</p>
           </div>
@@ -710,9 +679,7 @@ function TranslationDetailModal({
               }}
             >
               <span>{isFavorite ? "★" : "☆"}</span>
-              {isFavorite
-                ? "즐겨찾기 해제"
-                : "즐겨찾기 추가"}
+              {isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
             </button>
 
             <button
@@ -735,15 +702,11 @@ function TranslationDetailModal({
 function ComingSoon() {
   return (
     <section className="mypage-card mypage-coming-soon">
-      <div className="mypage-coming-soon-icon">
-        🚧
-      </div>
+      <div className="mypage-coming-soon-icon">🚧</div>
 
-      <h2>준비 중입니다.</h2>
+      <h2>준비 중이다.</h2>
 
-      <p>
-        해당 기능은 현재 준비하고 있어요.
-      </p>
+      <p>명령하지 마라.</p>
     </section>
   );
 }
