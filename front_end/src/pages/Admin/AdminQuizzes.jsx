@@ -319,9 +319,17 @@ function AdminQuizzes() {
                   >
                     <td>{item.id}</td>
 
-                    <td className="admin-td-word">{item.word}</td>
+                    <td className="admin-td-word">
+                      <button
+                        type="button"
+                        className="admin-td-word-btn"
+                        onClick={() => handleEdit(item)}
+                      >
+                        {item.word}
+                      </button>
+                    </td>
 
-                    <td>{item.answer}</td>
+                    <td className="admin-td-wrap">{item.answer}</td>
 
                     <td>
                       {item.wordId ? (
@@ -331,19 +339,11 @@ function AdminQuizzes() {
                       )}
                     </td>
 
-                    <td className="admin-td-example">{item.description}</td>
+                    <td className="admin-td-example admin-td-wrap">{item.description}</td>
 
                     <td>{(item.options || []).length}개</td>
 
                     <td className="admin-td-actions">
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => handleEdit(item)}
-                      >
-                        수정
-                      </button>
-
                       <button
                         type="button"
                         className="admin-btn small danger"
