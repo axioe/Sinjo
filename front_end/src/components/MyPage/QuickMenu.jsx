@@ -1,3 +1,4 @@
+import "../../css/mypage/QuickMenu.css";
 import { Link } from "react-router-dom";
 import {
   FaBookmark,

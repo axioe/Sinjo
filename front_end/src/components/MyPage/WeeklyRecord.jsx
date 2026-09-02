@@ -1,3 +1,4 @@
+import "../../css/mypage/WeeklyRecord.css";
 import { FaCheck } from "react-icons/fa";
 import { toLocalDateKey } from "../../utils/date";
 

@@ -1,3 +1,4 @@
+import "../../css/mypage/ActivityStatsPanel.css";
 import { useMemo, useState } from "react";
 import {
   FaChevronLeft,

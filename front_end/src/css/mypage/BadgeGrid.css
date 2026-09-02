@@ -1,0 +1,151 @@
+/* =========================================================
+   BADGE GRID (components/MyPage/BadgeGrid.jsx)
+========================================================= */
+
+.mypage-badge-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.mypage-badge {
+  min-width: 0;
+
+  text-align: center;
+}
+
+.mypage-badge-hex {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 8px;
+
+  border-radius: 16px;
+
+  font-size: 18px;
+
+  transform: rotate(45deg);
+}
+
+.mypage-badge-hex > svg {
+  transform: rotate(-45deg);
+}
+
+.mypage-badge.purple .mypage-badge-hex {
+  background: #ece4ff;
+  color: #6d4aff;
+}
+
+.mypage-badge.mint .mypage-badge-hex {
+  background: #d9f5ea;
+  color: #39a978;
+}
+
+.mypage-badge.pink .mypage-badge-hex {
+  background: #ffe0e6;
+  color: #e45b7c;
+}
+
+.mypage-badge-name {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #3c3649;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mypage-badge-desc {
+  margin: 4px 0 7px;
+
+  color: #aaa5b0;
+
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.mypage-badge-bar {
+  height: 5px;
+
+  margin-bottom: 4px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #ebe8ef;
+}
+
+.mypage-badge-fill {
+  height: 100%;
+
+  border-radius: 999px;
+
+  transition: width 0.3s ease;
+}
+
+.mypage-badge.purple .mypage-badge-fill {
+  background: #6d4aff;
+}
+
+.mypage-badge.mint .mypage-badge-fill {
+  background: #39a978;
+}
+
+.mypage-badge.pink .mypage-badge-fill {
+  background: #e45b7c;
+}
+
+.mypage-badge-count {
+  color: #8c8695;
+
+  font-size: 9px;
+}
+
+.mypage-badge.prototype .mypage-badge-hex {
+  background: #f4f3f6;
+  color: #aaa5b0;
+}
+
+.mypage-badge-pending {
+  margin-top: 4px;
+
+  color: #aaa5b0;
+
+  font-size: 9px;
+}
+
+@media (max-width: 600px) {
+  .mypage-badge-grid {
+    gap: 5px;
+  }
+  .mypage-badge-hex {
+    width: 44px;
+    height: 44px;
+
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .mypage-badge-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mypage-badge-hex {
+    width: 40px;
+    height: 40px;
+
+    font-size: 14px;
+  }
+  .mypage-badge-name {
+    font-size: 10px;
+  }
+}
