@@ -1,9 +1,6 @@
 package com.slangs.sinjo.controller;
 
-import com.slangs.sinjo.dto.AdminDto;
-import com.slangs.sinjo.dto.QuizWordDto;
-import com.slangs.sinjo.dto.UserDto;
-import com.slangs.sinjo.dto.WordDto;
+import com.slangs.sinjo.dto.*;
 import com.slangs.sinjo.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -110,4 +107,5 @@ public class AdminController {
         adminService.deleteQuizWord(id);
         return ResponseEntity.noContent().build();
     }
+
 }
