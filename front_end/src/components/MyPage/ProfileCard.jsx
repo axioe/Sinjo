@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { FaCamera, FaPen } from "react-icons/fa";
-import { useAuth } from "../../AuthContext";
-import { updateNickname } from "../../api/userApi";
+import "../../css/mypage/ProfileCard.css";
+import { FaCamera } from "react-icons/fa";
 
 /** 서버가 주는 ISO 문자열을 "2026.03.15" 형태로 바꾼다. */
 function formatDate(value) {
@@ -21,52 +19,12 @@ function formatDateTime(value) {
   return `${formatDate(value)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function ProfileCard({ profile, onChangePassword }) {
-  const { updateUser } = useAuth();
+/**
+ * 마이페이지 홈 상단 프로필 카드.
+ * 닉네임·비밀번호 변경은 '유저 정보 변경' 메뉴(ProfileEdit)로 옮겼다.
+ */
+function ProfileCard({ profile }) {
   const nickname = profile?.nickname?.trim() || "회원";
-
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(nickname);
-  const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const startEdit = () => {
-    setDraft(profile?.nickname ?? "");
-    setError("");
-    setEditing(true);
-  };
-
-  const cancelEdit = () => {
-    setError("");
-    setEditing(false);
-  };
-
-  const handleSave = async () => {
-    const trimmed = draft.trim();
-
-    if (trimmed.length < 2 || trimmed.length > 20) {
-      setError("닉네임은 2~20자여야 합니다.");
-      return;
-    }
-
-    if (trimmed === profile?.nickname) {
-      setEditing(false);
-      return;
-    }
-
-    setSaving(true);
-    setError("");
-
-    try {
-      const updated = await updateNickname(trimmed);
-      updateUser(updated);
-      setEditing(false);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <section className="mypage-profile">
@@ -78,41 +36,9 @@ function ProfileCard({ profile, onChangePassword }) {
       </div>
 
       <div className="mypage-profile-text">
-        {editing ? (
-          <div className="mypage-nickname-edit">
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              maxLength={20}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSave();
-                if (e.key === "Escape") cancelEdit();
-              }}
-            />
-            <button type="button" onClick={handleSave} disabled={saving}>
-              {saving ? "저장 중..." : "저장"}
-            </button>
-            <button type="button" onClick={cancelEdit} disabled={saving}>
-              취소
-            </button>
-          </div>
-        ) : (
-          <h1 className="mypage-greeting">
-            {nickname} 님, 안녕하세요! <span aria-hidden="true">👋</span>
-            <button
-              type="button"
-              className="mypage-nickname-edit-btn"
-              onClick={startEdit}
-              aria-label="닉네임 변경"
-            >
-              <FaPen />
-            </button>
-          </h1>
-        )}
-
-        {error && <p className="mypage-nickname-error">{error}</p>}
+        <h1 className="mypage-greeting">
+          {nickname} 님, 안녕하세요! <span aria-hidden="true">👋</span>
+        </h1>
 
         <p className="mypage-greeting-sub">오늘도 새로운 표현을 함께 배워봐요!</p>
 
@@ -124,15 +50,6 @@ function ProfileCard({ profile, onChangePassword }) {
             마지막 접속 <strong>{formatDateTime(profile?.lastLoginAt)}</strong>
           </span>
         </div>
-
-        <button
-          type="button"
-          className="mypage-password-btn"
-          onClick={onChangePassword}
-        >
-          비밀번호 변경
-        </button>
-
       </div>
     </section>
   );

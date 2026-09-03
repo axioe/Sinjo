@@ -3,6 +3,7 @@ package com.slangs.sinjo.dto;
 import com.slangs.sinjo.entity.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -90,4 +91,23 @@ public class AdminDto {
             String nickname
     ) {
     }
+
+    /**
+     * [추가] 포인트 상점 항목 등록/수정 요청.
+     * 가격을 여기서도 검증하지만, 구매 시 최종 검증은 PointService 가 DB 값으로
+     * 다시 한다 - AdminDto 검증은 화면 입력 실수를 막기 위한 것일 뿐이다.
+     */
+    public record PointShopItemRequest(
+            @NotBlank(message = "상품명을 입력해 주세요.")
+            @Size(max = 100, message = "상품명은 100자 이하여야 합니다.")
+            String name,
+
+            @NotNull(message = "가격을 입력해 주세요.")
+            @Positive(message = "가격은 1 이상이어야 합니다.")
+            Integer price
+    ) {
+    }
+
+//    통계 대시보드
+    public record DailyCount(String date, long count) {}
 }

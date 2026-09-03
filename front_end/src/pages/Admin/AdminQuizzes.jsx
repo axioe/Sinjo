@@ -297,64 +297,66 @@ function AdminQuizzes() {
         <>
           <p className="admin-desc">전체 {quizzes.length}개</p>
 
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>신조어</th>
-                <th>뜻</th>
-                <th>사전 연동</th>
-                <th>힌트/예문</th>
-                <th>오답 보기</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {quizzes.map((item) => (
-                <tr
-                  key={item.id}
-                  className={editingId === item.id ? "editing" : ""}
-                >
-                  <td>{item.id}</td>
-
-                  <td className="admin-td-word">{item.word}</td>
-
-                  <td>{item.answer}</td>
-
-                  <td>
-                    {item.wordId ? (
-                      <span className="admin-badge admin">연동됨</span>
-                    ) : (
-                      <span className="admin-badge">직접 입력</span>
-                    )}
-                  </td>
-
-                  <td className="admin-td-example">{item.description}</td>
-
-                  <td>{(item.options || []).length}개</td>
-
-                  <td className="admin-td-actions">
-                    <button
-                      type="button"
-                      className="admin-btn small"
-                      onClick={() => handleEdit(item)}
-                    >
-                      수정
-                    </button>
-
-                    <button
-                      type="button"
-                      className="admin-btn small danger"
-                      onClick={() => handleDelete(item)}
-                    >
-                      삭제
-                    </button>
-                  </td>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>신조어</th>
+                  <th>뜻</th>
+                  <th>사전 연동</th>
+                  <th>힌트/예문</th>
+                  <th>오답 보기</th>
+                  <th>관리</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {quizzes.map((item) => (
+                  <tr
+                    key={item.id}
+                    className={editingId === item.id ? "editing" : ""}
+                  >
+                    <td>{item.id}</td>
+
+                    <td className="admin-td-word">
+                      <button
+                        type="button"
+                        className="admin-td-word-btn"
+                        onClick={() => handleEdit(item)}
+                      >
+                        {item.word}
+                      </button>
+                    </td>
+
+                    <td className="admin-td-wrap">{item.answer}</td>
+
+                    <td>
+                      {item.wordId ? (
+                        <span className="admin-badge admin">연동됨</span>
+                      ) : (
+                        <span className="admin-badge">직접 입력</span>
+                      )}
+                    </td>
+
+                    <td className="admin-td-example admin-td-wrap">{item.description}</td>
+
+                    <td>{(item.options || []).length}개</td>
+
+                    <td className="admin-td-actions">
+                      <button
+                        type="button"
+                        className="admin-btn small danger"
+                        onClick={() => handleDelete(item)}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </>

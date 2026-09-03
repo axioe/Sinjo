@@ -3,6 +3,7 @@ import AdminSummary from "./AdminSummary";
 import AdminWords from "./AdminWords";
 import AdminUsers from "./AdminUsers";
 import AdminQuizzes from "./AdminQuizzes";
+import AdminPointShop from "./AdminPointShop";
 import "../../css/admin/Admin.css";
 
 import AdminProposals from "./AdminProposals";
@@ -17,6 +18,7 @@ const MENUS = [
   { key: "quizzes", label: "퀴즈 관리", icon: "🎮" },
   { key: "users", label: "회원 관리", icon: "👥" },
   { key: "proposals", label: "신조어 제안 관리", icon: "💡" },
+  { key: "pointShop", label: "포인트 상점", icon: "🛍️" },
 ];
 
 function AdminPage() {
@@ -45,6 +47,7 @@ function AdminPage() {
         {menu === "quizzes" && <AdminQuizzes />}
         {menu === "users" && <AdminUsers />}
         {menu === "proposals" && <AdminProposals />}
+        {menu === "pointShop" && <AdminPointShop />}
       </section>
     </div>
   );

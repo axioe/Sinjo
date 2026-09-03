@@ -1,54 +1,59 @@
-import { FaStar, FaComments, FaGamepad, FaCoins } from "react-icons/fa";
+import "../../css/mypage/BadgePoints.css";
+import { useNavigate } from "react-router-dom";
+import { FaCoins, FaStore } from "react-icons/fa";
 
-const ICONS = {
-  explorer: FaStar,
-  master: FaComments,
-  player: FaGamepad,
-};
+import BadgeGrid from "./BadgeGrid";
 
-function BadgePoints({ badges, point }) {
+function BadgePoints({ badges = [], point = 0, onViewAll }) {
+  const navigate = useNavigate();
+
+  const handlePointShop = () => {
+    navigate("/point-shop");
+  };
+
+  const safePoint = Number(point) || 0;
+
   return (
-    <section className="mypage-card">
+    <section className="mypage-card mypage-badge-points-card">
       <div className="mypage-card-head">
-        <h2 className="mypage-card-title">나의 배지 &amp; 포인트</h2>
-        <button type="button" className="mypage-more">
-          전체 보기 <span aria-hidden="true">›</span>
+        <div>
+          <span className="mypage-card-eyebrow">REWARDS</span>
+
+          <h2 className="mypage-card-title">나의 배지 &amp; 포인트</h2>
+        </div>
+
+        <button type="button" className="mypage-more" onClick={onViewAll}>
+          전체 보기
+          <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div className="mypage-badge-grid">
-        {badges.map(({ key, name, desc, current, goal, tone }) => {
-          const Icon = ICONS[key];
-          const percent = Math.min(Math.round((current / goal) * 100), 100);
-
-          return (
-            <div key={key} className={`mypage-badge ${tone}`}>
-              <span className="mypage-badge-hex">
-                <Icon />
-              </span>
-              <p className="mypage-badge-name">{name}</p>
-              <p className="mypage-badge-desc">{desc}</p>
-
-              <div className="mypage-badge-bar">
-                <div className="mypage-badge-fill" style={{ width: `${percent}%` }} />
-              </div>
-              <p className="mypage-badge-count">
-                {current} / {goal}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+      <BadgeGrid badges={badges} />
 
       <div className="mypage-point">
-        <span className="mypage-point-label">
-          <FaCoins className="mypage-point-icon" />
-          포인트 보유량
-        </span>
-        <strong className="mypage-point-value">
-          {point.toLocaleString()}P
-        </strong>
-        <button type="button" className="mypage-point-btn">포인트 상점</button>
+        <div className="mypage-point-info">
+          <div className="mypage-point-icon">
+            <FaCoins />
+          </div>
+
+          <div>
+            <span className="mypage-point-label">현재 보유 포인트</span>
+
+            <strong className="mypage-point-value">
+              {safePoint.toLocaleString()}
+              <small>P</small>
+            </strong>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="mypage-point-btn"
+          onClick={handlePointShop}
+        >
+          <FaStore />
+          포인트 상점
+        </button>
       </div>
     </section>
   );

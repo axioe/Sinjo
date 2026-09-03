@@ -1,0 +1,903 @@
+/* =========================================================
+   TRANSLATION LIST (components/MyPage/RecentTranslations.jsx)
+   RecentTranslations.jsx 와 FavoriteWords.jsx 가 같은 번역 목록/상세 모달
+   클래스를 공유해서 이 파일을 함께 import 한다.
+========================================================= */
+
+.mypage-translation-card {
+  overflow: hidden;
+}
+
+.mypage-translation-count {
+  min-width: 34px;
+
+  padding: 6px 10px;
+
+  box-sizing: border-box;
+
+  border-radius: 999px;
+
+  background: #f4f1ff;
+
+  color: var(--mypage-primary);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  text-align: center;
+}
+
+.mypage-translation-list {
+  display: grid;
+
+  gap: 7px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.mypage-translation {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 15px 14px;
+
+  border: 1px solid transparent;
+  border-radius: 15px;
+
+  background: #faf9ff;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mypage-translation:hover {
+  border-color: #e7e0ff;
+
+  background: #ffffff;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 8px 20px rgba(55, 39, 115, 0.07);
+}
+
+.mypage-translation-content {
+  min-width: 0;
+}
+
+.mypage-translation-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 8px;
+}
+
+.mypage-translation-lang {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 8px;
+
+  border-radius: 7px;
+
+  background: #eee9ff;
+
+  color: #7054d8;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.mypage-translation-date {
+  flex-shrink: 0;
+
+  color: #aaa5b1;
+
+  font-size: 9px;
+
+  white-space: nowrap;
+}
+
+.mypage-translation-row {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.mypage-translation-source,
+.mypage-translation-result {
+  min-width: 0;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: 13px;
+}
+
+.mypage-translation-source {
+  color: #3b3549;
+  font-weight: 650;
+}
+
+.mypage-translation-result {
+  color: #777181;
+}
+
+.mypage-translation-arrow {
+  color: #aaa2bc;
+
+  text-align: center;
+}
+
+.mypage-translation-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 2px;
+}
+
+.mypage-icon-btn {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #aaa5b1;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.mypage-icon-btn:hover {
+  background: #f0ecff;
+
+  color: var(--mypage-primary);
+
+  transform: translateY(-1px);
+}
+
+.mypage-icon-btn.on {
+  color: #f2b51d;
+}
+
+.mypage-icon-btn.danger:hover {
+  background: #fff0f2;
+  color: var(--mypage-danger);
+}
+
+.mypage-translation-loading {
+  padding: 40px 10px;
+
+  color: #9993a7;
+
+  font-size: 12px;
+
+  text-align: center;
+}
+
+/* =========================================================
+   TRANSLATION DETAIL MODAL
+========================================================= */
+
+.translation-detail-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1100;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  background: rgba(29, 24, 48, 0.58);
+
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+
+  animation: translationModalBackdropIn 0.2s ease both;
+}
+
+.translation-detail-modal {
+  width: min(100%, 720px);
+  max-height: min(820px, calc(100vh - 48px));
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 26px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 30px 80px rgba(28, 21, 55, 0.24),
+    0 8px 24px rgba(28, 21, 55, 0.08);
+
+  animation: translationModalIn 0.25s ease both;
+}
+
+/* ---------------------------------------------------------
+   HEADER
+--------------------------------------------------------- */
+
+.translation-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 26px 28px 20px;
+
+  border-bottom: 1px solid #f0edf7;
+
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(174, 151, 255, 0.16),
+      transparent 34%
+    ),
+    linear-gradient(135deg, #fbf9ff 0%, #ffffff 72%);
+}
+
+.translation-detail-heading {
+  min-width: 0;
+}
+
+.translation-detail-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #9a8bd0;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1.6px;
+}
+
+.translation-detail-heading h2 {
+  margin: 0;
+
+  color: #302a42;
+
+  font-size: 22px;
+  font-weight: 800;
+
+  letter-spacing: -0.6px;
+}
+
+.translation-detail-heading p {
+  margin: 6px 0 0;
+
+  color: #96909f;
+
+  font-size: 11px;
+}
+
+.translation-detail-close {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  padding: 0;
+
+  border: 1px solid #ebe7f5;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #898393;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.translation-detail-close:hover {
+  border-color: #ddd4ff;
+
+  background: #f7f4ff;
+
+  color: #6d4aff;
+
+  transform: rotate(4deg);
+}
+
+.translation-detail-close:focus-visible {
+  outline: 3px solid rgba(109, 74, 255, 0.15);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------
+   LANGUAGE / DATE
+--------------------------------------------------------- */
+
+.translation-detail-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 15px 28px;
+
+  border-bottom: 1px solid #f3f0f8;
+
+  background: #fcfbff;
+}
+
+.translation-detail-language {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 0;
+}
+
+.translation-language-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 28px;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.translation-language-chip.source {
+  background: #f1edff;
+
+  color: #6d4aff;
+}
+
+.translation-language-chip.target {
+  background: #eafaf3;
+
+  color: #32956b;
+}
+
+.translation-detail-language-arrow {
+  color: #aaa4b2;
+
+  font-size: 12px;
+}
+
+.translation-detail-time {
+  flex-shrink: 0;
+
+  color: #9b96a4;
+
+  font-size: 10px;
+}
+
+/* ---------------------------------------------------------
+   BODY
+--------------------------------------------------------- */
+
+.translation-detail-body {
+  min-height: 0;
+
+  overflow-y: auto;
+
+  padding: 22px 28px 24px;
+
+  background: #ffffff;
+
+  scrollbar-width: thin;
+  scrollbar-color: #ddd7ee transparent;
+}
+
+.translation-detail-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.translation-detail-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.translation-detail-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #ddd7ee;
+}
+
+/* ---------------------------------------------------------
+   TEXT BOX
+--------------------------------------------------------- */
+
+.translation-detail-box {
+  overflow: hidden;
+
+  border: 1px solid #eeeaf7;
+  border-radius: 17px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.translation-detail-box:hover {
+  border-color: #e4ddf8;
+
+  box-shadow: 0 7px 20px rgba(42, 31, 78, 0.045);
+}
+
+.translation-detail-box.source {
+  background: #fcfbff;
+}
+
+.translation-detail-box.result {
+  border-color: #e6e0f8;
+
+  background: linear-gradient(135deg, #fbfaff 0%, #ffffff 100%);
+}
+
+.translation-detail-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 13px 15px;
+
+  border-bottom: 1px solid #f0edf7;
+}
+
+.translation-detail-box-head > div {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 0;
+}
+
+.translation-detail-label {
+  color: #433c52;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.translation-detail-box-language {
+  padding: 3px 7px;
+
+  border-radius: 6px;
+
+  background: #f1eef7;
+
+  color: #9993a3;
+
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.translation-detail-box p {
+  margin: 0;
+
+  padding: 18px;
+
+  color: #423c4d;
+
+  font-size: 14px;
+  line-height: 1.75;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.translation-detail-box.result p {
+  color: #352e43;
+
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------
+   COPY
+--------------------------------------------------------- */
+
+.translation-detail-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  flex-shrink: 0;
+
+  min-height: 28px;
+
+  padding: 0 9px;
+
+  border: 1px solid #e9e5f1;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #8e879a;
+
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.translation-detail-copy:hover:not(:disabled) {
+  border-color: #dcd3ff;
+
+  background: #f7f4ff;
+
+  color: #6d4aff;
+}
+
+.translation-detail-copy:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------
+   DIVIDER
+--------------------------------------------------------- */
+
+.translation-detail-divider {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 42px;
+}
+
+.translation-detail-divider::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  height: 1px;
+
+  background: #eeeaf7;
+}
+
+.translation-detail-divider span {
+  position: relative;
+
+  padding: 0 10px;
+
+  background: #ffffff;
+
+  color: #b0aaba;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+}
+
+/* ---------------------------------------------------------
+   FOOTER ACTIONS
+--------------------------------------------------------- */
+
+.translation-detail-actions {
+  display: grid;
+
+  grid-template-columns: 1fr auto;
+
+  gap: 9px;
+
+  padding: 16px 28px 20px;
+
+  border-top: 1px solid #f0edf7;
+
+  background: #ffffff;
+}
+
+.translation-detail-favorite,
+.translation-detail-delete {
+  min-height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border-radius: 11px;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.translation-detail-favorite {
+  border: 1px solid #e5dff6;
+
+  background: #faf9ff;
+
+  color: #6d4aff;
+}
+
+.translation-detail-favorite:hover {
+  border-color: #d9d0ff;
+
+  background: #f4f0ff;
+
+  transform: translateY(-1px);
+}
+
+.translation-detail-favorite.active {
+  border-color: #f2d77b;
+
+  background: #fff9e7;
+
+  color: #d99d12;
+}
+
+.translation-detail-delete {
+  min-width: 76px;
+
+  padding: 0 15px;
+
+  border: 1px solid #f0d8dd;
+
+  background: #fff8f9;
+
+  color: #d75b6b;
+}
+
+.translation-detail-delete:hover {
+  border-color: #edbec7;
+
+  background: #fff0f3;
+
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------
+   ANIMATION
+--------------------------------------------------------- */
+
+@keyframes translationModalBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes translationModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .translation-detail-backdrop {
+    align-items: flex-end;
+
+    padding: 12px;
+  }
+
+  .translation-detail-modal {
+    width: 100%;
+
+    max-height: calc(100vh - 24px);
+
+    border-radius: 20px;
+
+    animation-name: translationModalMobileIn;
+
+    padding: 21px;
+  }
+
+  .translation-detail-header {
+    padding: 22px 18px 17px;
+  }
+
+  .translation-detail-heading h2 {
+    font-size: 20px;
+  }
+
+  .translation-detail-heading p {
+    font-size: 10px;
+  }
+
+  .translation-detail-info {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding: 12px 18px;
+  }
+
+  .translation-detail-time {
+    font-size: 9px;
+  }
+
+  .translation-detail-body {
+    padding: 16px 18px 20px;
+  }
+
+  .translation-detail-box-head {
+    padding: 12px;
+  }
+
+  .translation-detail-box p {
+    padding: 15px;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+    min-height: 60px;
+  }
+
+  .translation-detail-actions {
+    grid-template-columns: 1fr 78px;
+
+    padding: 13px 18px 16px;
+
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+
+    flex-direction: column;
+  }
+
+  .mypage-translation {
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    gap: 7px;
+  }
+
+  .mypage-translation-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mypage-translation-arrow, .mypage-translation-result {
+    display: none;
+  }
+
+  .mypage-translation-date {
+    font-size: 8px;
+  }
+
+  .translation-detail-header h2 {
+    font-size: 20px;
+  }
+
+  .translation-detail-delete {
+    width: 100%;
+  }
+}
+
+@keyframes translationModalMobileIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .translation-detail-backdrop,
+  .translation-detail-modal {
+    animation: none;
+  }
+
+  .translation-detail-close,
+  .translation-detail-copy,
+  .translation-detail-favorite,
+  .translation-detail-delete {
+    transition: none;
+  }
+}

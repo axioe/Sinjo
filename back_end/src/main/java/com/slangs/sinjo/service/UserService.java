@@ -1,11 +1,13 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.UserDto;
+import com.slangs.sinjo.entity.LoginHistory;
 import com.slangs.sinjo.entity.PasswordResetToken;
 import com.slangs.sinjo.entity.Provider;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.exception.DuplicateEmailException;
 import com.slangs.sinjo.exception.InvalidCredentialsException;
+import com.slangs.sinjo.repository.LoginHistoryRepository;
 import com.slangs.sinjo.repository.PasswordResetTokenRepository;
 import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.security.JwtProvider;
@@ -31,6 +33,7 @@ public class UserService {
     private final PasswordResetTokenRepository tokenRepository;
     private final JavaMailSender mailSender;
     private final AttendanceService attendanceService;
+    private final LoginHistoryRepository loginHistoryRepository;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -64,6 +67,9 @@ public class UserService {
 
         user.updateLastLoginAt();
         attendanceService.checkIn(user.getId());
+
+//        로그인 기록
+        loginHistoryRepository.save(new LoginHistory(user.getId()));
 
         String token = jwtProvider.createToken(user.getId(), user.getEmail(), user.getRole());
         return new UserDto.LoginResponse(token, UserDto.Response.from(user));

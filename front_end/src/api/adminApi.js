@@ -1,4 +1,4 @@
-import { request } from "./client";
+import { request, apiUrl, getToken } from "./client";
 
 /**
  * 관리자 전용 API (REQ-ADM-01)
@@ -40,3 +40,38 @@ export const updateQuizWord = (id, payload) =>
 
 export const deleteQuizWord = (id) =>
   request(`/api/admin/quizzes/${id}`, { method: "DELETE" });
+
+export async function uploadWordsExcel(formData) {
+  const token = getToken();
+
+  const res = await fetch(apiUrl("/api/admin/words/excel"), {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.message ?? `업로드에 실패했습니다. (${res.status})`);
+  }
+
+  return res.json();
+}
+export const getPointShopItems = () => request("/api/admin/point-shop-items");
+
+export const createPointShopItem = (payload) =>
+  request("/api/admin/point-shop-items", { method: "POST", body: JSON.stringify(payload) });
+
+export const updatePointShopItem = (id, payload) =>
+  request(`/api/admin/point-shop-items/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+
+export const deletePointShopItem = (id) =>
+  request(`/api/admin/point-shop-items/${id}`, { method: "DELETE" });
+
+export function getSignupTrend(days = 14) {
+  return request(`/api/admin/stats/signups?days=${days}`);
+}
+
+export function getLoginTrend(days = 14) {
+  return request(`/api/admin/stats/logins?days=${days}`);
+}

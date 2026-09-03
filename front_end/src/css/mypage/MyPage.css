@@ -1,883 +1,367 @@
-/* ==========================================================================
-   마이페이지 (REQ-AUTH-02, REQ-MY-01)
-   목업의 3열 구조: 좌측 메뉴 / 본문 / 우측 요약
-   ========================================================================== */
+/* =========================================================
+   MY PAGE - 공통 레이아웃 (REQ-MY-01)
+   .mypage-card / .mypage-empty / .mypage-icon-btn 등 여러 컴포넌트가
+   공유하는 프리미티브와, MyPage.jsx 자체(레이아웃 그리드·ComingSoon)가
+   쓰는 스타일만 남긴다. 각 위젯 고유 스타일은 css/mypage/<컴포넌트명>.css로
+   옮겼다 - components/MyPage/ 아래 각 컴포넌트가 자기 CSS를 직접 import한다.
+========================================================= */
 
 .mypage {
+  --mypage-primary: #6d4aff;
+  --mypage-primary-dark: #5938dc;
+
+  --mypage-text: #302a42;
+  --mypage-text-strong: #332d40;
+  --mypage-text-muted: #817b8e;
+
+  --mypage-border: #eeeaf8;
+  --mypage-border-soft: #f0edf7;
+
+  --mypage-danger: #e05b6d;
+
+  width: 100%;
+  max-width: 1500px;
+  min-height: calc(100vh - 80px);
+
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr) 330px;
-  gap: 20px;
+  grid-template-columns: 245px minmax(0, 1fr) 310px;
+  gap: 24px;
   align-items: start;
-  padding: 24px 0 40px;
+
+  margin: 0 auto;
+  padding: 35px 30px 70px;
+
+  box-sizing: border-box;
+
+  color: var(--mypage-text);
 }
 
-/* 사이드바 "활동 통계" 화면처럼 우측 요약 컬럼 없이 본문을 넓게 쓸 때 */
-.mypage-main-wide {
-  grid-column: 2 / span 2;
-}
-
-/* 카드 공통 */
 .mypage-card {
-  padding: 24px;
-  margin-bottom: 20px;
-  background: var(--c-surface);
-  border-radius: 20px;
-  box-shadow: var(--shadow-sm);
-}
+  width: 100%;
+  min-width: 0;
 
-.mypage-card:last-child {
-  margin-bottom: 0;
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--mypage-border);
+  border-radius: 22px;
+
+  background: #ffffff;
+
+  box-shadow: 0 10px 30px rgba(35, 27, 72, 0.055);
 }
 
 .mypage-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.mypage-card-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #9a8bd0;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1.4px;
 }
 
 .mypage-card-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 17px;
-}
+  margin: 0;
 
-.mypage-card-title-icon {
-  color: var(--c-primary);
+  color: var(--mypage-text);
+
+  font-size: 18px;
+  font-weight: 800;
+
+  letter-spacing: -0.4px;
 }
 
 .mypage-more {
-  padding: 6px 14px;
-  border: 1px solid var(--c-border);
-  border-radius: 999px;
-  background: var(--c-surface);
-  color: var(--c-text-sub);
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+
+  min-height: 34px;
+
+  padding: 7px 12px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #ebe7f5;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #858095;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .mypage-more:hover {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
+  border-color: #dcd3ff;
+  background: #f8f6ff;
+  color: var(--mypage-primary);
+  transform: translateY(-1px);
+}
+
+.mypage-more:focus-visible,
+.mypage-icon-btn:focus-visible,
+.mypage-calendar-nav:focus-visible,
+.mypage-point-btn:focus-visible {
+  outline: 3px solid rgba(109, 74, 255, 0.16);
+  outline-offset: 2px;
 }
 
 .mypage-empty {
-  padding: 40px 0;
-  color: var(--c-text-muted);
+  padding: 45px 15px;
+
+  color: #999;
+
+  font-size: 13px;
   text-align: center;
 }
 
-/* ---- 좌측 사이드바 -------------------------------------------------------- */
-.mypage-sidebar {
-  padding: 16px;
-  background: var(--c-surface);
-  border-radius: 20px;
-  box-shadow: var(--shadow-sm);
-}
+/* =========================================================
+   MAIN
+========================================================= */
 
-.mypage-menu {
-  display: grid;
-  gap: 4px;
-  margin-bottom: 20px;
-}
+.mypage-main {
+  min-width: 0;
 
-.mypage-menu-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 12px 14px;
-  border: none;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--c-text-sub);
-  font-size: 14px;
-  text-align: left;
-  transition: background 120ms ease, color 120ms ease;
+  flex-direction: column;
+
+  gap: 20px;
 }
 
-.mypage-menu-item:hover {
-  background: var(--c-primary-tint);
-  color: var(--c-primary);
+.mypage-main-wide {
+  grid-column: 2 / 4;
 }
 
-.mypage-menu-item.active {
-  background: var(--c-primary);
-  color: #fff;
-}
-
-.mypage-menu-icon {
-  flex-shrink: 0;
-  font-size: 15px;
-}
-
-/* 친구 초대 배너 */
-.mypage-invite {
-  padding: 18px;
-  background: linear-gradient(160deg, #f3effe, #fdeef4);
-  border-radius: 16px;
-  text-align: center;
-}
-
-.mypage-invite-title {
-  margin-bottom: 4px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.mypage-invite-desc {
-  color: var(--c-text-sub);
-  font-size: 12px;
-}
-
-.mypage-invite-art {
-  margin: 14px 0;
-  font-size: 26px;
-  letter-spacing: 2px;
-}
-
-.mypage-invite-btn {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  background: var(--c-primary);
-  color: #fff;
-  font-size: 13px;
-}
-
-.mypage-invite-btn:hover {
-  background: var(--c-primary-hover);
-}
-
-/* ---- 프로필 카드 ---------------------------------------------------------- */
-.mypage-profile {
+.mypage-content-section {
   display: flex;
-  align-items: center;
-  gap: 28px;
-  padding: 28px;
-  margin-bottom: 20px;
-  background: linear-gradient(120deg, #f5f1ff, #fbf7ff);
-  border-radius: 20px;
-}
+  flex-direction: column;
 
-.mypage-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.mypage-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 108px;
-  height: 108px;
-  background: var(--c-surface);
-  border: 4px solid #e6dcff;
-  border-radius: 50%;
-  font-size: 46px;
-}
-
-.mypage-avatar-edit {
-  position: absolute;
-  right: 2px;
-  bottom: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--c-surface);
-  border-radius: 50%;
-  background: var(--c-primary);
-  color: #fff;
-  font-size: 12px;
-}
-
-.mypage-greeting {
-  margin-bottom: 6px;
-  font-size: 26px;
-}
-
-.mypage-greeting-sub {
-  margin-bottom: 16px;
-  color: var(--c-text-sub);
-}
-
-.mypage-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.mypage-meta-item {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 999px;
-  color: var(--c-text-sub);
-  font-size: 13px;
-}
-
-.mypage-meta-item strong {
-  margin-left: 6px;
-  color: var(--c-text);
-  font-weight: 700;
-}
-
-/* ---- 최근 번역 저장 ------------------------------------------------------- */
-.mypage-translation-list {
-  display: grid;
-  gap: 2px;
-}
-
-/* 원문 / 화살표 / 결과 / 날짜 / 버튼 2개 */
-.mypage-translation {
-  display: grid;
-  grid-template-columns: 1fr 24px 1fr auto 30px 30px;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 12px;
-  border-radius: 12px;
-  transition: background 120ms ease;
-}
-
-.mypage-translation:hover {
-  background: var(--c-sunken);
-}
-
-.mypage-translation-source {
-  font-size: 14px;
-}
-
-.mypage-translation-arrow {
-  color: var(--c-text-muted);
-  text-align: center;
-}
-
-.mypage-translation-result {
-  color: var(--c-text-sub);
-  font-size: 14px;
-}
-
-.mypage-translation-date {
-  color: var(--c-text-muted);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.mypage-icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--c-text-muted);
-  font-size: 14px;
-  transition: color 120ms ease, background 120ms ease;
-}
-
-.mypage-icon-btn:hover {
-  background: var(--c-primary-tint);
-  color: var(--c-primary);
-}
-
-.mypage-icon-btn.on {
-  color: #f5b301;
-}
-
-.mypage-icon-btn.danger:hover {
-  background: var(--c-danger-tint);
-  color: var(--c-danger);
-}
-
-/* ---- 빠른 메뉴 ------------------------------------------------------------ */
-.mypage-quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.mypage-quick {
-  position: relative;
-  display: block;
-  padding: 18px;
-  border-radius: 16px;
-}
-
-.mypage-quick.purple { background: #f3effe; }
-.mypage-quick.mint   { background: #eafaf3; }
-.mypage-quick.pink   { background: #fdeef4; }
-.mypage-quick.amber  { background: #fff6e8; }
-
-.mypage-quick-icon {
-  margin-bottom: 10px;
-  font-size: 20px;
-}
-
-.mypage-quick.purple .mypage-quick-icon { color: var(--c-primary); }
-.mypage-quick.mint   .mypage-quick-icon { color: var(--c-mint); }
-.mypage-quick.pink   .mypage-quick-icon { color: var(--c-pink); }
-.mypage-quick.amber  .mypage-quick-icon { color: #e8971a; }
-
-.mypage-quick-title {
-  margin-bottom: 4px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.mypage-quick-desc {
-  color: var(--c-text-sub);
-  font-size: 12px;
-}
-
-.mypage-quick-arrow {
-  position: absolute;
-  right: 16px;
-  bottom: 14px;
-  color: var(--c-text-muted);
-}
-
-/* ---- 활동 요약 ------------------------------------------------------------ */
-.mypage-stat-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.mypage-stat {
-  padding: 16px;
-  border-radius: 16px;
-}
-
-.mypage-stat.purple { background: #f3effe; }
-.mypage-stat.mint   { background: #eafaf3; }
-.mypage-stat.amber  { background: #fff6e8; }
-.mypage-stat.pink   { background: #fdeef4; }
-
-.mypage-stat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 10px;
-  font-size: 15px;
-}
-
-.mypage-stat.purple .mypage-stat-icon { color: var(--c-primary); }
-.mypage-stat.mint   .mypage-stat-icon { color: var(--c-mint); }
-.mypage-stat.amber  .mypage-stat-icon { color: #e8971a; }
-.mypage-stat.pink   .mypage-stat-icon { color: var(--c-pink); }
-
-.mypage-stat-label {
-  color: var(--c-text-sub);
-  font-size: 12px;
-}
-
-.mypage-stat-value {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 26px;
-  line-height: 1.2;
-}
-
-.mypage-stat-diff {
-  color: var(--c-primary);
-  font-size: 12px;
-}
-
-.mypage-stat-diff span {
-  color: var(--c-text-muted);
-}
-
-/* 아직 실데이터가 연동되지 않은 카드 (다른 기능 붙을 자리) */
-.mypage-stat.pending {
-  background: var(--c-bg-soft, #f5f5f7);
-}
-
-.mypage-stat.pending .mypage-stat-icon {
-  color: var(--c-text-muted);
-}
-
-.mypage-stat-pending {
-  color: var(--c-text-muted);
-  font-size: 13px;
-}
-
-/* ---- 배지 & 포인트 -------------------------------------------------------- */
-.mypage-badge-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.mypage-badge {
-  text-align: center;
-}
-
-/* 육각형에 가깝게 다듬은 배지 아이콘 */
-.mypage-badge-hex {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 54px;
-  height: 54px;
-  margin: 0 auto 8px;
-  border-radius: 18px;
-  font-size: 20px;
-  transform: rotate(45deg);
-}
-
-.mypage-badge-hex > svg {
-  transform: rotate(-45deg);
-}
-
-.mypage-badge.purple .mypage-badge-hex { background: #ece4ff; color: var(--c-primary); }
-.mypage-badge.mint   .mypage-badge-hex { background: #d9f5ea; color: var(--c-mint); }
-.mypage-badge.pink   .mypage-badge-hex { background: #ffe0e6; color: var(--c-pink); }
-
-.mypage-badge-name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.mypage-badge-desc {
-  margin-bottom: 8px;
-  color: var(--c-text-muted);
-  font-size: 11px;
-}
-
-.mypage-badge-bar {
-  height: 6px;
-  margin-bottom: 4px;
-  background: var(--c-border);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.mypage-badge-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 300ms ease;
-}
-
-.mypage-badge.purple .mypage-badge-fill { background: var(--c-primary); }
-.mypage-badge.mint   .mypage-badge-fill { background: var(--c-mint); }
-.mypage-badge.pink   .mypage-badge-fill { background: var(--c-pink); }
-
-.mypage-badge-count {
-  color: var(--c-text-sub);
-  font-size: 11px;
-}
-
-.mypage-point {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  margin-top: 18px;
-  background: var(--c-sunken);
-  border-radius: 14px;
-}
-
-.mypage-point-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--c-text-sub);
-  font-size: 13px;
-}
-
-.mypage-point-icon {
-  color: #f5b301;
-}
-
-.mypage-point-value {
-  margin-left: auto;
-  font-family: var(--font-point);
-  font-size: 20px;
-  color: var(--c-text);
-}
-
-.mypage-point-btn {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 10px;
-  background: var(--c-primary);
-  color: #fff;
-  font-size: 12px;
-}
-
-.mypage-point-btn:hover {
-  background: var(--c-primary-hover);
-}
-
-/* ---- 게임 기록 ------------------------------------------------------------ */
-.mypage-game-list {
-  display: grid;
-  gap: 2px;
-}
-
-.mypage-game-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 12px;
-  border-radius: 12px;
-  transition: background 120ms ease;
-}
-
-.mypage-game-item:hover {
-  background: var(--c-sunken);
-}
-
-.mypage-game-type {
-  flex-shrink: 0;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.mypage-game-type.purple { background: #f3effe; color: var(--c-primary); }
-.mypage-game-type.mint   { background: #eafaf3; color: var(--c-mint); }
-.mypage-game-type.pink   { background: #fdeef4; color: var(--c-pink); }
-
-.mypage-game-score {
-  flex: 1;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.mypage-game-percent {
-  margin-left: 6px;
-  color: var(--c-text-muted);
-  font-family: var(--font-body, inherit);
-  font-weight: 400;
-  font-size: 13px;
-}
-
-.mypage-game-date {
-  flex-shrink: 0;
-  color: var(--c-text-muted);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-/* ---- 이번 주 사용 기록 ---------------------------------------------------- */
-.mypage-week {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 14px;
-}
-
-.mypage-week-item {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-}
-
-.mypage-week-day {
-  color: var(--c-text-sub);
-  font-size: 12px;
-}
-
-.mypage-week-dot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 50%;
-  color: transparent;
-  font-size: 11px;
-}
-
-.mypage-week-dot.used {
-  background: var(--c-primary);
-  border-color: var(--c-primary);
-  color: #fff;
-}
-
-.mypage-week-summary {
-  color: var(--c-text-sub);
-  font-size: 13px;
-}
-
-.mypage-nickname-edit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.mypage-nickname-edit input {
-  padding: 10px 14px;
-  background: #f7f5fc;
-  border: 1px solid #7c5ce6;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.mypage-nickname-edit button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 10px;
-  background: #7c5ce6;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.mypage-nickname-edit button:last-child {
-  background: #fff;
-  border: 1px solid #dcd7ee;
-  color: #6e6885;
-}
-
-.mypage-nickname-edit-btn {
-  margin-left: 8px;
-  padding: 6px;
-  border: none;
-  background: none;
-  color: #9a94ad;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.mypage-nickname-edit-btn:hover {
-  color: #7c5ce6;
-}
-
-.mypage-nickname-error {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: #e04a5f;
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(31, 27, 51, 0.4);
-  z-index: 100;
-}
-
-.modal-card {
-  width: 380px;
-  padding: 28px;
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(58, 42, 110, 0.18);
-}
-
-.modal-title {
-  margin: 0 0 20px;
-  font-size: 20px;
-  color: #1f1b33;
-}
-
-.modal-field {
-  margin-bottom: 16px;
-}
-
-.modal-field label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #6e6885;
-}
-
-.modal-field input {
-  width: 100%;
-  padding: 14px;
-  background: #f7f5fc;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  box-sizing: border-box;
-}
-
-.modal-field input:focus {
-  outline: none;
-  background: #fff;
-  border-color: #7c5ce6;
-  box-shadow: 0 0 0 4px rgba(124, 92, 230, 0.18);
-}
-
-.modal-error {
-  margin: 0 0 12px;
-  font-size: 13px;
-  color: #e04a5f;
-}
-
-.modal-done {
-  margin: 0 0 20px;
-  font-size: 14px;
-  color: #2f9e6e;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.modal-submit {
-  flex: 1;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: #7c5ce6;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.modal-submit:hover {
-  background: #6b49d8;
-}
-
-.modal-submit:disabled {
-  background: #c9c1e8;
-  cursor: not-allowed;
-}
-
-.modal-cancel {
-  flex: 1;
-  padding: 14px;
-  border: 1px solid #dcd7ee;
-  border-radius: 12px;
-  background: #fff;
-  color: #6e6885;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.mypage-password-btn {
-  margin-top: 12px;
-  padding: 8px 16px;
-  border: 1px solid #dcd7ee;
-  border-radius: 10px;
-  background: #fff;
-  color: #6e6885;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.mypage-password-btn:hover {
-  background: #f7f5fc;
-  border-color: #7c5ce6;
-  color: #7c5ce6;
-}
-
-/* ---- 활동 통계 (사이드바 "활동 통계" 화면) --------------------------------- */
-/*
- * 달력 칸은 aspect-ratio: 1 이라 폭이 늘어나는 만큼 높이도 같이 늘어난다.
- * mypage-main-wide(화면 전체 너비)에 그대로 두면 칸 하나가 100px 를 넘어가면서
- * 달력이 지나치게 커지고 그 아래 "나의 활동 요약"이 한참 밀려났다.
- * max-width 로 폭을 묶어 칸 크기를 억제하고 가운데 정렬한다.
- */
-.mypage-calendar {
-  max-width: 320px;
-  margin: 0 auto 16px;
-}
-
-.mypage-calendar-head {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 18px;
-  margin-bottom: 2px;
 }
 
-.mypage-calendar-title {
-  min-width: 96px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
-  text-align: center;
+.mypage-content-section > .mypage-card {
+  margin-bottom: 0;
 }
 
-.mypage-calendar-nav {
+.mypage-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 4px 3px;
+}
+
+.mypage-section-eyebrow {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #9a8bd0;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+}
+
+.mypage-section-header h1 {
+  margin: 0;
+
+  color: var(--mypage-text);
+
+  font-size: 27px;
+  font-weight: 850;
+
+  letter-spacing: -1px;
+}
+
+.mypage-section-header p {
+  margin: 7px 0 0;
+
+  color: #9993a7;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   COMING SOON
+========================================================= */
+
+.mypage-coming-soon {
+  min-height: 360px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--c-text-sub);
+
+  flex-direction: column;
+
+  text-align: center;
+}
+
+.mypage-coming-soon-icon {
+  margin-bottom: 12px;
+
+  font-size: 40px;
+}
+
+.mypage-coming-soon h2 {
+  margin: 0;
+
+  color: #3b354d;
+
+  font-size: 20px;
+}
+
+.mypage-coming-soon p {
+  margin: 8px 0 0;
+
+  color: #999;
+
   font-size: 13px;
-  cursor: pointer;
 }
 
-.mypage-calendar-nav:hover {
-  background: var(--c-primary-tint);
-  color: var(--c-primary);
+@media (prefers-reduced-motion: reduce) {
+  .mypage *,
+  .mypage *::before,
+  .mypage *::after,
+  .translation-detail-backdrop,
+  .translation-detail-modal {
+    scroll-behavior: auto !important;
+
+    transition-duration: 0.01ms !important;
+
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+@media (max-width: 1250px) {
+  .mypage {
+    grid-template-columns: 220px minmax(0, 1fr) 285px;
+
+    gap: 18px;
+
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }
 
-.mypage-calendar-summary {
-  margin-bottom: 8px;
-  color: var(--c-text-sub);
-  font-size: 12px;
-  text-align: center;
+@media (max-width: 1050px) {
+  .mypage {
+    grid-template-columns: 210px minmax(0, 1fr);
+
+    gap: 18px;
+  }
+  .mypage-main-wide {
+    grid-column: 2;
+  }
+  .mypage-side {
+    grid-column: 2;
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+  }
 }
 
-.mypage-calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+@media (max-width: 820px) {
+  .mypage {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+
+    padding: 20px 15px 50px;
+  }
+  .mypage-main,
+  .mypage-main-wide {
+    width: 100%;
+  }
+  .mypage-side {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-.mypage-calendar-weekday {
-  padding-bottom: 2px;
-  color: var(--c-text-muted);
-  font-size: 11px;
-  text-align: center;
+@media (max-width: 600px) {
+  .mypage {
+    gap: 15px;
+
+    padding: 15px 12px 40px;
+  }
+  .mypage-card {
+    padding: 18px;
+
+    border-radius: 18px;
+  }
+  .mypage-card-head {
+    margin-bottom: 16px;
+  }
+  .mypage-card-title {
+    font-size: 17px;
+  }
+  .mypage-card-eyebrow {
+    font-size: 8px;
+  }
+  .mypage-stat {
+    min-height: 105px;
+
+    padding: 12px;
+  }
+  .mypage-section-header h1 {
+    font-size: 22px;
+  }
 }
 
-.mypage-calendar-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  color: var(--c-text-sub);
-  font-size: 12px;
-}
-
-.mypage-calendar-cell.empty {
-  visibility: hidden;
-}
-
-.mypage-calendar-cell.today {
-  border: 1px solid var(--c-primary);
-}
-
-.mypage-calendar-cell.active {
-  background: var(--c-primary);
-  color: #fff;
-  font-weight: 700;
+@media (max-width: 400px) {
+  .mypage {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .mypage-card {
+    padding: 15px;
+  }
+  .mypage-stat {
+    min-height: auto;
+  }
 }

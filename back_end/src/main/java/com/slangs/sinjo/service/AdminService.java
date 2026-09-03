@@ -1,25 +1,27 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.AdminDto;
+import com.slangs.sinjo.dto.PointDto;
 import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
+import com.slangs.sinjo.entity.PointShopItem;
 import com.slangs.sinjo.entity.QuizWord;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.entity.Word;
 import com.slangs.sinjo.exception.DuplicateWordException;
 import com.slangs.sinjo.exception.NotFoundException;
-import com.slangs.sinjo.repository.AttendanceRepository;
-import com.slangs.sinjo.repository.QuizAttemptRepository;
-import com.slangs.sinjo.repository.QuizRepository;
-import com.slangs.sinjo.repository.UserRepository;
-import com.slangs.sinjo.repository.WordRepository;
+import com.slangs.sinjo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 관리자 기능 (REQ-ADM-01)
@@ -34,6 +36,9 @@ public class AdminService {
     private final QuizRepository quizRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final AttendanceRepository attendanceRepository;
+    private final PointTransactionRepository pointTransactionRepository;
+    private final PointShopItemRepository pointShopItemRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
 
     /**
      * [추가] 객관식 퀴즈 오답 보기 최소 개수.
@@ -166,10 +171,10 @@ public class AdminService {
 
     /**
      * [추가] 회원 삭제.
-     * QuizAttempt/Attendance 는 User 를 FK 로 참조해서(nullable = false) 먼저 지우지
-     * 않으면 외래키 제약 위반으로 500 이 난다. Favorites/Translations/LearningHistory
-     * 는 userId 를 Long 컬럼으로만 들고 있어(FK 아님) 제약에 걸리지는 않지만, 삭제
-     * 후에도 데이터가 남는다 - 필요해지면 별도로 정리한다.
+     * QuizAttempt/Attendance/PointTransaction 은 User 를 FK 로 참조해서(nullable = false)
+     * 먼저 지우지 않으면 외래키 제약 위반으로 500 이 난다. Favorites/Translations/
+     * LearningHistory 는 userId 를 Long 컬럼으로만 들고 있어(FK 아님) 제약에 걸리지는
+     * 않지만, 삭제 후에도 데이터가 남는다 - 필요해지면 별도로 정리한다.
      */
     @Transactional
     public void deleteUser(Long adminId, Long targetId) {
@@ -183,6 +188,7 @@ public class AdminService {
 
         quizAttemptRepository.deleteByUserId(targetId);
         attendanceRepository.deleteByUserId(targetId);
+        pointTransactionRepository.deleteByUserId(targetId);
 
         userRepository.deleteById(targetId);
     }
@@ -247,6 +253,47 @@ public class AdminService {
         quizRepository.deleteById(id);
     }
 
+    // ---- 포인트 상점 관리 ---------------------------------------------------
+    // [추가] PointService.SHOP_ITEMS 고정 Map 을 대체하는 관리자 CRUD.
+    // itemId 는 PointTransaction 에 FK 가 아니라 참고용 Long 으로만 남아 있어서
+    // (QuizWord.wordId 와 같은 방식) 항목을 지워도 이미 산 기록의 "포인트 상점
+    // 구매: 상품명" 문구는 그대로 남고, 상점 목록에서만 사라진다.
+
+    @Transactional(readOnly = true)
+    public List<PointDto.ShopItem> getPointShopItems() {
+        return pointShopItemRepository.findAllByOrderByIdAsc()
+                .stream()
+                .map(item -> new PointDto.ShopItem(item.getId(), item.getName(), item.getPrice()))
+                .toList();
+    }
+
+    @Transactional
+    public PointDto.ShopItem createPointShopItem(AdminDto.PointShopItemRequest request) {
+        PointShopItem saved = pointShopItemRepository.save(
+                new PointShopItem(request.name().trim(), request.price())
+        );
+
+        return new PointDto.ShopItem(saved.getId(), saved.getName(), saved.getPrice());
+    }
+
+    @Transactional
+    public PointDto.ShopItem updatePointShopItem(Long id, AdminDto.PointShopItemRequest request) {
+        PointShopItem target = pointShopItemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("해당 상품을 찾을 수 없습니다."));
+
+        target.update(request.name().trim(), request.price());
+
+        return new PointDto.ShopItem(target.getId(), target.getName(), target.getPrice());
+    }
+
+    @Transactional
+    public void deletePointShopItem(Long id) {
+        if (!pointShopItemRepository.existsById(id)) {
+            throw new NotFoundException("해당 상품을 찾을 수 없습니다.");
+        }
+        pointShopItemRepository.deleteById(id);
+    }
+
     /** 빈 문자열/공백만 있는 오답 보기를 걸러낸다. */
     private List<String> cleanOptions(List<String> options) {
         if (options == null) {
@@ -265,5 +312,39 @@ public class AdminService {
                     "오답 보기를 " + MIN_QUIZ_OPTIONS + "개 이상 입력해 주세요."
             );
         }
+    }
+
+//    통계 대시보드
+public List<AdminDto.DailyCount> getSignupTrend(int days) {
+    return toDailyCounts(
+            userRepository.countDailySignups(startOf(days)), days);
+}
+
+    public List<AdminDto.DailyCount> getLoginTrend(int days) {
+        return toDailyCounts(
+                loginHistoryRepository.countDailyLogins(startOf(days)), days);
+    }
+
+    private LocalDateTime startOf(int days) {
+        return LocalDate.now().minusDays(days - 1L).atStartOfDay();
+    }
+
+    /**
+     * DB 는 건수가 0 인 날의 행을 아예 돌려주지 않는다.
+     * 빈 날을 채우지 않으면 그래프에서 그 구간이 사라져 추이가 왜곡된다.
+     */
+    private List<AdminDto.DailyCount> toDailyCounts(List<Object[]> rows, int days) {
+        Map<String, Long> counted = new HashMap<>();
+        for (Object[] row : rows) {
+            counted.put(row[0].toString(), ((Number) row[1]).longValue());
+        }
+
+        LocalDate start = LocalDate.now().minusDays(days - 1L);
+        List<AdminDto.DailyCount> result = new ArrayList<>();
+        for (int i = 0; i < days; i++) {
+            String key = start.plusDays(i).toString();
+            result.add(new AdminDto.DailyCount(key, counted.getOrDefault(key, 0L)));
+        }
+        return result;
     }
 }

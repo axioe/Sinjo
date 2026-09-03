@@ -27,6 +27,7 @@ import QuizMain from "./pages/game/QuizMain";
 import MultipleChoiceQuiz from "./pages/game/MultipleChoiceQuiz";
 import InitialSoundQuiz from "./pages/game/InitialSoundQuiz";
 import SubjectiveQuiz from "./pages/game/SubjectiveQuiz";
+import PointShop from "./pages/mypage/PointShop";
 
 import ProposalList from "./pages/proposal/ProposalList";
 import ProposalCreate from "./pages/proposal/ProposalCreate";
@@ -101,6 +102,15 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* 네이버 소셜 로그인 */}
         <Route path="/oauth/callback" element={<OAuthCallback />} />
+
+        <Route
+          path="/point-shop"
+          element={
+            <RequireAuth>
+              <PointShop />
+            </RequireAuth>
+          }
+        />
 
         {/* 관리자 */}
         <Route

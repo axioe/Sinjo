@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getWords,
   createWord,
   updateWord,
   deleteWord,
+  uploadWordsExcel,
 } from "../../api/adminApi";
+import { FaFileExcel } from "react-icons/fa";
 
 const CATEGORY_OPTIONS = ["게임", "인터넷", "일상", "자기계발", "직장", "기타"];
 
@@ -26,6 +28,8 @@ function AdminWords() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fileRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = () => {
     getWords()
@@ -124,14 +128,67 @@ function AdminWords() {
     setErrors({});
   };
 
+  const handleExcelUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+
+  setUploading(true);
+  setErrors({});
+
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const result = await uploadWordsExcel(fd);
+
+    let msg = `총 ${result.totalRows}행 중 ${result.successCount}건 등록`;
+    if (result.skipCount > 0) msg += `, ${result.skipCount}건 중복 제외`;
+    if (result.failures?.length > 0) {
+      msg += `\n\n[실패 ${result.failures.length}건]\n` + result.failures.join("\n");
+    }
+    alert(msg);
+
+    load();
+  } catch (err) {
+    setErrors({ form: err.message });
+  } finally {
+    setUploading(false);
+  }
+};
+
   return (
     <>
       <h1 className="admin-title">용어 관리</h1>
 
       <form className="admin-form" onSubmit={handleSubmit} noValidate>
-        <p className="admin-form-title">
-          {editingId ? "신조어 수정" : "신조어 등록"}
-        </p>
+        <div className="admin-form-header">
+          <p className="admin-form-title">
+            {editingId ? "신조어 수정" : "신조어 등록"}
+          </p>
+
+          {!editingId && (
+            <>
+              <button
+                type="button"
+                className="admin-btn excel"
+                onClick={() => fileRef.current.click()}
+                disabled={uploading}
+              >
+                <FaFileExcel />
+                {uploading ? "업로드 중..." : "엑셀 일괄 등록"}
+              </button>
+
+              <input
+                type="file"
+                ref={fileRef}
+                onChange={handleExcelUpload}
+                accept=".xlsx,.xls"
+                style={{ display: "none" }}
+              />
+            </>
+          )}
+        </div>
 
         {errors.form && <p className="admin-alert">{errors.form}</p>}
 
@@ -216,58 +273,60 @@ function AdminWords() {
         <>
           <p className="admin-desc">전체 {words.length}개</p>
 
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>신조어</th>
-                <th>카테고리</th>
-                <th>뜻</th>
-                <th>예문</th>
-                <th>좋아요</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {words.map((item) => (
-                <tr
-                  key={item.id}
-                  className={editingId === item.id ? "editing" : ""}
-                >
-                  <td>{item.id}</td>
-
-                  <td className="admin-td-word">{item.word}</td>
-
-                  <td>{item.category?.trim() || "기타"}</td>
-
-                  <td>{item.meaning}</td>
-
-                  <td className="admin-td-example">{item.example}</td>
-
-                  <td>{item.likes}</td>
-
-                  <td className="admin-td-actions">
-                    <button
-                      type="button"
-                      className="admin-btn small"
-                      onClick={() => handleEdit(item)}
-                    >
-                      수정
-                    </button>
-
-                    <button
-                      type="button"
-                      className="admin-btn small danger"
-                      onClick={() => handleDelete(item)}
-                    >
-                      삭제
-                    </button>
-                  </td>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>신조어</th>
+                  <th>카테고리</th>
+                  <th>뜻</th>
+                  <th>예문</th>
+                  <th>좋아요</th>
+                  <th>관리</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {words.map((item) => (
+                  <tr
+                    key={item.id}
+                    className={editingId === item.id ? "editing" : ""}
+                  >
+                    <td>{item.id}</td>
+
+                    <td className="admin-td-word">
+                      <button
+                        type="button"
+                        className="admin-td-word-btn"
+                        onClick={() => handleEdit(item)}
+                      >
+                        {item.word}
+                      </button>
+                    </td>
+
+                    <td>{item.category?.trim() || "기타"}</td>
+
+                    <td className="admin-td-wrap">{item.meaning}</td>
+
+                    <td className="admin-td-example admin-td-wrap">{item.example}</td>
+
+                    <td>{item.likes}</td>
+
+                    <td className="admin-td-actions">
+                      <button
+                        type="button"
+                        className="admin-btn small danger"
+                        onClick={() => handleDelete(item)}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </>

@@ -100,11 +100,9 @@ Standard Spring layering, one package per concern: `controller` → `service` �
   `SecurityConfig`에서 `new`로 생성해 체인에만 등록한다.
 
 ### 미완성 항목 (건드릴 때 확인 필요)
-- `Word.category`: 컬럼은 있으나 값을 넣는 코드가 없어 항상 null이다.
-- `WordResponse.java`: `WordDto.java`로 대체되어 참조하는 곳이 없는 죽은 코드다.
-- 좋아요 중복 방지 없음. 한 사람이 무한히 누를 수 있다.
+- 좋아요 중복 방지 없음. `WordController`의 `/{id}/like`가 로그인 사용자 식별 없이 카운트만 올려서, 한 사람이 무한히 누를 수 있다.
 - refresh token 없음. access token만 24시간.
-- 마이페이지의 활동 요약·배지·주간 기록은 아직 샘플 데이터다 (`data/myPageSampleData.js`).
+- 마이페이지 활동 요약의 "테스트 완료" 카드와 배지 중 "게시판 이용"만 아직 준비 중이다(백엔드 기능 자체가 없어 프론트에서 `ready:false`/`prototype:true`로 고정). 나머지(저장한 번역·즐겨찾기 단어·게임 플레이, 단어 번역·게임 플레이 배지, 주간 출석 기록)는 전부 실제 API 데이터로 연동돼 있다.
 
 ## Git 규칙
 
