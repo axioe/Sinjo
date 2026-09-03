@@ -778,17 +778,19 @@
   .translation-detail-backdrop {
     align-items: flex-end;
 
-    padding: 0;
+    padding: 12px;
   }
 
   .translation-detail-modal {
     width: 100%;
 
-    max-height: calc(100vh - 20px);
+    max-height: calc(100vh - 24px);
 
-    border-radius: 24px 24px 0 0;
+    border-radius: 20px;
 
     animation-name: translationModalMobileIn;
+
+    padding: 21px;
   }
 
   .translation-detail-header {
@@ -827,7 +829,10 @@
     padding: 15px;
 
     font-size: 13px;
+
     line-height: 1.7;
+
+    min-height: 60px;
   }
 
   .translation-detail-actions {
@@ -836,6 +841,40 @@
     padding: 13px 18px 16px;
 
     padding-bottom: max(16px, env(safe-area-inset-bottom));
+
+    flex-direction: column;
+  }
+
+  .mypage-translation {
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    gap: 7px;
+  }
+
+  .mypage-translation-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mypage-translation-arrow, .mypage-translation-result {
+    display: none;
+  }
+
+  .mypage-translation-date {
+    font-size: 8px;
+  }
+
+  .translation-detail-header h2 {
+    font-size: 20px;
+  }
+
+  .translation-detail-meta time {
+    width: 100%;
+
+    margin-left: 0;
+  }
+
+  .translation-detail-delete {
+    width: 100%;
   }
 }
 
@@ -866,54 +905,5 @@
   .translation-detail-favorite,
   .translation-detail-delete {
     transition: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .mypage-translation {
-    grid-template-columns: minmax(0, 1fr) auto;
-
-    gap: 7px;
-  }
-  .mypage-translation-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .mypage-translation-arrow,
-  .mypage-translation-result {
-    display: none;
-  }
-  .mypage-translation-date {
-    font-size: 8px;
-  }
-  .translation-detail-backdrop {
-    padding: 12px;
-  }
-  .translation-detail-modal {
-    max-height: calc(100vh - 24px);
-
-    padding: 21px;
-
-    border-radius: 20px;
-  }
-  .translation-detail-header h2 {
-    font-size: 20px;
-  }
-  .translation-detail-meta time {
-    width: 100%;
-
-    margin-left: 0;
-  }
-  .translation-detail-box p {
-    min-height: 60px;
-
-    padding: 15px;
-
-    font-size: 13px;
-  }
-  .translation-detail-actions {
-    flex-direction: column;
-  }
-  .translation-detail-delete {
-    width: 100%;
   }
 }
