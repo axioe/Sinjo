@@ -753,20 +753,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .mypage-game-item {
-    grid-template-columns: 42px minmax(0, 1fr) auto;
-
-    gap: 10px;
-
-    padding: 13px;
-  }
-
-  .mypage-game-type-icon {
-    width: 42px;
-
-    height: 42px;
-  }
-
   .mypage-calendar {
     padding: 15px;
   }
@@ -871,32 +857,6 @@
     gap: 10px;
   }
 
-  .mypage-game-item {
-    grid-template-columns: 40px minmax(0, 1fr);
-
-    gap: 10px;
-  }
-
-  .mypage-game-type-icon {
-    width: 40px;
-
-    height: 40px;
-
-    border-radius: 12px;
-  }
-
-  .mypage-game-result {
-    display: none;
-  }
-
-  .mypage-game-score-row strong {
-    font-size: 16px;
-  }
-
-  .mypage-game-date {
-    font-size: 8px;
-  }
-
   .mypage-stats-card {
     padding: 18px;
   }
@@ -977,19 +937,5 @@
 
   .mypage-calendar-legend span {
     font-size: 7px;
-  }
-
-  .mypage-game-item {
-    padding: 11px;
-  }
-
-  .mypage-game-type-icon {
-    width: 36px;
-
-    height: 36px;
-
-    border-radius: 10px;
-
-    font-size: 13px;
   }
 }
