@@ -9,18 +9,14 @@
 .mypage {
   --mypage-primary: #6d4aff;
   --mypage-primary-dark: #5938dc;
-  --mypage-primary-soft: #f3effe;
 
   --mypage-text: #302a42;
   --mypage-text-strong: #332d40;
   --mypage-text-muted: #817b8e;
-  --mypage-text-light: #aaa5b1;
 
   --mypage-border: #eeeaf8;
   --mypage-border-soft: #f0edf7;
 
-  --mypage-success: #39a978;
-  --mypage-warning: #df951e;
   --mypage-danger: #e05b6d;
 
   width: 100%;
