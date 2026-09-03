@@ -67,3 +67,7 @@ export const updatePointShopItem = (id, payload) =>
 
 export const deletePointShopItem = (id) =>
   request(`/api/admin/point-shop-items/${id}`, { method: "DELETE" });
+
+export function getSignupTrend(days = 14) {
+  return request(`/api/admin/stats/signups?days=${days}`);
+}
