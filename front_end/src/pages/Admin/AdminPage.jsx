@@ -6,6 +6,8 @@ import AdminQuizzes from "./AdminQuizzes";
 import AdminPointShop from "./AdminPointShop";
 import "../../css/admin/Admin.css";
 
+import AdminProposals from "./AdminProposals";
+
 /**
  * 관리자 페이지 (REQ-ADM-01)
  * 화면구조 가이드라인 7장: 좌측 사이드 메뉴 + 우측 콘텐츠 영역
@@ -15,6 +17,7 @@ const MENUS = [
   { key: "words", label: "용어 관리", icon: "📖" },
   { key: "quizzes", label: "퀴즈 관리", icon: "🎮" },
   { key: "users", label: "회원 관리", icon: "👥" },
+  { key: "proposals", label: "신조어 제안 관리", icon: "💡" },
   { key: "pointShop", label: "포인트 상점", icon: "🛍️" },
 ];
 
@@ -43,6 +46,7 @@ function AdminPage() {
         {menu === "words" && <AdminWords />}
         {menu === "quizzes" && <AdminQuizzes />}
         {menu === "users" && <AdminUsers />}
+        {menu === "proposals" && <AdminProposals />}
         {menu === "pointShop" && <AdminPointShop />}
       </section>
     </div>

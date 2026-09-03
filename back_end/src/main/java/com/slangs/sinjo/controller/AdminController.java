@@ -1,10 +1,6 @@
 package com.slangs.sinjo.controller;
 
-import com.slangs.sinjo.dto.AdminDto;
-import com.slangs.sinjo.dto.PointDto;
-import com.slangs.sinjo.dto.QuizWordDto;
-import com.slangs.sinjo.dto.UserDto;
-import com.slangs.sinjo.dto.WordDto;
+import com.slangs.sinjo.dto.*;
 import com.slangs.sinjo.service.AdminService;
 import com.slangs.sinjo.service.WordExcelService;
 import jakarta.validation.Valid;
