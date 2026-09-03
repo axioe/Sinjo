@@ -1,0 +1,116 @@
+/* =========================================================
+   MAIN HISTORY (Main.jsx의 <section className="history">)
+========================================================= */
+
+.history {
+  width: 100%;
+
+  margin-top: 24px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+}
+
+.history-header h2 {
+  margin: 0;
+
+  color: #302b42;
+
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.history-more {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
+
+  color: #9992aa;
+
+  text-decoration: none;
+
+  font-size: 13px; /* 11px → 13px */
+  font-weight: 600;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.history-more svg {
+  font-size: 9px; /* 기존 8px → 9px */
+}
+
+.history-more:hover {
+  color: #6d4aff;
+
+  transform: translateX(2px);
+}
+
+.history-box {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeaf8;
+  border-radius: 18px;
+
+  box-shadow: 0 5px 16px rgba(60, 45, 120, 0.04);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+}
+
+.history-label {
+  flex-shrink: 0;
+
+  padding: 5px 9px;
+
+  background: #f1edff;
+
+  border-radius: 7px;
+
+  color: #6d4aff;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.history-item p {
+  margin: 0;
+
+  color: #5d5772;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  word-break: keep-all;
+}
+
+@media (max-width: 450px) {
+  .history-header h2 {
+    font-size: 18px;
+  }
+  .history-item {
+    flex-direction: column;
+
+    gap: 6px;
+  }
+}
