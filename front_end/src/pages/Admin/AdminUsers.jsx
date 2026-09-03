@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../AuthContext";
-import { getUsers, updateUserRole, updateUser, deleteUser } from "../../api/adminApi";
+import { getUsers, updateUserRole, deleteUser } from "../../api/adminApi";
 
 /** 서버가 주는 ISO 문자열을 "2026.03.15" 형태로 바꾼다. */
 function formatDate(value) {
@@ -10,9 +10,16 @@ function formatDate(value) {
   return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
 }
 
+const ROLE_FILTERS = [
+  { key: "ALL", label: "전체" },
+  { key: "ADMIN", label: "관리자" },
+  { key: "USER", label: "일반" },
+];
+
 /**
  * 회원 관리 (REQ-ADM-01)
- * 권한 부여/해제, 닉네임 수정, 삭제가 즉시 DB 에 반영된다.
+ * 권한 부여/해제, 삭제가 즉시 DB 에 반영된다.
+ * 닉네임은 개인정보라 관리자가 아닌 회원 본인만 마이페이지에서 변경한다.
  * 본인 계정은 서버(AdminService)가 권한 변경·삭제를 막으므로 버튼 대신
  * "본인 계정" 표시만 보여준다.
  */
@@ -22,9 +29,9 @@ function AdminUsers() {
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
-  const [nicknameInput, setNicknameInput] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [keyword, setKeyword] = useState("");
 
   const load = () => {
     getUsers()
@@ -35,35 +42,20 @@ function AdminUsers() {
 
   useEffect(load, []);
 
-  const startEdit = (user) => {
-    setEditingId(user.id);
-    setNicknameInput(user.nickname);
-    setActionError("");
-  };
+  // 전체 목록을 한 번에 받아오므로 걸러내는 일은 화면에서 처리한다.
+  const filtered = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setNicknameInput("");
-  };
+    return users.filter((user) => {
+      if (roleFilter !== "ALL" && user.role !== roleFilter) return false;
+      if (!q) return true;
 
-  const handleSaveNickname = async (id) => {
-    if (!nicknameInput.trim()) {
-      setActionError("닉네임을 입력해 주세요.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const updated = await updateUser(id, { nickname: nicknameInput.trim() });
-      setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
-      cancelEdit();
-      setActionError("");
-    } catch (err) {
-      setActionError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      return (
+        user.email?.toLowerCase().includes(q) ||
+        user.nickname?.toLowerCase().includes(q)
+      );
+    });
+  }, [users, roleFilter, keyword]);
 
   const handleToggleRole = async (user) => {
     const nextRole = user.role === "ADMIN" ? "USER" : "ADMIN";
@@ -81,11 +73,15 @@ function AdminUsers() {
   };
 
   const handleDelete = async (user) => {
-    if (!window.confirm(`'${user.nickname}' 님을 삭제할까요? 이 작업은 되돌릴 수 없습니다.`)) return;
+    if (
+      !window.confirm(
+        `'${user.nickname}' 님을 삭제할까요? 이 작업은 되돌릴 수 없습니다.`,
+      )
+    )
+      return;
 
     try {
       await deleteUser(user.id);
-      if (editingId === user.id) cancelEdit();
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
       setActionError("");
     } catch (err) {
@@ -99,7 +95,34 @@ function AdminUsers() {
   return (
     <>
       <h1 className="admin-title">회원 관리</h1>
-      <p className="admin-desc">전체 {users.length}명</p>
+
+      <div className="admin-filter-bar">
+        <div className="admin-filter-tabs">
+          {ROLE_FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              className={`admin-filter-tab ${roleFilter === key ? "active" : ""}`}
+              onClick={() => setRoleFilter(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <input
+          type="search"
+          className="admin-filter-search"
+          placeholder="이메일 또는 닉네임 검색"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+        />
+      </div>
+
+      <p className="admin-desc">
+        {filtered.length}명
+        {filtered.length !== users.length && ` / 전체 ${users.length}명`}
+      </p>
 
       {actionError && <p className="admin-alert">{actionError}</p>}
 
@@ -116,78 +139,58 @@ function AdminUsers() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => {
-            const isSelf = me?.id === user.id;
-            const isEditing = editingId === user.id;
+          {filtered.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="admin-empty">
+                조건에 맞는 회원이 없습니다.
+              </td>
+            </tr>
+          ) : (
+            filtered.map((user) => {
+              const isSelf = me?.id === user.id;
 
-            return (
-              <tr key={user.id} className={isEditing ? "editing" : ""}>
-                <td>{user.id}</td>
-                <td>{user.email}</td>
-                <td>
-                  {isEditing ? (
-                    <input
-                      value={nicknameInput}
-                      onChange={(e) => setNicknameInput(e.target.value)}
-                      autoFocus
-                    />
-                  ) : (
-                    user.nickname
-                  )}
-                </td>
-                <td>
-                  <span className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}>
-                    {user.role === "ADMIN" ? "관리자" : "일반"}
-                  </span>
-                </td>
-                <td>{formatDate(user.createdAt)}</td>
-                <td>{formatDate(user.lastLoginAt)}</td>
-                <td className="admin-td-actions">
-                  {isSelf ? (
-                    <span className="admin-desc">본인 계정</span>
-                  ) : isEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        className="admin-btn small primary"
-                        onClick={() => handleSaveNickname(user.id)}
-                        disabled={submitting}
-                      >
-                        저장
-                      </button>
-                      <button type="button" className="admin-btn small" onClick={cancelEdit}>
-                        취소
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => startEdit(user)}
-                      >
-                        닉네임 수정
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => handleToggleRole(user)}
-                      >
-                        {user.role === "ADMIN" ? "일반으로 변경" : "관리자 지정"}
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn small danger"
-                        onClick={() => handleDelete(user)}
-                      >
-                        삭제
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
+              return (
+                <tr key={user.id}>
+                  <td>{user.id}</td>
+                  <td>{user.email}</td>
+                  <td>{user.nickname}</td>
+                  <td>
+                    <span
+                      className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}
+                    >
+                      {user.role === "ADMIN" ? "관리자" : "일반"}
+                    </span>
+                  </td>
+                  <td>{formatDate(user.createdAt)}</td>
+                  <td>{formatDate(user.lastLoginAt)}</td>
+                  <td className="admin-td-actions">
+                    {isSelf ? (
+                      <span className="admin-self-label">현재 로그인한 계정</span>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="admin-btn small"
+                          onClick={() => handleToggleRole(user)}
+                        >
+                          {user.role === "ADMIN"
+                            ? "일반으로 변경"
+                            : "관리자 지정"}
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-btn small danger"
+                          onClick={() => handleDelete(user)}
+                        >
+                          삭제
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </>
