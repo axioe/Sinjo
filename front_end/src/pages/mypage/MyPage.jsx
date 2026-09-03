@@ -12,7 +12,6 @@ import WeeklyRecord from "../../components/MyPage/WeeklyRecord";
 import ActivityStatsPanel from "../../components/MyPage/ActivityStatsPanel";
 import GameHistory from "../../components/MyPage/GameHistory";
 import FavoriteWords from "../../components/MyPage/FavoriteWords";
-import PasswordChangeModal from "../../components/MyPage/PasswordChangeModal";
 
 import { ACTIVITY_SUMMARY_PLACEHOLDERS } from "../../data/myPageSampleData";
 
@@ -67,8 +66,6 @@ function MyPage() {
     favorite: false,
     game: false,
   });
-
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   /*
    * 기본 마이페이지 데이터
@@ -373,7 +370,7 @@ function MyPage() {
               description="닉네임과 비밀번호를 변경할 수 있어요."
             />
 
-            <ProfileEdit onChangePassword={() => setShowPasswordModal(true)} />
+            <ProfileEdit />
           </section>
         );
 
@@ -464,10 +461,6 @@ function MyPage() {
           </>
         )}
       </div>
-
-      {showPasswordModal && (
-        <PasswordChangeModal onClose={() => setShowPasswordModal(false)} />
-      )}
     </>
   );
 }
