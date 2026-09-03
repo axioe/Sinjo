@@ -369,3 +369,31 @@
   font-weight: 700;
   margin-bottom: 20px;
 }
+
+.admin-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-metric-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-metric-tab {
+  padding: 6px 14px;
+  border: 1px solid #e5e5ef;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.admin-metric-tab.active {
+  background: #7c5cff;
+  border-color: #7c5cff;
+  color: #fff;
+  font-weight: 600;
+}

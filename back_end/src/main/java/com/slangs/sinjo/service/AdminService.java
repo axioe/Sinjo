@@ -11,18 +11,13 @@ import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.entity.Word;
 import com.slangs.sinjo.exception.DuplicateWordException;
 import com.slangs.sinjo.exception.NotFoundException;
-import com.slangs.sinjo.repository.AttendanceRepository;
-import com.slangs.sinjo.repository.PointShopItemRepository;
-import com.slangs.sinjo.repository.PointTransactionRepository;
-import com.slangs.sinjo.repository.QuizAttemptRepository;
-import com.slangs.sinjo.repository.QuizRepository;
-import com.slangs.sinjo.repository.UserRepository;
-import com.slangs.sinjo.repository.WordRepository;
+import com.slangs.sinjo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +38,7 @@ public class AdminService {
     private final AttendanceRepository attendanceRepository;
     private final PointTransactionRepository pointTransactionRepository;
     private final PointShopItemRepository pointShopItemRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
 
     /**
      * [추가] 객관식 퀴즈 오답 보기 최소 개수.
@@ -320,21 +316,35 @@ public class AdminService {
 
 //    통계 대시보드
 public List<AdminDto.DailyCount> getSignupTrend(int days) {
-    LocalDate start = LocalDate.now().minusDays(days - 1L);
-
-    // DB 결과를 날짜 -> 건수 맵으로 바꾼다.
-    Map<String, Long> counted = new HashMap<>();
-    for (Object[] row : userRepository.countDailySignups(start.atStartOfDay())) {
-        counted.put(row[0].toString(), ((Number) row[1]).longValue());
-    }
-
-    // 가입이 0건인 날은 DB 에 아예 행이 없다.
-    // 빈 날을 채우지 않으면 그래프에서 그 구간이 통째로 사라져 추이가 왜곡된다.
-    List<AdminDto.DailyCount> result = new ArrayList<>();
-    for (int i = 0; i < days; i++) {
-        String key = start.plusDays(i).toString();
-        result.add(new AdminDto.DailyCount(key, counted.getOrDefault(key, 0L)));
-    }
-    return result;
+    return toDailyCounts(
+            userRepository.countDailySignups(startOf(days)), days);
 }
+
+    public List<AdminDto.DailyCount> getLoginTrend(int days) {
+        return toDailyCounts(
+                loginHistoryRepository.countDailyLogins(startOf(days)), days);
+    }
+
+    private LocalDateTime startOf(int days) {
+        return LocalDate.now().minusDays(days - 1L).atStartOfDay();
+    }
+
+    /**
+     * DB 는 건수가 0 인 날의 행을 아예 돌려주지 않는다.
+     * 빈 날을 채우지 않으면 그래프에서 그 구간이 사라져 추이가 왜곡된다.
+     */
+    private List<AdminDto.DailyCount> toDailyCounts(List<Object[]> rows, int days) {
+        Map<String, Long> counted = new HashMap<>();
+        for (Object[] row : rows) {
+            counted.put(row[0].toString(), ((Number) row[1]).longValue());
+        }
+
+        LocalDate start = LocalDate.now().minusDays(days - 1L);
+        List<AdminDto.DailyCount> result = new ArrayList<>();
+        for (int i = 0; i < days; i++) {
+            String key = start.plusDays(i).toString();
+            result.add(new AdminDto.DailyCount(key, counted.getOrDefault(key, 0L)));
+        }
+        return result;
+    }
 }

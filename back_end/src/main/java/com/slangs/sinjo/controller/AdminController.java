@@ -163,4 +163,10 @@ public class AdminController {
             @RequestParam(defaultValue = "14") int days) {
         return ResponseEntity.ok(adminService.getSignupTrend(days));
     }
+
+    @GetMapping("/stats/logins")
+    public ResponseEntity<List<AdminDto.DailyCount>> loginTrend(
+            @RequestParam(defaultValue = "14") int days) {
+        return ResponseEntity.ok(adminService.getLoginTrend(days));
+    }
 }
