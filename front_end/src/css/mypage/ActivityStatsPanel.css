@@ -716,6 +716,12 @@
    STATS RESPONSIVE
 ========================================================= */
 
+@media (max-width: 1250px) {
+  .mypage-stats-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1050px) {
   .mypage-stats-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -728,6 +734,10 @@
   .mypage-stats-overview-progress {
     grid-column: 1 / -1;
   }
+
+  .mypage-calendar-grid {
+    gap: 5px;
+  }
 }
 
 @media (max-width: 820px) {
@@ -739,6 +749,8 @@
     gap: 15px;
 
     padding: 15px;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .mypage-game-item {
@@ -751,7 +763,12 @@
 
   .mypage-game-type-icon {
     width: 42px;
+
     height: 42px;
+  }
+
+  .mypage-calendar {
+    padding: 15px;
   }
 }
 
@@ -764,6 +781,7 @@
 
   .mypage-stats-intro-icon {
     width: 42px;
+
     height: 42px;
 
     border-radius: 12px;
@@ -780,9 +798,9 @@
   }
 
   .mypage-stats-overview {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 12px;
+    gap: 8px;
 
     margin-bottom: 15px;
 
@@ -791,10 +809,13 @@
 
   .mypage-stats-overview-item {
     gap: 8px;
+
+    padding: 13px;
   }
 
   .mypage-stats-overview-icon {
     width: 33px;
+
     height: 33px;
 
     border-radius: 9px;
@@ -813,7 +834,7 @@
   }
 
   .mypage-calendar {
-    padding: 14px;
+    padding: 12px;
   }
 
   .mypage-calendar-summary {
@@ -840,6 +861,7 @@
 
   .mypage-calendar-active-dot {
     right: 3px;
+
     bottom: 3px;
   }
 
@@ -857,6 +879,7 @@
 
   .mypage-game-type-icon {
     width: 40px;
+
     height: 40px;
 
     border-radius: 12px;
@@ -872,6 +895,34 @@
 
   .mypage-game-date {
     font-size: 8px;
+  }
+
+  .mypage-stats-card {
+    padding: 18px;
+  }
+
+  .mypage-calendar-head {
+    grid-template-columns: 32px minmax(0, 1fr) 32px;
+
+    gap: 6px;
+  }
+
+  .mypage-calendar-nav {
+    width: 32px;
+
+    height: 32px;
+
+    border-radius: 9px;
+  }
+
+  .mypage-calendar-title {
+    font-size: 15px;
+  }
+
+  .mypage-calendar-weekday {
+    min-height: 22px;
+
+    font-size: 9px;
   }
 }
 
@@ -902,6 +953,7 @@
 
   .mypage-calendar-nav {
     width: 32px;
+
     height: 32px;
   }
 
@@ -933,89 +985,11 @@
 
   .mypage-game-type-icon {
     width: 36px;
+
     height: 36px;
 
     border-radius: 10px;
 
     font-size: 13px;
-  }
-}
-
-@media (max-width: 1250px) {
-  .mypage-stats-overview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1050px) {
-  .mypage-calendar-grid {
-    gap: 5px;
-  }
-}
-
-@media (max-width: 820px) {
-  .mypage-calendar {
-    padding: 15px;
-  }
-  .mypage-stats-overview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .mypage-stats-card {
-    padding: 18px;
-  }
-  .mypage-stats-overview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 8px;
-  }
-  .mypage-stats-overview-item {
-    padding: 13px;
-  }
-  .mypage-calendar {
-    padding: 12px;
-  }
-  .mypage-calendar-head {
-    grid-template-columns: 32px minmax(0, 1fr) 32px;
-
-    gap: 6px;
-  }
-  .mypage-calendar-nav {
-    width: 32px;
-    height: 32px;
-
-    border-radius: 9px;
-  }
-  .mypage-calendar-title {
-    font-size: 15px;
-  }
-  .mypage-calendar-grid {
-    gap: 4px;
-  }
-  .mypage-calendar-weekday {
-    min-height: 22px;
-
-    font-size: 9px;
-  }
-  .mypage-calendar-cell {
-    border-radius: 9px;
-
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 400px) {
-  .mypage-calendar-grid {
-    gap: 3px;
-  }
-  .mypage-calendar-cell {
-    border-radius: 7px;
-
-    font-size: 9px;
-  }
-  .mypage-stats-overview {
-    grid-template-columns: 1fr;
   }
 }

@@ -587,6 +587,10 @@
     padding: 20px;
   }
   .excel-modal-footer {
+    display: grid;
+
+    grid-template-columns: 1fr 1.5fr;
+
     padding: 15px 20px;
   }
   .excel-field-list {
@@ -610,11 +614,6 @@
   }
   .excel-select-all-button {
     width: 100%;
-  }
-  .excel-modal-footer {
-    display: grid;
-
-    grid-template-columns: 1fr 1.5fr;
   }
   .excel-cancel-button,
   .excel-confirm-button {
