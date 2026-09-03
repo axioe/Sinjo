@@ -81,6 +81,7 @@ front_end/   React SPA
 - **인증 상태**: `AuthContext.js`는 컨텍스트/훅 정의만, `Auth.jsx`는 `AuthProvider` 구현을 담당하도록 파일을 나눴습니다(컴포넌트와 비-컴포넌트 export가 같은 파일에 있으면 Vite Fast Refresh가 깨지기 때문). JWT는 `localStorage`에 저장하고, 앱이 시작될 때 토큰이 있으면 `/api/users/me`로 사용자 정보를 다시 받아옵니다 — 토큰이 만료·무효면 조용히 로그아웃 처리됩니다.
 - **API 레이어**: 모든 요청은 `api/client.js`의 `request()`를 거칩니다 — 토큰이 있으면 `Authorization` 헤더를 자동으로 붙이고, 실패 응답은 `.status`/`.fieldErrors`가 채워진 `Error`로 통일해서 던집니다. 도메인별 파일(`userApi.js`, `wordApi.js`, `quizApi.js`, `adminApi.js`, `pointApi.js` 등)이 이 위에서 얇은 래퍼 역할만 하고, 페이지에서 직접 `fetch`를 호출하지 않습니다. 백엔드 주소는 `.env`의 `VITE_API_BASE_URL` 한 곳에서만 관리합니다.
 - **CSS 구조**: 페이지·컴포넌트 단위로 파일을 나눠서 관리합니다(`css/<도메인>/ComponentName.css`를 그 컴포넌트가 직접 import). 예전엔 `MyPage.css` 하나(4300여 줄)에 마이페이지 전체 스타일이 몰려 있었는데, `components/MyPage/` 안의 컴포넌트 13개에 맞춰 파일을 전부 분리했고, 미디어 쿼리가 파일 곳곳에 중복 정의돼 캐스케이드가 충돌하던 부분도 속성 단위로 병합해 정리했습니다. 컴포넌트 폴더가 없는 단일 페이지(`Dictionary.jsx`, `Main.jsx`)는 그 안에서 뚜렷이 구분되는 기능(엑셀 모달, 히어로/카드그리드/히스토리 섹션)을 기준으로만 나눴습니다.
+- **개발 환경**: Vite + `@vitejs/plugin-react`(Oxc 기반)로 HMR을 구성했고, TypeScript나 React Compiler는 아직 도입하지 않았습니다. `npm run lint`로 ESLint(React Hooks 규칙 포함)를 돌립니다 — 타입 검사가 없는 만큼 커밋 전에 꼭 실행해야 합니다.
 
 ## 실행 방법
 
