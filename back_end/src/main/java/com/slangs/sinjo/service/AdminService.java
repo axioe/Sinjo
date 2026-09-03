@@ -22,8 +22,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 관리자 기능 (REQ-ADM-01)
@@ -314,4 +317,24 @@ public class AdminService {
             );
         }
     }
+
+//    통계 대시보드
+public List<AdminDto.DailyCount> getSignupTrend(int days) {
+    LocalDate start = LocalDate.now().minusDays(days - 1L);
+
+    // DB 결과를 날짜 -> 건수 맵으로 바꾼다.
+    Map<String, Long> counted = new HashMap<>();
+    for (Object[] row : userRepository.countDailySignups(start.atStartOfDay())) {
+        counted.put(row[0].toString(), ((Number) row[1]).longValue());
+    }
+
+    // 가입이 0건인 날은 DB 에 아예 행이 없다.
+    // 빈 날을 채우지 않으면 그래프에서 그 구간이 통째로 사라져 추이가 왜곡된다.
+    List<AdminDto.DailyCount> result = new ArrayList<>();
+    for (int i = 0; i < days; i++) {
+        String key = start.plusDays(i).toString();
+        result.add(new AdminDto.DailyCount(key, counted.getOrDefault(key, 0L)));
+    }
+    return result;
+}
 }

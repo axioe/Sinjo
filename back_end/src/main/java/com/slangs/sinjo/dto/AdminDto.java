@@ -107,4 +107,7 @@ public class AdminDto {
             Integer price
     ) {
     }
+
+//    통계 대시보드
+    public record DailyCount(String date, long count) {}
 }
