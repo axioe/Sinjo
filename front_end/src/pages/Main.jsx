@@ -12,6 +12,9 @@ import slang from "../assets/images/slang.png";
 import { getRankingWords, getWords } from "../api/wordApi";
 
 import "../css/Main.css";
+import "../css/MainHero.css";
+import "../css/MainFeatureGrid.css";
+import "../css/MainHistory.css";
 import ChatbotFloating from "./chatbot/ChatbotFloating";
 
 /* =========================================================
