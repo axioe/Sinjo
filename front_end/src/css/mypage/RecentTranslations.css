@@ -867,12 +867,6 @@
     font-size: 20px;
   }
 
-  .translation-detail-meta time {
-    width: 100%;
-
-    margin-left: 0;
-  }
-
   .translation-detail-delete {
     width: 100%;
   }
