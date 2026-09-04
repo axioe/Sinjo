@@ -126,38 +126,41 @@ function AdminUsers() {
 
       {actionError && <p className="admin-alert">{actionError}</p>}
 
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>이메일</th>
-            <th>닉네임</th>
-            <th>권한</th>
-            <th>가입일</th>
-            <th>마지막 접속</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.length === 0 ? (
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
             <tr>
-              <td colSpan={7} className="admin-empty">
-                조건에 맞는 회원이 없습니다.
-              </td>
+              <th>ID</th>
+              <th>이메일</th>
+              <th>닉네임</th>
+              <th>권한</th>
+              <th>가입일</th>
+              <th>마지막 접속</th>
+              <th>관리</th>
             </tr>
-          ) : (
-            filtered.map((user) => {
+          </thead>
+          <tbody>
+            {users.map((user) => {
               const isSelf = me?.id === user.id;
+              const isEditing = editingId === user.id;
 
               return (
-                <tr key={user.id}>
+                <tr key={user.id} className={isEditing ? "editing" : ""}>
                   <td>{user.id}</td>
                   <td>{user.email}</td>
-                  <td>{user.nickname}</td>
                   <td>
-                    <span
-                      className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}
-                    >
+                    {isEditing ? (
+                      <input
+                        value={nicknameInput}
+                        onChange={(e) => setNicknameInput(e.target.value)}
+                        autoFocus
+                      />
+                    ) : (
+                      user.nickname
+                    )}
+                  </td>
+                  <td>
+                    <span className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}>
                       {user.role === "ADMIN" ? "관리자" : "일반"}
                     </span>
                   </td>
@@ -165,17 +168,36 @@ function AdminUsers() {
                   <td>{formatDate(user.lastLoginAt)}</td>
                   <td className="admin-td-actions">
                     {isSelf ? (
-                      <span className="admin-self-label">현재 로그인한 계정</span>
+                      <span className="admin-desc">본인 계정</span>
+                    ) : isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          className="admin-btn small primary"
+                          onClick={() => handleSaveNickname(user.id)}
+                          disabled={submitting}
+                        >
+                          저장
+                        </button>
+                        <button type="button" className="admin-btn small" onClick={cancelEdit}>
+                          취소
+                        </button>
+                      </>
                     ) : (
                       <>
                         <button
                           type="button"
                           className="admin-btn small"
+                          onClick={() => startEdit(user)}
+                        >
+                          닉네임 수정
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-btn small"
                           onClick={() => handleToggleRole(user)}
                         >
-                          {user.role === "ADMIN"
-                            ? "일반으로 변경"
-                            : "관리자 지정"}
+                          {user.role === "ADMIN" ? "일반으로 변경" : "관리자 지정"}
                         </button>
                         <button
                           type="button"
@@ -189,10 +211,10 @@ function AdminUsers() {
                   </td>
                 </tr>
               );
-            })
-          )}
-        </tbody>
-      </table>
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

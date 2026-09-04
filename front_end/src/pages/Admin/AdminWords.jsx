@@ -339,66 +339,70 @@ function AdminWords() {
             {filtered.length !== words.length && ` / 전체 ${words.length}개`}
           </p>
 
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>신조어</th>
-                <th>카테고리</th>
-                <th>뜻</th>
-                <th>예문</th>
-                <th>좋아요</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filtered.length === 0 ? (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
                 <tr>
-                  <td colSpan={7} className="admin-empty">
-                    조건에 맞는 신조어가 없습니다.
-                  </td>
+                  <th>ID</th>
+                  <th>신조어</th>
+                  <th>카테고리</th>
+                  <th>뜻</th>
+                  <th>예문</th>
+                  <th>좋아요</th>
+                  <th>관리</th>
                 </tr>
-              ) : (
-                filtered.map((item) => (
-                  <tr
-                    key={item.id}
-                    className={editingId === item.id ? "editing" : ""}
-                  >
-                    <td>{item.id}</td>
+              </thead>
 
-                    <td className="admin-td-word">{item.word}</td>
-
-                    <td>{item.category?.trim() || "기타"}</td>
-
-                    <td>{item.meaning}</td>
-
-                    <td className="admin-td-example">{item.example}</td>
-
-                    <td>{item.likes}</td>
-
-                    <td className="admin-td-actions">
-                      <button
-                        type="button"
-                        className="admin-btn small"
-                        onClick={() => handleEdit(item)}
-                      >
-                        수정
-                      </button>
-
-                      <button
-                        type="button"
-                        className="admin-btn small danger"
-                        onClick={() => handleDelete(item)}
-                      >
-                        삭제
-                      </button>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="admin-empty">
+                      조건에 맞는 신조어가 없습니다.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filtered.map((item) => (
+                    <tr
+                      key={item.id}
+                      className={editingId === item.id ? "editing" : ""}
+                    >
+                      <td>{item.id}</td>
+
+                      <td className="admin-td-word">
+                        <button
+                          type="button"
+                          className="admin-td-word-btn"
+                          onClick={() => handleEdit(item)}
+                        >
+                          {item.word}
+                        </button>
+                      </td>
+
+                      <td>{item.category?.trim() || "기타"}</td>
+
+                      <td className="admin-td-wrap">{item.meaning}</td>
+
+                      <td className="admin-td-example admin-td-wrap">
+                        {item.example}
+                      </td>
+
+                      <td>{item.likes}</td>
+
+                      <td className="admin-td-actions">
+                        <button
+                          type="button"
+                          className="admin-btn small danger"
+                          onClick={() => handleDelete(item)}
+                        >
+                          삭제
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </>
@@ -406,3 +410,4 @@ function AdminWords() {
 }
 
 export default AdminWords;
+
