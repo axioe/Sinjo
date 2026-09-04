@@ -1,3 +1,4 @@
+import "../../css/mypage/MyPageSidebar.css";
 import { useNavigate } from "react-router-dom";
 import {
   FaHome,

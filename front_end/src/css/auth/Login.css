@@ -62,6 +62,7 @@
   color: #fff;
   font-size: 15px;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .login-submit:hover {
@@ -72,18 +73,11 @@
   margin: 20px 0 0;
   font-size: 13px;
   color: #6e6885;
+  text-align: center;
 }
 
 .login-footer a {
   color: #6d3fe0;
   font-weight: 700;
   text-decoration: none;
-}
-
-.login-submit {
-  cursor: pointer;   
-}
-
-.login-footer {
-  text-align: center; 
 }

@@ -234,7 +234,14 @@
   color: var(--c-danger);
 }
 
-/* ---- 테이블 -------------------------------------------------------------- */
+/* ---- 테이블 --------------------------------------------------------------
+   내용이 많은 열(뜻/힌트/예문 등) 때문에 테이블이 .admin-content 보다 넓어지면
+   관리 버튼 열이 카드 밖으로 밀려나 보였다 - .admin-table-wrap 이 그 초과분을
+   가로 스크롤로만 받게 해서 레이아웃 자체는 깨지지 않게 한다. */
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -248,6 +255,7 @@
   text-align: left;
   vertical-align: middle;
 }
+
 
 .admin-table th {
   color: var(--c-text-sub);
@@ -267,13 +275,40 @@
 }
 
 .admin-td-word {
+  white-space: nowrap;
+}
+
+/* 신조어/상품명을 누르면 수정 모드로 들어간다 - 별도 "수정" 버튼을 없앤 대신
+   이 텍스트 자체가 그 역할을 한다는 걸 밑줄로 표시한다. */
+.admin-td-word-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-family: var(--font-display);
   font-weight: 700;
-  white-space: nowrap;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  cursor: pointer;
+}
+
+.admin-td-word-btn:hover {
+  color: var(--c-primary);
+  text-decoration-color: currentColor;
 }
 
 .admin-td-example {
   color: var(--c-text-sub);
+}
+
+/* 뜻/힌트·예문처럼 긴 텍스트 열은 폭을 제한하고 줄바꿈해서, 표 전체가 옆으로
+   한없이 넓어지는 대신 세로로만 늘어나게 한다 - .admin-table-wrap 스크롤 없이
+   한 화면에 표 전체가 들어오게 하는 목적. */
+.admin-td-wrap {
+  max-width: 220px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .admin-td-actions {

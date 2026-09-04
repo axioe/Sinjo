@@ -49,7 +49,7 @@ function App() {
         <Route path="/ranking" element={<Ranking />} />
 
         {/* 오늘의 단어 */}
-        <Route path="/today" element={<TodayWord />} />
+        <Route path="/today" element={<TodayWord />} />      
 
         {/* 테스트 */}
         <Route path="/test" element={<Test />} />
@@ -92,7 +92,7 @@ function App() {
             </RequireAdmin>
           }
         />
-
+      
         {/* 퀴즈 */}
         <Route path="/game" element={<QuizMain />} />
         <Route path="/game/multiple" element={<MultipleChoiceQuiz />} />

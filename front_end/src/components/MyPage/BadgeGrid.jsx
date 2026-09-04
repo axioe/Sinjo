@@ -1,3 +1,4 @@
+import "../../css/mypage/BadgeGrid.css";
 import { FaLanguage, FaGamepad, FaComments } from "react-icons/fa";
 
 const ICONS = {

@@ -57,7 +57,6 @@ function Header() {
         <Link to="/game">게임</Link>
         <Link to="/ranking">랭킹</Link>
         <Link to="/today">오늘의 신조어</Link>
-
         {user &&
           (user.role === "ADMIN" ? (
             <Link to="/admin">관리자 페이지</Link>

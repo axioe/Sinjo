@@ -1,4 +1,5 @@
 import "../../css/dictionary/Dictionary.css";
+import "../../css/dictionary/DictionaryExcelModal.css";
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";

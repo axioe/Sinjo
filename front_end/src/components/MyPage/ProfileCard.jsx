@@ -1,3 +1,4 @@
+import "../../css/mypage/ProfileCard.css";
 import { FaCamera } from "react-icons/fa";
 
 /** 서버가 주는 ISO 문자열을 "2026.03.15" 형태로 바꾼다. */

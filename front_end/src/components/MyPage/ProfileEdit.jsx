@@ -1,3 +1,4 @@
+import "../../css/mypage/ProfileEdit.css";
 import { useState } from "react";
 import { useAuth } from "../../AuthContext";
 import { updateNickname, changePassword } from "../../api/userApi";

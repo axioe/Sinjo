@@ -1,3 +1,4 @@
+import "../../css/mypage/GameHistory.css";
 import {
   FaGamepad,
   FaCheckCircle,

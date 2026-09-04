@@ -1,0 +1,161 @@
+/* =========================================================
+   QUICK MENU (components/MyPage/QuickMenu.jsx)
+========================================================= */
+
+.mypage-quick-grid {
+  display: grid;
+
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.mypage-quick {
+  position: relative;
+
+  min-width: 0;
+  min-height: 135px;
+
+  display: block;
+
+  padding: 16px;
+
+  box-sizing: border-box;
+
+  border: 1px solid transparent;
+  border-radius: 16px;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.mypage-quick:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(109, 74, 255, 0.1);
+
+  box-shadow: 0 8px 20px rgba(35, 27, 72, 0.07);
+}
+
+.mypage-quick.purple {
+  background: #f3effe;
+}
+
+.mypage-quick.mint {
+  background: #eafaf3;
+}
+
+.mypage-quick.pink {
+  background: #fdeef4;
+}
+
+.mypage-quick.amber {
+  background: #fff6e8;
+}
+
+.mypage-quick.violet {
+  background: #f0edff;
+}
+
+.mypage-quick-icon-wrap {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.mypage-quick-icon {
+  font-size: 15px;
+}
+
+.mypage-quick.purple .mypage-quick-icon {
+  color: #6d4aff;
+}
+
+.mypage-quick.mint .mypage-quick-icon {
+  color: #39a978;
+}
+
+.mypage-quick.pink .mypage-quick-icon {
+  color: #e45b7c;
+}
+
+.mypage-quick.amber .mypage-quick-icon {
+  color: #df951e;
+}
+
+.mypage-quick.violet .mypage-quick-icon {
+  color: #7859e8;
+}
+
+.mypage-quick-title {
+  margin: 0 0 4px;
+
+  color: #3a3447;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mypage-quick-desc {
+  margin: 0;
+
+  color: #88818f;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mypage-quick-arrow {
+  position: absolute;
+
+  right: 13px;
+  bottom: 12px;
+
+  color: #aaa4b3;
+
+  font-size: 14px;
+}
+
+@media (max-width: 1250px) {
+  .mypage-quick-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1050px) {
+  .mypage-quick-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .mypage-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .mypage-quick-grid {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+  }
+  .mypage-quick {
+    min-height: 110px;
+  }
+}

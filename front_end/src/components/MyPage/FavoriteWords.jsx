@@ -1,3 +1,4 @@
+import "../../css/mypage/RecentTranslations.css";
 import { FaStar, FaTrashAlt } from "react-icons/fa";
 
 /**

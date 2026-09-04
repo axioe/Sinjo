@@ -211,4 +211,38 @@ public class WordService {
     public List<String> findCategories(){
         return wordRepository.findCategories();
     }
+
+    /**
+     * 관리자 승인으로 후보 신조어를 실제 Word로 등록
+     *
+     * Word 생성 후 VectorStore에도 embedding을 저장한다.
+     */
+    @Transactional
+    public WordDto createFromProposal(
+            String word,
+            String meaning,
+            String example,
+            String category,
+            String era
+    ) {
+
+        Word target = new Word(
+                word,
+                meaning,
+                example,
+                category,
+                era
+        );
+
+        Word savedWord = wordRepository.save(target);
+
+        Document document =
+                documentConverter.convert(savedWord);
+
+        vectorStore.add(
+                List.of(document)
+        );
+
+        return new WordDto(savedWord);
+    }
 }
