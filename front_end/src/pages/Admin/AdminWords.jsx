@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   getWords,
   createWord,
@@ -8,7 +8,7 @@ import {
 } from "../../api/adminApi";
 import { FaFileExcel } from "react-icons/fa";
 
-const CATEGORY_OPTIONS = ["게임", "인터넷", "일상", "자기계발", "직장", "기타"];
+const CATEGORY_OPTIONS = ["일상", "인터넷", "게임", "SNS", "직장", "기타"];
 
 const EMPTY_FORM = {
   word: "",
@@ -30,6 +30,8 @@ function AdminWords() {
   const [loading, setLoading] = useState(true);
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("전체");
+  const [keyword, setKeyword] = useState("");
 
   const load = () => {
     getWords()
@@ -129,33 +131,63 @@ function AdminWords() {
   };
 
   const handleExcelUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  e.target.value = "";
+    const file = e.target.files[0];
+    if (!file) return;
+    e.target.value = "";
 
-  setUploading(true);
-  setErrors({});
+    setUploading(true);
+    setErrors({});
 
-  try {
-    const fd = new FormData();
-    fd.append("file", file);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
 
-    const result = await uploadWordsExcel(fd);
+      const result = await uploadWordsExcel(fd);
 
-    let msg = `총 ${result.totalRows}행 중 ${result.successCount}건 등록`;
-    if (result.skipCount > 0) msg += `, ${result.skipCount}건 중복 제외`;
-    if (result.failures?.length > 0) {
-      msg += `\n\n[실패 ${result.failures.length}건]\n` + result.failures.join("\n");
+      let msg = `총 ${result.totalRows}행 중 ${result.successCount}건 등록`;
+      if (result.skipCount > 0) msg += `, ${result.skipCount}건 중복 제외`;
+      if (result.failures?.length > 0) {
+        msg +=
+          `\n\n[실패 ${result.failures.length}건]\n` +
+          result.failures.join("\n");
+      }
+      alert(msg);
+
+      load();
+    } catch (err) {
+      setErrors({ form: err.message });
+    } finally {
+      setUploading(false);
     }
-    alert(msg);
+  };
 
-    load();
-  } catch (err) {
-    setErrors({ form: err.message });
-  } finally {
-    setUploading(false);
-  }
-};
+  // 카테고리별 개수. 탭에 함께 보여줘 어디에 몰려 있는지 바로 알 수 있게 한다.
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    for (const item of words) {
+      const key = item.category?.trim() || "기타";
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  }, [words]);
+
+  // 전체 목록을 한 번에 받아오므로 걸러내는 일은 화면에서 처리한다.
+  const filtered = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
+
+    return words.filter((item) => {
+      const category = item.category?.trim() || "기타";
+
+      if (categoryFilter !== "전체" && category !== categoryFilter)
+        return false;
+      if (!q) return true;
+
+      return (
+        item.word?.toLowerCase().includes(q) ||
+        item.meaning?.toLowerCase().includes(q)
+      );
+    });
+  }, [words, categoryFilter, keyword]);
 
   return (
     <>
@@ -271,7 +303,41 @@ function AdminWords() {
         <p className="admin-loading">불러오는 중...</p>
       ) : (
         <>
-          <p className="admin-desc">전체 {words.length}개</p>
+          <div className="admin-filter-bar">
+            <div className="admin-filter-tabs">
+              <button
+                type="button"
+                className={`admin-filter-tab ${categoryFilter === "전체" ? "active" : ""}`}
+                onClick={() => setCategoryFilter("전체")}
+              >
+                전체 {words.length}
+              </button>
+
+              {CATEGORY_OPTIONS.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  className={`admin-filter-tab ${categoryFilter === category ? "active" : ""}`}
+                  onClick={() => setCategoryFilter(category)}
+                >
+                  {category} {categoryCounts[category] ?? 0}
+                </button>
+              ))}
+            </div>
+
+            <input
+              type="search"
+              className="admin-filter-search"
+              placeholder="신조어 또는 뜻 검색"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
+
+          <p className="admin-desc">
+            {filtered.length}개
+            {filtered.length !== words.length && ` / 전체 ${words.length}개`}
+          </p>
 
           <div className="admin-table-wrap">
             <table className="admin-table">
@@ -288,42 +354,52 @@ function AdminWords() {
               </thead>
 
               <tbody>
-                {words.map((item) => (
-                  <tr
-                    key={item.id}
-                    className={editingId === item.id ? "editing" : ""}
-                  >
-                    <td>{item.id}</td>
-
-                    <td className="admin-td-word">
-                      <button
-                        type="button"
-                        className="admin-td-word-btn"
-                        onClick={() => handleEdit(item)}
-                      >
-                        {item.word}
-                      </button>
-                    </td>
-
-                    <td>{item.category?.trim() || "기타"}</td>
-
-                    <td className="admin-td-wrap">{item.meaning}</td>
-
-                    <td className="admin-td-example admin-td-wrap">{item.example}</td>
-
-                    <td>{item.likes}</td>
-
-                    <td className="admin-td-actions">
-                      <button
-                        type="button"
-                        className="admin-btn small danger"
-                        onClick={() => handleDelete(item)}
-                      >
-                        삭제
-                      </button>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="admin-empty">
+                      조건에 맞는 신조어가 없습니다.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filtered.map((item) => (
+                    <tr
+                      key={item.id}
+                      className={editingId === item.id ? "editing" : ""}
+                    >
+                      <td>{item.id}</td>
+
+                      <td className="admin-td-word">
+                        <button
+                          type="button"
+                          className="admin-td-word-btn"
+                          onClick={() => handleEdit(item)}
+                        >
+                          {item.word}
+                        </button>
+                      </td>
+
+                      <td>{item.category?.trim() || "기타"}</td>
+
+                      <td className="admin-td-wrap">{item.meaning}</td>
+
+                      <td className="admin-td-example admin-td-wrap">
+                        {item.example}
+                      </td>
+
+                      <td>{item.likes}</td>
+
+                      <td className="admin-td-actions">
+                        <button
+                          type="button"
+                          className="admin-btn small danger"
+                          onClick={() => handleDelete(item)}
+                        >
+                          삭제
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -334,3 +410,4 @@ function AdminWords() {
 }
 
 export default AdminWords;
+
