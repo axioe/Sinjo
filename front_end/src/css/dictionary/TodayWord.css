@@ -1,24 +1,23 @@
 .today-page {
   max-width: 1000px;
-
   margin: auto;
-
   padding: 50px 30px;
 }
 
 .today-page h1 {
   color: #6d4aff;
-
   font-size: 42px;
 }
 
 .subtitle {
   color: #777;
-
   font-size: 18px;
-
   margin-top: 15px;
 }
+
+/* =======================================================
+   오늘의 신조어 카드
+======================================================= */
 
 .today-card {
   background: white;
@@ -30,7 +29,61 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 
   text-align: center;
+
+  /*
+    카드의 기본 상태.
+    transform과 opacity를 이용해
+    자연스럽게 등장하도록 한다.
+  */
+  opacity: 1;
+  transform: translateX(0) scale(1);
+
+  will-change: transform, opacity;
 }
+
+/* =======================================================
+   카드 등장 애니메이션
+======================================================= */
+
+.card-enter {
+  animation: cardEnter 0.35s ease-out;
+}
+
+@keyframes cardEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(25px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* =======================================================
+   카드 퇴장 애니메이션
+======================================================= */
+
+.card-exit {
+  animation: cardExit 0.25s ease-in forwards;
+}
+
+@keyframes cardExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-25px) scale(0.98);
+  }
+}
+
+/* =======================================================
+   카테고리
+======================================================= */
 
 .category {
   display: inline-block;
@@ -44,7 +97,15 @@
   border-radius: 20px;
 
   font-weight: bold;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
 }
+
+/* =======================================================
+   단어
+======================================================= */
 
 .today-card h2 {
   margin-top: 30px;
@@ -52,7 +113,16 @@
   font-size: 50px;
 
   color: #6d4aff;
+
+  /*
+    긴 단어 때문에 카드가 깨지는 것을 방지
+  */
+  word-break: keep-all;
 }
+
+/* =======================================================
+   뜻 / 예문
+======================================================= */
 
 .meaning,
 .example {
@@ -63,6 +133,17 @@
   background: #f7f5ff;
 
   border-radius: 20px;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.meaning:hover,
+.example:hover {
+  background: #f1edff;
+
+  transform: translateY(-2px);
 }
 
 .meaning h3,
@@ -77,7 +158,13 @@
   color: #333;
 
   line-height: 1.6;
+
+  word-break: keep-all;
 }
+
+/* =======================================================
+   다른 신조어 보기 버튼
+======================================================= */
 
 .refresh-btn {
   margin-top: 40px;
@@ -91,7 +178,6 @@
   gap: 10px;
 
   margin-left: auto;
-
   margin-right: auto;
 
   background: #6d4aff;
@@ -108,13 +194,25 @@
 
   cursor: pointer;
 
-  transition: 0.3s;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.25s ease;
 }
 
-.refresh-btn:hover {
+.refresh-btn:hover:not(:disabled) {
   background: #5635d8;
 
   transform: translateY(-3px);
+
+  box-shadow: 0 8px 18px rgba(109, 74, 255, 0.25);
+}
+
+.refresh-btn:active:not(:disabled) {
+  transform: translateY(0);
+
+  box-shadow: none;
 }
 
 .refresh-btn:disabled {
@@ -123,4 +221,133 @@
   cursor: not-allowed;
 
   transform: none;
+
+  box-shadow: none;
+
+  opacity: 0.7;
+}
+
+/* =======================================================
+   새로고침 아이콘
+======================================================= */
+
+.refresh-icon {
+  transition: transform 0.25s ease;
+}
+
+.refresh-icon.spinning {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =======================================================
+   오늘의 신조어 위치 표시
+======================================================= */
+
+.word-indicator {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 22px;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #ddd;
+
+  transition:
+    width 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.indicator-dot.active {
+  width: 24px;
+
+  background: #6d4aff;
+
+  border-radius: 10px;
+
+  transform: scale(1.05);
+}
+
+/* =======================================================
+   모바일
+======================================================= */
+
+@media (max-width: 768px) {
+  .today-page {
+    padding: 35px 20px;
+  }
+
+  .today-page h1 {
+    font-size: 32px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .today-card {
+    padding: 35px 20px;
+
+    border-radius: 24px;
+  }
+
+  .today-card h2 {
+    font-size: 38px;
+  }
+
+  .meaning,
+  .example {
+    padding: 20px;
+
+    margin-top: 25px;
+  }
+
+  .meaning p,
+  .example p {
+    font-size: 17px;
+  }
+
+  .refresh-btn {
+    width: 100%;
+
+    padding: 14px 20px;
+  }
+}
+
+/* =======================================================
+   모션 감소 설정
+   접근성 측면에서 애니메이션을 원하지 않는 사용자 대응
+======================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .today-card,
+  .refresh-btn,
+  .meaning,
+  .example,
+  .indicator-dot {
+    animation: none !important;
+
+    transition: none !important;
+  }
 }

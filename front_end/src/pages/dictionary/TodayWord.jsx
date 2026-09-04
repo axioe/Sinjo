@@ -16,7 +16,11 @@ import { getWords } from "../../api/wordApi";
 function todaySeed() {
   const now = new Date();
 
-  return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  return (
+    now.getFullYear() * 10000 +
+    (now.getMonth() + 1) * 100 +
+    now.getDate()
+  );
 }
 
 /**
@@ -45,6 +49,9 @@ function TodayWord() {
   const [cursor, setCursor] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // 카드 전환 애니메이션 상태
+  const [isChanging, setIsChanging] = useState(false);
 
   const [searchParams] = useSearchParams();
 
@@ -108,14 +115,6 @@ function TodayWord() {
 
   /* =======================================================
      메인 페이지에서 선택한 단어 처리
-
-     Main에서
-
-     /today?wordId=단어ID
-
-     형태로 전달한다.
-
-     id가 없는 데이터라면 word 값을 대신 사용한다.
   ======================================================= */
 
   useEffect(() => {
@@ -151,14 +150,30 @@ function TodayWord() {
   /**
    * 조회수 상위 5개 중 다음 신조어 보기
    *
-   * 이미 선정된 5개 안에서만 이동한다.
+   * 카드가 바로 바뀌지 않고
+   * 1. 현재 카드가 사라짐
+   * 2. cursor 변경
+   * 3. 새 카드 등장
+   *
+   * 순서로 동작한다.
    */
   const changeWord = () => {
-    if (todayWords.length <= 1) {
+    if (todayWords.length <= 1 || isChanging) {
       return;
     }
 
-    setCursor((prev) => (prev + 1) % todayWords.length);
+    // 먼저 현재 카드를 퇴장시킨다.
+    setIsChanging(true);
+
+    // CSS exit 애니메이션이 끝난 뒤 단어를 변경한다.
+    setTimeout(() => {
+      setCursor((prev) => (prev + 1) % todayWords.length);
+
+      // 새 카드 등장 애니메이션을 시작한다.
+      requestAnimationFrame(() => {
+        setIsChanging(false);
+      });
+    }, 250);
   };
 
   if (loading) {
@@ -166,7 +181,9 @@ function TodayWord() {
       <div className="today-page">
         <h1>📖 오늘의 신조어</h1>
 
-        <p className="subtitle">오늘의 신조어를 불러오는 중입니다...</p>
+        <p className="subtitle">
+          오늘의 신조어를 불러오는 중입니다...
+        </p>
       </div>
     );
   }
@@ -195,10 +212,18 @@ function TodayWord() {
     <div className="today-page">
       <h1>📖 오늘의 신조어</h1>
 
-      <p className="subtitle">오늘 조회수가 높은 신조어를 확인해보세요.</p>
+      <p className="subtitle">
+        오늘 조회수가 높은 신조어를 확인해보세요.
+      </p>
 
-      <div className="today-card">
-        {today.category && <span className="category">{today.category}</span>}
+      <div
+        className={`today-card ${
+          isChanging ? "card-exit" : "card-enter"
+        }`}
+      >
+        {today.category && (
+          <span className="category">{today.category}</span>
+        )}
 
         <h2>{today.word}</h2>
 
@@ -216,11 +241,25 @@ function TodayWord() {
           type="button"
           className="refresh-btn"
           onClick={changeWord}
-          disabled={todayWords.length <= 1}
+          disabled={todayWords.length <= 1 || isChanging}
         >
-          <FaSyncAlt />
-          다른 신조어 보기
+          <FaSyncAlt className={isChanging ? "refresh-icon spinning" : "refresh-icon"} />
+
+          <span>
+            {isChanging ? "다음 신조어 불러오는 중..." : "다른 신조어 보기"}
+          </span>
         </button>
+      </div>
+
+      <div className="word-indicator" aria-label="오늘의 신조어 위치">
+        {todayWords.map((word, index) => (
+          <span
+            key={word.id ?? word.word ?? index}
+            className={`indicator-dot ${
+              index === cursor ? "active" : ""
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
