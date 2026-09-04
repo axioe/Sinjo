@@ -29,12 +29,6 @@ import InitialSoundQuiz from "./pages/game/InitialSoundQuiz";
 import SubjectiveQuiz from "./pages/game/SubjectiveQuiz";
 import PointShop from "./pages/mypage/PointShop";
 
-import ProposalList from "./pages/proposal/ProposalList";
-import ProposalCreate from "./pages/proposal/ProposalCreate";
-import ProposalDetail from "./pages/proposal/ProposalDetail";
-import ProposalEdit from "./pages/proposal/ProposalEdit";
-import AdminProposalDetail from "./pages/Admin/AdminProposalDetail";
-
 function App() {
   return (
     <Routes>
@@ -55,30 +49,7 @@ function App() {
         <Route path="/ranking" element={<Ranking />} />
 
         {/* 오늘의 단어 */}
-        <Route path="/today" element={<TodayWord />} />
-
-        {/* 신조어 제안 */}
-        <Route path="/proposals" element={<ProposalList />} />
-
-        <Route
-          path="/proposals/new"
-          element={
-            <RequireAuth>
-              <ProposalCreate />
-            </RequireAuth>
-          }
-        />
-
-        <Route path="/proposals/:id" element={<ProposalDetail />} />
-
-        <Route
-          path="/proposals/:id/edit"
-          element={
-            <RequireAuth>
-              <ProposalEdit />
-            </RequireAuth>
-          }
-        />
+        <Route path="/today" element={<TodayWord />} />      
 
         {/* 테스트 */}
         <Route path="/test" element={<Test />} />
@@ -121,16 +92,7 @@ function App() {
             </RequireAdmin>
           }
         />
-
-        <Route
-          path="/admin/proposals/:id"
-          element={
-            <RequireAdmin>
-              <AdminProposalDetail />
-            </RequireAdmin>
-          }
-        />
-
+      
         {/* 퀴즈 */}
         <Route path="/game" element={<QuizMain />} />
         <Route path="/game/multiple" element={<MultipleChoiceQuiz />} />
