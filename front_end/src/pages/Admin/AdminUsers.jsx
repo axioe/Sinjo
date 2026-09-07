@@ -45,15 +45,19 @@ function AdminUsers() {
   const filtered = useMemo(() => {
     const q = keyword.trim().toLowerCase();
 
-    return users.filter((user) => {
-      if (roleFilter !== "ALL" && user.role !== roleFilter) return false;
-      if (!q) return true;
+    return users
+      .filter((user) => {
+        if (roleFilter !== "ALL" && user.role !== roleFilter) return false;
+        if (!q) return true;
 
-      return (
-        user.email?.toLowerCase().includes(q) ||
-        user.nickname?.toLowerCase().includes(q)
-      );
-    });
+        return (
+          user.email?.toLowerCase().includes(q) ||
+          user.nickname?.toLowerCase().includes(q)
+        );
+      })
+      // sort 는 원본 배열을 바꾸므로 filter 가 만든 새 배열에만 건다.
+      // users 에 직접 걸면 state 를 직접 수정하는 셈이 된다.
+      .sort((a, b) => b.id - a.id);
   }, [users, roleFilter, keyword]);
 
   const handleToggleRole = async (user) => {
