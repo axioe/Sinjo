@@ -29,9 +29,9 @@ function AdminUsers() {
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [loading, setLoading] = useState(true);
-
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [keyword, setKeyword] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const load = () => {
     getUsers()
@@ -168,7 +168,7 @@ function AdminUsers() {
                   <td>{formatDate(user.lastLoginAt)}</td>
                   <td className="admin-td-actions">
                     {isSelf ? (
-                      <span className="admin-desc">본인 계정</span>
+                      <span className="admin-desc">현재 로그인한 계정</span>
                     ) : isEditing ? (
                       <>
                         <button
