@@ -62,6 +62,12 @@
   margin-bottom: 0;
 }
 
+.voice-input-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .mic-btn {
   display: flex;
   align-items: center;
