@@ -165,4 +165,32 @@ public class AdminController {
             @RequestParam(defaultValue = "14") int days) {
         return ResponseEntity.ok(adminService.getLoginTrend(days));
     }
+
+//    엑셀 업로드 미리보기
+@PostMapping("/words/excel/preview")
+public ResponseEntity<?> previewExcel(@RequestParam("file") MultipartFile file) {
+    String name = file.getOriginalFilename();
+    if (name == null || !(name.endsWith(".xlsx") || name.endsWith(".xls"))) {
+        return ResponseEntity.badRequest().body("엑셀 파일만 업로드할 수 있습니다.");
+    }
+
+    try {
+        return ResponseEntity.ok(wordExcelService.preview(file));
+    } catch (IOException e) {
+        return ResponseEntity.internalServerError().body("파일을 읽지 못했습니다.");
+    }
+}
+
+    /** 양식 파일. 헤더만 있는 빈 엑셀을 내려준다. */
+    @GetMapping("/words/excel/template")
+    public ResponseEntity<byte[]> excelTemplate() throws IOException {
+        byte[] bytes = wordExcelService.createTemplate();
+
+        return ResponseEntity.ok()
+                .header("Content-Type",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                .header("Content-Disposition",
+                        "attachment; filename=\"word_template.xlsx\"")
+                .body(bytes);
+    }
 }
