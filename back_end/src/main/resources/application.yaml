@@ -97,6 +97,11 @@ logging:
     org.hibernate.SQL: debug
     # 바인딩 파라미터(? 자리에 실제로 들어간 값)까지 보고 싶을 때만 주석을 푼다.
     # org.hibernate.orm.jdbc.bind: trace
+
+proposal:
+  review:
+    like-threshold: ${LIKE_THRESHOLD}
+
 ---
 spring:
   config:
