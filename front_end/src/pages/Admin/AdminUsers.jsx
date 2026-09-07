@@ -21,7 +21,7 @@ const ROLE_FILTERS = [
  * 권한 부여/해제, 삭제가 즉시 DB 에 반영된다.
  * 닉네임은 개인정보라 관리자가 아닌 회원 본인만 마이페이지에서 변경한다.
  * 본인 계정은 서버(AdminService)가 권한 변경·삭제를 막으므로 버튼 대신
- * "본인 계정" 표시만 보여준다.
+ * "현재 로그인한 계정" 표시만 보여준다.
  */
 function AdminUsers() {
   const { user: me } = useAuth();
@@ -31,7 +31,6 @@ function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [keyword, setKeyword] = useState("");
-  const [editingId, setEditingId] = useState(null);
 
   const load = () => {
     getUsers()
@@ -140,78 +139,60 @@ function AdminUsers() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => {
-              const isSelf = me?.id === user.id;
-              const isEditing = editingId === user.id;
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="admin-empty">
+                  조건에 맞는 회원이 없습니다.
+                </td>
+              </tr>
+            ) : (
+              filtered.map((user) => {
+                const isSelf = me?.id === user.id;
 
-              return (
-                <tr key={user.id} className={isEditing ? "editing" : ""}>
-                  <td>{user.id}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    {isEditing ? (
-                      <input
-                        value={nicknameInput}
-                        onChange={(e) => setNicknameInput(e.target.value)}
-                        autoFocus
-                      />
-                    ) : (
-                      user.nickname
-                    )}
-                  </td>
-                  <td>
-                    <span className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}>
-                      {user.role === "ADMIN" ? "관리자" : "일반"}
-                    </span>
-                  </td>
-                  <td>{formatDate(user.createdAt)}</td>
-                  <td>{formatDate(user.lastLoginAt)}</td>
-                  <td className="admin-td-actions">
-                    {isSelf ? (
-                      <span className="admin-desc">현재 로그인한 계정</span>
-                    ) : isEditing ? (
-                      <>
-                        <button
-                          type="button"
-                          className="admin-btn small primary"
-                          onClick={() => handleSaveNickname(user.id)}
-                          disabled={submitting}
-                        >
-                          저장
-                        </button>
-                        <button type="button" className="admin-btn small" onClick={cancelEdit}>
-                          취소
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          className="admin-btn small"
-                          onClick={() => startEdit(user)}
-                        >
-                          닉네임 수정
-                        </button>
-                        <button
-                          type="button"
-                          className="admin-btn small"
-                          onClick={() => handleToggleRole(user)}
-                        >
-                          {user.role === "ADMIN" ? "일반으로 변경" : "관리자 지정"}
-                        </button>
-                        <button
-                          type="button"
-                          className="admin-btn small danger"
-                          onClick={() => handleDelete(user)}
-                        >
-                          삭제
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>{user.email}</td>
+                    <td>{user.nickname}</td>
+                    <td>
+                      <span
+                        className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}
+                      >
+                        {user.role === "ADMIN" ? "관리자" : "일반"}
+                      </span>
+                    </td>
+                    <td>{formatDate(user.createdAt)}</td>
+                    <td>{formatDate(user.lastLoginAt)}</td>
+                    <td className="admin-td-actions">
+                      {isSelf ? (
+                        <span className="admin-self-label">
+                          현재 로그인한 계정
+                        </span>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="admin-btn small"
+                            onClick={() => handleToggleRole(user)}
+                          >
+                            {user.role === "ADMIN"
+                              ? "일반으로 변경"
+                              : "관리자 지정"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn small danger"
+                            onClick={() => handleDelete(user)}
+                          >
+                            삭제
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

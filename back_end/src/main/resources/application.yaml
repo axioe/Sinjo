@@ -100,7 +100,7 @@ logging:
 
 proposal:
   review:
-    like-threshold: ${LIKE_THRESHOLD}
+    like-threshold: ${LIKE_THRESHOLD:3}
 
 ---
 spring:
