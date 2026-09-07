@@ -1,8 +1,17 @@
 import "../../css/dictionary/Translate.css";
 import { useRef, useState } from "react";
-import { FaArrowRight, FaCopy, FaMicrophone, FaStop } from "react-icons/fa";
+import {
+  FaArrowRight,
+  FaCopy,
+  FaMicrophone,
+  FaStop,
+  FaUpload,
+} from "react-icons/fa";
 import { translate, saveTranslation } from "../../api/translateApi";
 import { transcribeAudio } from "../../api/sttApi";
+
+/** Whisper API 가 허용하는 최대 업로드 용량. */
+const MAX_AUDIO_FILE_SIZE = 25 * 1024 * 1024;
 
 /**
  * [수정] 임시 사전을 컴포넌트 밖으로 빼고 Map 으로 바꿨다.
@@ -35,6 +44,7 @@ function Translate() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
+  const fileInputRef = useRef(null);
 
   /**
    * 음성 인식(STT, REQ-TR-STT).
@@ -98,6 +108,45 @@ function Translate() {
       stopRecording();
     } else {
       startRecording();
+    }
+  };
+
+  /**
+   * 음성 파일 업로드(REQ-TR-STT). 마이크 녹음과 같은 transcribeAudio 를
+   * 그대로 재사용한다 - 결과도 마찬가지로 입력창에 채우기만 하고 자동
+   * 번역하지 않는다.
+   */
+  const handleFileUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // 같은 파일을 다시 골라도 onChange 가 또 일어나게 한다.
+
+    if (!file) return;
+
+    setNotice("");
+
+    if (!file.type.startsWith("audio/")) {
+      setNotice("오디오 파일만 업로드할 수 있습니다.");
+      return;
+    }
+
+    if (file.size > MAX_AUDIO_FILE_SIZE) {
+      setNotice("파일 용량은 25MB를 넘을 수 없습니다.");
+      return;
+    }
+
+    setIsTranscribing(true);
+
+    try {
+      const text = await transcribeAudio(file, file.name);
+      setInput((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+    } catch (err) {
+      setNotice(err.message);
+    } finally {
+      setIsTranscribing(false);
     }
   };
 
@@ -180,16 +229,37 @@ function Translate() {
           <div className="left-head">
             <h3>신조어 입력</h3>
 
-            <button
-              type="button"
-              className={`mic-btn ${isRecording ? "recording" : ""}`}
-              onClick={handleMicClick}
-              disabled={isTranscribing}
-              aria-label={isRecording ? "녹음 중지" : "음성으로 입력"}
-              title={isRecording ? "녹음 중지" : "음성으로 입력"}
-            >
-              {isRecording ? <FaStop /> : <FaMicrophone />}
-            </button>
+            <div className="voice-input-actions">
+              <button
+                type="button"
+                className={`mic-btn ${isRecording ? "recording" : ""}`}
+                onClick={handleMicClick}
+                disabled={isTranscribing}
+                aria-label={isRecording ? "녹음 중지" : "음성으로 입력"}
+                title={isRecording ? "녹음 중지" : "음성으로 입력"}
+              >
+                {isRecording ? <FaStop /> : <FaMicrophone />}
+              </button>
+
+              <button
+                type="button"
+                className="mic-btn"
+                onClick={handleFileUploadClick}
+                disabled={isRecording || isTranscribing}
+                aria-label="음성 파일 업로드"
+                title="음성 파일 업로드"
+              >
+                <FaUpload />
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={handleFileChange}
+                hidden
+              />
+            </div>
           </div>
 
           <textarea
