@@ -3,6 +3,8 @@ package com.slangs.sinjo.service;
 import com.slangs.sinjo.entity.Provider;
 import com.slangs.sinjo.entity.Role;
 import com.slangs.sinjo.entity.User;
+import com.slangs.sinjo.repository.LoginHistoryRepository;
+import com.slangs.sinjo.entity.LoginHistory;
 import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class NaverService {
     private final JwtProvider jwtProvider;
     private final AttendanceService attendanceService;
     private final RestClient restClient = RestClient.create();
+    private final LoginHistoryRepository loginHistoryRepository;
 
     @Value("${app.naver.client-id}")
     private String clientId;
@@ -34,6 +37,10 @@ public class NaverService {
         String accessToken = getAccessToken(code, state);
         Map<String, Object> profile = getUserInfo(accessToken);
         User user = findOrCreate(profile);
+
+        user.updateLastLoginAt();
+        loginHistoryRepository.save(new LoginHistory(user.getId()));
+
         attendanceService.checkIn(user.getId());
         return jwtProvider.createToken(user.getId(), user.getEmail(), user.getRole());
     }
