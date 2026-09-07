@@ -8,6 +8,7 @@ import com.slangs.sinjo.exception.NotFoundException;
 import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.repository.WordProposalCommentRepository;
 import com.slangs.sinjo.repository.WordProposalRepository;
+import com.slangs.sinjo.repository.WordProposalVoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class WordProposalService {
     private final WordProposalRepository proposalRepository;
     private final WordProposalCommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final WordProposalVoteRepository voteRepository;
 
     @Transactional(readOnly = true)
     public List<WordProposalDto.ListResponse> getProposals() {
@@ -40,6 +42,14 @@ public class WordProposalService {
         WordProposal proposal = findProposal(proposalId);
         proposal.increaseView();
 
+        String myVote = null;
+        if (userId != null) {
+            myVote = voteRepository
+                    .findByProposalIdAndUserId(proposalId, userId)
+                    .map(vote -> vote.getType().name())
+                    .orElse(null);
+        }
+
         List<WordProposalDto.CommentResponse> comments =
                 commentRepository
                         .findByProposalIdOrderByCreatedAtAsc(proposalId)
@@ -52,7 +62,7 @@ public class WordProposalService {
                 proposal,
                 comments,
                 null,
-                null
+                myVote
         );
     }
 

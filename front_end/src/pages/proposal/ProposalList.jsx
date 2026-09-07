@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Search, ThumbsDown, ThumbsUp } from "lucide-react";
+
 import { getProposals } from "../../api/proposalApi";
 import "../../css/proposal/ProposalList.css";
-
-import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 function ProposalList() {
   const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // 검색 / 정렬
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [sortType, setSortType] = useState("LATEST");
 
   useEffect(() => {
     loadProposals();
@@ -74,6 +78,57 @@ function ProposalList() {
     }
   };
 
+  /*
+   * 검색 + 정렬
+   */
+  const filteredProposals = useMemo(() => {
+    const keyword = searchKeyword.trim().toLowerCase();
+
+    let result = proposals.filter((proposal) => {
+      if (!keyword) {
+        return true;
+      }
+
+      return (
+        proposal.proposedWord?.toLowerCase().includes(keyword) ||
+        proposal.meaning?.toLowerCase().includes(keyword) ||
+        proposal.nickname?.toLowerCase().includes(keyword)
+      );
+    });
+
+    result = [...result].sort((a, b) => {
+      switch (sortType) {
+        case "POPULAR": {
+          const scoreA =
+            (a.likes ?? 0) + (a.commentCount ?? 0) * 2 + (a.views ?? 0) * 0.1;
+
+          const scoreB =
+            (b.likes ?? 0) + (b.commentCount ?? 0) * 2 + (b.views ?? 0) * 0.1;
+
+          return scoreB - scoreA;
+        }
+
+        case "LIKES":
+          return (b.likes ?? 0) - (a.likes ?? 0);
+
+        case "COMMENTS":
+          return (b.commentCount ?? 0) - (a.commentCount ?? 0);
+
+        case "VIEWS":
+          return (b.views ?? 0) - (a.views ?? 0);
+
+        case "LATEST":
+        default:
+          return (
+            new Date(b.createdAt ?? 0).getTime() -
+            new Date(a.createdAt ?? 0).getTime()
+          );
+      }
+    });
+
+    return result;
+  }, [proposals, searchKeyword, sortType]);
+
   if (loading) {
     return (
       <main className="proposal-list">
@@ -115,17 +170,45 @@ function ProposalList() {
           </div>
         )}
 
-        {/* List */}
+        {/* Search / Sort */}
         {!error && proposals.length > 0 && (
+          <div className="proposal-list-tools">
+            <div className="proposal-search">
+              <Search className="proposal-search-icon" />
+
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                placeholder="신조어, 의미, 작성자를 검색해보세요."
+              />
+            </div>
+
+            <select
+              className="proposal-sort"
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value)}
+            >
+              <option value="LATEST">최신순</option>
+              <option value="POPULAR">인기순</option>
+              <option value="LIKES">좋아요순</option>
+              <option value="COMMENTS">댓글순</option>
+              <option value="VIEWS">조회순</option>
+            </select>
+          </div>
+        )}
+
+        {/* List */}
+        {!error && filteredProposals.length > 0 && (
           <section className="proposal-list-card">
             <div className="proposal-list-card-header">
               <strong>
-                신조어 제안 <span>{proposals.length}</span>
+                신조어 제안 <span>{filteredProposals.length}</span>
               </strong>
             </div>
 
             <div className="proposal-items">
-              {proposals.map((proposal) => (
+              {filteredProposals.map((proposal) => (
                 <Link
                   key={proposal.id}
                   to={`/proposals/${proposal.id}`}
@@ -157,6 +240,8 @@ function ProposalList() {
 
                       <span>댓글 {proposal.commentCount ?? 0}</span>
 
+                      <span className="proposal-meta-dot">·</span>
+
                       <span className="proposal-vote-meta">
                         <ThumbsUp className="proposal-vote-meta-icon" />
                         {proposal.likes ?? 0}
@@ -175,6 +260,27 @@ function ProposalList() {
                 </Link>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Search result empty */}
+        {!error && proposals.length > 0 && filteredProposals.length === 0 && (
+          <section className="proposal-empty">
+            <div className="proposal-empty-icon">
+              <Search size={30} strokeWidth={1.8} />
+            </div>
+
+            <h2>검색 결과가 없습니다.</h2>
+
+            <p>다른 검색어로 다시 검색해보세요.</p>
+
+            <button
+              type="button"
+              className="proposal-empty-button"
+              onClick={() => setSearchKeyword("")}
+            >
+              검색 초기화
+            </button>
           </section>
         )}
 

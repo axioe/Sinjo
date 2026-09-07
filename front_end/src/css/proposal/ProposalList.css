@@ -1,10 +1,17 @@
+/* =========================================================
+   Proposal List
+   ========================================================= */
+
 .proposal-list {
   width: 100%;
-  padding: 32px 0 60px;
+  min-height: 100vh;
+  padding: 52px 0 80px;
+
+  background: var(--c-bg);
 }
 
 .proposal-list-inner {
-  width: min(1100px, calc(100% - 40px));
+  width: min(100% - 48px, 900px);
   margin: 0 auto;
 }
 
@@ -16,93 +23,262 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 24px;
+  gap: 30px;
+
   margin-bottom: 28px;
 }
 
 .proposal-list-eyebrow {
-  display: inline-block;
+  display: block;
   margin-bottom: 8px;
+
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
+
   color: var(--c-primary);
 }
 
 .proposal-list-header h1 {
   margin: 0;
+
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 800;
+  line-height: 1.2;
+
   color: var(--c-text);
 }
 
 .proposal-list-header p {
   margin: 10px 0 0;
-  font-size: 15px;
+
+  font-size: 14px;
   line-height: 1.6;
+
   color: var(--c-text-muted);
 }
-
-/* =========================================================
-   Create button
-   ========================================================= */
 
 .proposal-create-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   flex-shrink: 0;
-  height: 44px;
-  padding: 0 18px;
+
+  height: 42px;
+  padding: 0 16px;
+
   border-radius: 10px;
+
   background: var(--c-primary);
   color: #fff;
-  font-size: 14px;
+
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 700;
+
   text-decoration: none;
+
   transition:
-    opacity 120ms ease,
-    transform 120ms ease;
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .proposal-create-link:hover {
-  opacity: 0.9;
   transform: translateY(-1px);
+  opacity: 0.92;
 }
 
 /* =========================================================
-   Card
+   Loading
+   ========================================================= */
+
+.proposal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 280px;
+
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+
+  background: var(--c-surface);
+
+  font-size: 14px;
+  color: var(--c-text-muted);
+}
+
+/* =========================================================
+   Error
+   ========================================================= */
+
+.proposal-list-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 20px;
+  padding: 14px 16px;
+
+  border: 1px solid rgba(192, 57, 43, 0.15);
+  border-radius: 10px;
+
+  background: rgba(192, 57, 43, 0.05);
+
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.proposal-list-error button {
+  flex-shrink: 0;
+
+  border: 0;
+  background: transparent;
+
+  color: inherit;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   Search / Sort
+   ========================================================= */
+
+.proposal-list-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.proposal-search {
+  position: relative;
+  flex: 1;
+}
+
+.proposal-search input {
+  box-sizing: border-box;
+
+  width: 100%;
+  height: 46px;
+
+  padding: 0 16px 0 42px;
+
+  border: 1px solid var(--c-border);
+  border-radius: 11px;
+
+  background: var(--c-surface);
+  color: var(--c-text);
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.proposal-search input::placeholder {
+  color: var(--c-text-muted);
+  opacity: 0.7;
+}
+
+.proposal-search input:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.03);
+}
+
+.proposal-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+
+  width: 18px;
+  height: 18px;
+
+  transform: translateY(-50%);
+
+  color: var(--c-text-muted);
+
+  pointer-events: none;
+}
+
+.proposal-sort {
+  flex-shrink: 0;
+
+  height: 46px;
+  min-width: 110px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--c-border);
+  border-radius: 11px;
+
+  background: var(--c-surface);
+  color: var(--c-text);
+
+  font-family: inherit;
+  font-size: 12px;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.proposal-sort:focus {
+  border-color: var(--c-primary);
+}
+
+/* =========================================================
+   List Card
    ========================================================= */
 
 .proposal-list-card {
   overflow: hidden;
+
   border: 1px solid var(--c-border);
   border-radius: 16px;
+
   background: var(--c-surface);
+
   box-shadow: var(--shadow-sm);
 }
 
 .proposal-list-card-header {
   display: flex;
   align-items: center;
-  min-height: 56px;
+
+  min-height: 54px;
   padding: 0 22px;
+
   border-bottom: 1px solid var(--c-border);
 }
 
 .proposal-list-card-header strong {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 800;
+
   color: var(--c-text);
 }
 
 .proposal-list-card-header strong span {
   margin-left: 4px;
+
   color: var(--c-primary);
 }
 
 /* =========================================================
-   Item
+   Proposal Item
    ========================================================= */
 
 .proposal-items {
@@ -111,15 +287,25 @@
 }
 
 .proposal-item {
+  position: relative;
+
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+
+  gap: 22px;
+
+  min-width: 0;
+
   padding: 22px;
+
   border-bottom: 1px solid var(--c-border);
+
   color: inherit;
   text-decoration: none;
-  transition: background 120ms ease;
+
+  transition:
+    background-color 0.15s ease,
+    padding-left 0.15s ease;
 }
 
 .proposal-item:last-child {
@@ -128,48 +314,77 @@
 
 .proposal-item:hover {
   background: var(--c-bg);
+  padding-left: 25px;
 }
 
 .proposal-item-main {
-  min-width: 0;
   flex: 1;
+  min-width: 0;
 }
 
 .proposal-item-top {
   display: flex;
   align-items: center;
-  gap: 10px;
+
+  gap: 9px;
+
+  min-width: 0;
+
   margin-bottom: 8px;
 }
 
 .proposal-item-top h2 {
   min-width: 0;
+
   margin: 0;
+
   overflow: hidden;
+
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.3;
+
+  color: var(--c-text);
+
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--c-text);
 }
-
-/* =========================================================
-   Status
-   ========================================================= */
 
 .proposal-status {
   display: inline-flex;
   align-items: center;
+
   flex-shrink: 0;
+
   padding: 4px 8px;
+
   border-radius: 6px;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 700;
+  line-height: 1.2;
+
+  white-space: nowrap;
 }
 
 .proposal-status.pending {
   background: rgba(0, 0, 0, 0.05);
   color: var(--c-text-muted);
+}
+
+.proposal-status.discussion {
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+}
+
+.proposal-status.review-requested {
+  background: rgba(230, 126, 34, 0.1);
+  color: #d97706;
+}
+
+.proposal-status.ai-reviewed {
+  background: rgba(142, 68, 173, 0.1);
+  color: #8e44ad;
 }
 
 .proposal-status.approved {
@@ -182,96 +397,83 @@
   color: #c0392b;
 }
 
-/* =========================================================
-   Meaning
-   ========================================================= */
-
 .proposal-item-meaning {
-  margin: 0 0 10px;
+  display: -webkit-box;
+
+  margin: 0;
+
   overflow: hidden;
-  font-size: 14px;
-  line-height: 1.5;
+
+  font-size: 13px;
+  line-height: 1.6;
+
   color: var(--c-text-muted);
 
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
-
-/* =========================================================
-   Meta
-   ========================================================= */
 
 .proposal-item-meta {
   display: flex;
   align-items: center;
+
   flex-wrap: wrap;
-  gap: 6px;
-  font-size: 12px;
+
+  gap: 7px;
+
+  margin-top: 12px;
+
+  font-size: 11px;
+
   color: var(--c-text-muted);
 }
 
 .proposal-meta-dot {
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
-/* =========================================================
-   Arrow
-   ========================================================= */
+.proposal-vote-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.proposal-vote-meta-icon {
+  width: 14px;
+  height: 14px;
+
+  stroke-width: 2;
+
+  flex-shrink: 0;
+}
 
 .proposal-item-arrow {
-  flex-shrink: 0;
-  font-size: 20px;
-  color: var(--c-text-muted);
-  transition: transform 120ms ease;
-}
-
-.proposal-item:hover .proposal-item-arrow {
-  transform: translateX(4px);
-}
-
-/* =========================================================
-   Loading
-   ========================================================= */
-
-.proposal-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
-  border: 1px solid var(--c-border);
-  border-radius: 16px;
-  background: var(--c-surface);
-  color: var(--c-text-muted);
-  font-size: 14px;
-}
 
-/* =========================================================
-   Error
-   ========================================================= */
-
-.proposal-list-error {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 16px;
-  border: 1px solid #f0caca;
-  border-radius: 10px;
-  background: #fff5f5;
-  color: #c0392b;
-  font-size: 13px;
-}
-
-.proposal-list-error button {
   flex-shrink: 0;
-  border: 0;
-  background: transparent;
-  color: #c0392b;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+
+  color: var(--c-text-muted);
+
+  font-size: 18px;
+  line-height: 1;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.proposal-item:hover .proposal-item-arrow {
+  background: var(--c-bg);
+  color: var(--c-primary);
+  transform: translateX(2px);
 }
 
 /* =========================================================
@@ -283,30 +485,52 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 380px;
+
+  min-height: 300px;
+
   padding: 40px 20px;
+
   border: 1px solid var(--c-border);
   border-radius: 16px;
+
   background: var(--c-surface);
-  box-shadow: var(--shadow-sm);
+
   text-align: center;
+
+  box-shadow: var(--shadow-sm);
 }
 
 .proposal-empty-icon {
-  margin-bottom: 18px;
-  font-size: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 58px;
+  height: 58px;
+
+  margin-bottom: 16px;
+
+  border-radius: 50%;
+
+  background: var(--c-bg);
+
+  color: var(--c-primary);
 }
 
 .proposal-empty h2 {
   margin: 0;
-  font-size: 18px;
+
+  font-size: 17px;
   font-weight: 800;
+
   color: var(--c-text);
 }
 
 .proposal-empty p {
-  margin: 10px 0 22px;
-  font-size: 14px;
+  margin: 8px 0 20px;
+
+  font-size: 13px;
+
   color: var(--c-text-muted);
 }
 
@@ -314,14 +538,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 10px;
+
+  height: 40px;
+  padding: 0 15px;
+
+  border-radius: 9px;
+
   background: var(--c-primary);
   color: #fff;
-  font-size: 14px;
+
+  font-size: 12px;
   font-weight: 700;
+
   text-decoration: none;
+  cursor: pointer;
+  border: 0;
+
+  font-family: inherit;
 }
 
 /* =========================================================
@@ -330,55 +563,70 @@
 
 @media (max-width: 768px) {
   .proposal-list {
-    padding: 24px 0 40px;
+    padding: 32px 0 50px;
   }
 
   .proposal-list-inner {
-    width: min(100% - 28px, 1100px);
+    width: min(100% - 28px, 900px);
   }
 
   .proposal-list-header {
     align-items: stretch;
     flex-direction: column;
+    gap: 16px;
+
+    margin-bottom: 22px;
   }
 
   .proposal-list-header h1 {
-    font-size: 26px;
+    font-size: 30px;
   }
 
   .proposal-create-link {
+    width: fit-content;
+  }
+
+  .proposal-list-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .proposal-sort {
     width: 100%;
   }
 
   .proposal-item {
-    padding: 18px 16px;
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .proposal-item:hover {
+    padding-left: 18px;
   }
 
   .proposal-item-top {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .proposal-item-top h2 {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .proposal-item-arrow {
-    display: none;
+    width: 28px;
+    height: 28px;
+
+    font-size: 17px;
   }
-}
 
-/* =========================================================
-   Vote Meta
-   ========================================================= */
+  .proposal-item-meta {
+    gap: 5px;
+    line-height: 1.5;
+  }
 
-.proposal-vote-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.proposal-vote-meta-icon {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2;
+  .proposal-list-card-header {
+    padding: 0 18px;
+  }
 }

@@ -18,7 +18,6 @@ import java.util.List;
 
 public class WordProposalController {
     private final WordProposalService proposalService;
-    private final WordProposalVoteService proposalVoteService;
     // =========================================================
     // 제안글
     // =========================================================
