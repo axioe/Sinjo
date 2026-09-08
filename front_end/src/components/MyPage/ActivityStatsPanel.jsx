@@ -1,5 +1,5 @@
 import "../../css/mypage/ActivityStatsPanel.css";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -8,9 +8,16 @@ import {
 } from "react-icons/fa";
 
 import { toLocalDateKey } from "../../utils/date";
+import { getDailyActivity } from "../../api/attendanceApi";
 
 import ActivitySummary from "./ActivitySummary";
 import BadgeGrid from "./BadgeGrid";
+
+/** DailyActivityDto.Item.type 별 아이콘/라벨. */
+const ACTIVITY_TYPE_PRESENTATION = {
+  TRANSLATION: { icon: "🔤", label: "번역" },
+  QUIZ: { icon: "🎮", label: "퀴즈" },
+};
 
 const WEEKDAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -51,6 +58,10 @@ function ActivityStatsPanel({
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
 
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dailyItems, setDailyItems] = useState(null);
+  const [loadingDaily, setLoadingDaily] = useState(false);
+
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
 
@@ -87,6 +98,34 @@ function ActivityStatsPanel({
 
     setViewDate(new Date(year, month + 1, 1));
   };
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+  };
+
+  const closeDailyModal = () => {
+    setSelectedDate(null);
+    setDailyItems(null);
+  };
+
+  /* 날짜를 클릭하면 그 날의 번역/퀴즈 기록을 불러온다. */
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    let alive = true;
+    setLoadingDaily(true);
+
+    getDailyActivity(selectedDate).then((items) => {
+      if (alive) {
+        setDailyItems(items);
+        setLoadingDaily(false);
+      }
+    });
+
+    return () => {
+      alive = false;
+    };
+  }, [selectedDate]);
 
   return (
     <div className="mypage-stats-layout">
@@ -228,8 +267,9 @@ function ActivityStatsPanel({
                 const isToday = key === todayKey;
 
                 return (
-                  <span
+                  <button
                     key={key}
+                    type="button"
                     className={[
                       "mypage-calendar-cell",
                       isActive ? "active" : "",
@@ -237,14 +277,15 @@ function ActivityStatsPanel({
                     ]
                       .filter(Boolean)
                       .join(" ")}
-                    aria-label={`${year}년 ${month + 1}월 ${date.getDate()}일${isActive ? " 출석" : ""}`}
+                    onClick={() => handleDateClick(date)}
+                    aria-label={`${year}년 ${month + 1}월 ${date.getDate()}일${isActive ? " 출석" : ""} 활동 내역 보기`}
                   >
                     {date.getDate()}
 
                     {isActive && (
                       <span className="mypage-calendar-active-dot" />
                     )}
-                  </span>
+                  </button>
                 );
               }),
             )}
@@ -297,6 +338,81 @@ function ActivityStatsPanel({
 
         <BadgeGrid badges={badges} />
       </section>
+
+      {selectedDate && (
+        <div className="mypage-activity-modal-overlay" onClick={closeDailyModal}>
+          <div
+            className="mypage-activity-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 활동 내역`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mypage-activity-modal-head">
+              <h3>
+                {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월{" "}
+                {selectedDate.getDate()}일 활동 내역
+              </h3>
+
+              <button
+                type="button"
+                className="mypage-activity-modal-close"
+                onClick={closeDailyModal}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mypage-activity-modal-body">
+              {loadingDaily ? (
+                <p className="mypage-activity-modal-message">불러오는 중...</p>
+              ) : dailyItems === null ? (
+                <p className="mypage-activity-modal-message">
+                  활동 내역을 불러오지 못했어요. 다시 시도해 주세요.
+                </p>
+              ) : dailyItems.length === 0 ? (
+                <p className="mypage-activity-modal-message">
+                  이 날은 활동 기록이 없어요.
+                </p>
+              ) : (
+                <ul className="mypage-activity-modal-list">
+                  {dailyItems.map((item, index) => {
+                    const { icon, label } =
+                      ACTIVITY_TYPE_PRESENTATION[item.type] ?? {
+                        icon: "📌",
+                        label: item.type,
+                      };
+
+                    return (
+                      <li
+                        key={`${item.type}-${item.createdAt}-${index}`}
+                        className="mypage-activity-modal-item"
+                      >
+                        <span className="mypage-activity-modal-item-icon" aria-hidden="true">
+                          {icon}
+                        </span>
+
+                        <div className="mypage-activity-modal-item-body">
+                          <div className="mypage-activity-modal-item-top">
+                            <span className="mypage-activity-modal-item-type">{label}</span>
+                            <span className="mypage-activity-modal-item-time">
+                              {item.createdAt.slice(11, 16)}
+                            </span>
+                          </div>
+
+                          <p className="mypage-activity-modal-item-title">{item.title}</p>
+                          <p className="mypage-activity-modal-item-detail">{item.detail}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

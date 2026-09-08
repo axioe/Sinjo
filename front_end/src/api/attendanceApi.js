@@ -1,4 +1,5 @@
 import { request } from "./client";
+import { toLocalDateKey } from "../utils/date";
 
 /**
  * 마이페이지 "이번 주 사용 기록" / 활동 통계 달력용 (REQ-MY-01).
@@ -16,6 +17,23 @@ export async function getMyAttendance() {
     return activeDates ?? [];
   } catch (error) {
     console.warn("[attendanceApi] 출석 기록 조회 실패", error);
+    return null;
+  }
+}
+
+/**
+ * 활동 통계 달력에서 날짜 하나를 클릭했을 때 그 날의 번역/퀴즈 기록을 조회한다.
+ * date 는 Date 객체 또는 "yyyy-MM-dd" 문자열 둘 다 받는다.
+ * 실패하면 null 을 돌려준다 - 호출하는 쪽에서 조회 실패 안내로 대체한다.
+ */
+export async function getDailyActivity(date) {
+  const dateKey = date instanceof Date ? toLocalDateKey(date) : date;
+
+  try {
+    const { items } = await request(`/api/mypage/activity?date=${dateKey}`);
+    return items ?? [];
+  } catch (error) {
+    console.warn("[attendanceApi] 날짜별 활동 조회 실패", error);
     return null;
   }
 }

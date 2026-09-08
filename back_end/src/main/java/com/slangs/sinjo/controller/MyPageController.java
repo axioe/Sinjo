@@ -1,5 +1,6 @@
 package com.slangs.sinjo.controller;
 
+import com.slangs.sinjo.dto.DailyActivityDto;
 import com.slangs.sinjo.dto.FavoritesDto;
 import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.TranslationDto;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -91,5 +93,16 @@ public class MyPageController {
             @RequestParam(defaultValue = "5") int size) {
 
         return ResponseEntity.ok(myPageService.getGameHistory(userId, page, size));
+    }
+
+    /* ===================== 활동 통계 달력 (REQ-MY-01) ===================== */
+
+    /** 활동 통계 달력에서 날짜를 클릭했을 때 그 날의 번역/퀴즈 기록. */
+    @GetMapping("/activity")
+    public ResponseEntity<DailyActivityDto.Response> getDailyActivity(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam LocalDate date) {
+
+        return ResponseEntity.ok(myPageService.getDailyActivity(userId, date));
     }
 }

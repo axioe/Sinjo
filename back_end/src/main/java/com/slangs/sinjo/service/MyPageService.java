@@ -1,5 +1,6 @@
 package com.slangs.sinjo.service;
 
+import com.slangs.sinjo.dto.DailyActivityDto;
 import com.slangs.sinjo.dto.FavoritesDto;
 import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.TranslationDto;
@@ -8,6 +9,7 @@ import com.slangs.sinjo.entity.Favorites;
 import com.slangs.sinjo.entity.QuizAttempt;
 import com.slangs.sinjo.entity.TranslationMode;
 import com.slangs.sinjo.entity.Translations;
+import com.slangs.sinjo.exception.UnauthorizedException;
 import com.slangs.sinjo.repository.FavoritesRepository;
 import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.TranslationsRepository;
@@ -17,7 +19,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -127,5 +133,43 @@ public class MyPageService {
         return result.getContent().stream()
                 .map(QuizAttemptDto::from)
                 .toList();
+    }
+
+    /* ===================== 활동 통계 달력 (REQ-MY-01) ===================== */
+
+    /**
+     * 활동 통계 달력에서 날짜를 클릭했을 때 그 날의 번역/퀴즈 기록을 시각순으로 합쳐 돌려준다.
+     */
+    public DailyActivityDto.Response getDailyActivity(Long userId, LocalDate date) {
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+
+        Stream<DailyActivityDto.Item> translationItems = translationsRepository
+                .findByUserIdAndCreatedAtBetween(userId, start, end).stream()
+                .map(t -> new DailyActivityDto.Item(
+                        "TRANSLATION",
+                        t.getOriginalText(),
+                        t.getTranslatedText(),
+                        t.getCreatedAt()
+                ));
+
+        Stream<DailyActivityDto.Item> quizItems = quizAttemptRepository
+                .findByUserIdAndCreatedAtBetween(userId, start, end).stream()
+                .map(a -> new DailyActivityDto.Item(
+                        "QUIZ",
+                        a.getQuizType().name(),
+                        a.getScore() + "/" + a.getTotal() + "문제 정답",
+                        a.getCreatedAt()
+                ));
+
+        List<DailyActivityDto.Item> items = Stream.concat(translationItems, quizItems)
+                .sorted(Comparator.comparing(DailyActivityDto.Item::createdAt))
+                .toList();
+
+        return new DailyActivityDto.Response(items);
     }
 }
