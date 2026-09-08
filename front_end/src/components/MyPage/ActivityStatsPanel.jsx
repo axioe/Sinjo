@@ -108,9 +108,16 @@ function ActivityStatsPanel({
     setDailyItems(null);
   };
 
-  /* 날짜를 클릭하면 그 날의 번역/퀴즈 기록을 불러온다. */
+  const isSelectedDayAttended = selectedDate
+    ? activeDates?.has(toLocalDateKey(selectedDate))
+    : false;
+
+  /*
+   * 날짜를 클릭하면 그 날의 번역/퀴즈 기록을 불러온다.
+   * 출석 자체가 없는 날은 활동도 있을 수 없으니 - 조회 없이 "미접속 날짜"로 바로 안내한다.
+   */
   useEffect(() => {
-    if (!selectedDate) return;
+    if (!selectedDate || !isSelectedDayAttended) return;
 
     let alive = true;
     setLoadingDaily(true);
@@ -125,7 +132,7 @@ function ActivityStatsPanel({
     return () => {
       alive = false;
     };
-  }, [selectedDate]);
+  }, [selectedDate, isSelectedDayAttended]);
 
   return (
     <div className="mypage-stats-layout">
@@ -365,7 +372,11 @@ function ActivityStatsPanel({
             </div>
 
             <div className="mypage-activity-modal-body">
-              {loadingDaily ? (
+              {!isSelectedDayAttended ? (
+                <p className="mypage-activity-modal-message">
+                  미접속 날짜입니다.
+                </p>
+              ) : loadingDaily ? (
                 <p className="mypage-activity-modal-message">불러오는 중...</p>
               ) : dailyItems === null ? (
                 <p className="mypage-activity-modal-message">
