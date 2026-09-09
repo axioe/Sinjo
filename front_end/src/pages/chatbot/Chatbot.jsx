@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "../../css/chatbot/Chatbot.css";
+import { FaMicrophone, FaStop, FaUpload } from "react-icons/fa";
 import { request } from "../../api/client";
+import { transcribeAudio } from "../../api/sttApi";
 import AiLearning from "./AiLearning";
 import slang from "../../assets/images/chatbot.png";
+
+/** Whisper API 가 허용하는 최대 업로드 용량. */
+const MAX_AUDIO_FILE_SIZE = 25 * 1024 * 1024;
 
 function Chatbot() {
   const [question, setQuestion] = useState("");
@@ -12,6 +17,15 @@ function Chatbot() {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [loading, setLoading] = useState(false);
+
+  /*
+   * 음성 인식(STT)
+   */
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const fileInputRef = useRef(null);
 
   /*
    * CHAT
@@ -271,6 +285,115 @@ function Chatbot() {
 
   /*
    * ==============================
+   * 음성 인식(STT)
+   *
+   * 인식된 텍스트는 입력창에 채워 넣기만 하고 자동으로 전송하지 않는다 -
+   * Whisper 가 신조어를 발음이 비슷한 표준어로 잘못 받아적을 수 있어서,
+   * 사용자가 확인·수정한 뒤 직접 전송 버튼을 누르게 한다.
+   * ==============================
+   */
+
+  const pushSttError = (text) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        type: "bot",
+        data: { found: false, answer: text },
+      },
+    ]);
+  };
+
+  const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      pushSttError("이 브라우저에서는 음성 인식을 지원하지 않습니다.");
+      return;
+    }
+
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      pushSttError("마이크 권한이 필요합니다. 브라우저 설정에서 허용해 주세요.");
+      return;
+    }
+
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "";
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+    chunksRef.current = [];
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data);
+    };
+
+    recorder.onstop = async () => {
+      // 스트림을 계속 열어두면 브라우저 탭에 마이크 사용 중 표시가 남는다.
+      stream.getTracks().forEach((track) => track.stop());
+
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+      setIsTranscribing(true);
+
+      try {
+        const text = await transcribeAudio(blob);
+        setQuestion((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+      } catch (err) {
+        pushSttError(err.message);
+      } finally {
+        setIsTranscribing(false);
+      }
+    };
+
+    recorder.start();
+    mediaRecorderRef.current = recorder;
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+  };
+
+  const handleMicClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const handleFileUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // 같은 파일을 다시 골라도 onChange 가 또 일어나게 한다.
+
+    if (!file) return;
+
+    if (!file.type.startsWith("audio/")) {
+      pushSttError("오디오 파일만 업로드할 수 있습니다.");
+      return;
+    }
+
+    if (file.size > MAX_AUDIO_FILE_SIZE) {
+      pushSttError("파일 용량은 25MB를 넘을 수 없습니다.");
+      return;
+    }
+
+    setIsTranscribing(true);
+
+    try {
+      const text = await transcribeAudio(file, file.name);
+      setQuestion((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+    } catch (err) {
+      pushSttError(err.message);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  /*
+   * ==============================
    * 모드 변경
    * ==============================
    */
@@ -458,18 +581,56 @@ function Chatbot() {
         )}
 
         <div className="input-row">
-          <textarea
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              selectedCategory
-                ? `${selectedCategory} 관련 신조어를 물어보세요`
-                : "궁금한 신조어를 물어보세요"
-            }
-            disabled={loading}
-            rows={1}
-          />
+          <div className="input-textarea-wrap">
+            <textarea
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                selectedCategory
+                  ? `${selectedCategory} 관련 신조어를 물어보세요`
+                  : "궁금한 신조어를 물어보세요"
+              }
+              disabled={loading}
+              rows={1}
+            />
+
+            <div className="input-inline-actions">
+              {/* 음성으로 입력 */}
+
+              <button
+                type="button"
+                className={`mic-btn ${isRecording ? "recording" : ""}`}
+                onClick={handleMicClick}
+                disabled={isTranscribing || loading}
+                aria-label={isRecording ? "녹음 중지" : "음성으로 입력"}
+                title={isRecording ? "녹음 중지" : "음성으로 입력"}
+              >
+                {isRecording ? <FaStop /> : <FaMicrophone />}
+              </button>
+
+              {/* 음성 파일 업로드 */}
+
+              <button
+                type="button"
+                className="mic-btn"
+                onClick={handleFileUploadClick}
+                disabled={isRecording || isTranscribing || loading}
+                aria-label="음성 파일 업로드"
+                title="음성 파일 업로드"
+              >
+                <FaUpload />
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={handleFileChange}
+                hidden
+              />
+            </div>
+          </div>
 
           {/* 전송 */}
 
@@ -484,6 +645,12 @@ function Chatbot() {
             <span>↑</span>
           </button>
         </div>
+
+        {(isRecording || isTranscribing) && (
+          <p className="mic-status" role="status">
+            {isRecording ? "듣고 있어요... 다시 누르면 멈춰요." : "인식 중..."}
+          </p>
+        )}
 
         <div className="input-help">
           Enter로 질문하기 · Shift + Enter 줄바꿈

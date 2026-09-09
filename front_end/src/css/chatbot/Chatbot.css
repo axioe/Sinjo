@@ -748,15 +748,21 @@
   gap: 9px;
 }
 
-.input-row textarea {
-  flex: 1;
+.input-textarea-wrap {
+  position: relative;
 
-  min-height: 46px;
-  max-height: 120px;
+  flex: 1;
+}
+
+.input-textarea-wrap textarea {
+  width: 100%;
+
+  min-height: 72px;
+  max-height: 140px;
 
   resize: none;
 
-  padding: 12px 14px;
+  padding: 12px 14px 38px 76px;
 
   border: 1px solid #dddddd;
 
@@ -779,14 +785,103 @@
     box-shadow 0.2s ease;
 }
 
-.input-row textarea::placeholder {
+.input-textarea-wrap textarea::placeholder {
   color: #aaaaaa;
 }
 
-.input-row textarea:focus {
+.input-textarea-wrap textarea:focus {
   border-color: #aaaeb5;
 
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.04);
+}
+
+/* 마이크/업로드 버튼 - 입력창 안쪽 왼쪽 아래에 겹쳐서 배치한다. */
+.input-inline-actions {
+  position: absolute;
+
+  left: 6px;
+  bottom: 6px;
+
+  display: flex;
+
+  gap: 4px;
+}
+
+/* =================================
+   Mic / Upload Button
+================================= */
+
+.mic-btn {
+  width: 30px;
+  height: 30px;
+
+  flex: 0 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid #dddddd;
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: #555555;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.mic-btn:hover:not(:disabled) {
+  background: #111827;
+
+  border-color: #111827;
+
+  color: #ffffff;
+}
+
+.mic-btn.recording {
+  background: #ff4d5e;
+
+  border-color: #ff4d5e;
+
+  color: #ffffff;
+
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+.mic-btn:disabled {
+  opacity: 0.4;
+
+  cursor: default;
+}
+
+@keyframes mic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 94, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 77, 94, 0);
+  }
+}
+
+.mic-status {
+  margin: 6px 0 0;
+
+  color: #6659d6;
+
+  font-size: 12px;
+
+  text-align: center;
 }
 
 /* =================================
