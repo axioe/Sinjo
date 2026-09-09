@@ -1,10 +1,11 @@
+import { apiUrl } from "../../api/client";
 import "../../css/auth/SocialLogin.css"
 
 function SocialLogin({mode = "login"}) {
   const text = mode === "login" ? "로그인" : "시작하기"
 
   const handleNaver = () => {
-    window.location.href = "http://localhost:8080/api/auth/naver"
+    window.location.href = apiUrl("/api/auth/naver");
   }
 
   const handleGoogle = () => {

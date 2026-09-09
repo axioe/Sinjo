@@ -77,21 +77,20 @@ app:
     secret: ${JWT_SECRET:sinjo-local-dev-secret-key-please-change-me-32bytes}
     expiration: 86400000
 
-  frontend-url: http://localhost:5555
+  frontend-url: ${FRONTEND_URL:http://localhost:5555}
 
 #  네이버 소셜 로그인
   naver:
     client-id: ${NAVER_CLIENT_ID:}
     client-secret: ${NAVER_CLIENT_SECRET:}
-    redirect-uri: http://localhost:8080/api/auth/naver/callback
-
+    redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:8080/api/auth/naver/callback}
   admin:
     email: ${ADMIN_EMAIL:admin@slangs.com}
     password: ${ADMIN_PASSWORD:admin1234!}
     nickname: ${ADMIN_NICKNAME:관리자}
 
   cors:
-    allowed-origins: http://localhost:5555,http://localhost:5173
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5555,http://localhost:5173}
 logging:
   level:
     org.hibernate.SQL: debug
