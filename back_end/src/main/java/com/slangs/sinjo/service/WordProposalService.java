@@ -8,10 +8,13 @@ import com.slangs.sinjo.exception.NotFoundException;
 import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.repository.WordProposalCommentRepository;
 import com.slangs.sinjo.repository.WordProposalRepository;
+import com.slangs.sinjo.repository.WordProposalVoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -22,14 +25,31 @@ public class WordProposalService {
     private final WordProposalRepository proposalRepository;
     private final WordProposalCommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final WordProposalVoteRepository voteRepository;
 
     @Transactional(readOnly = true)
-    public List<WordProposalDto.ListResponse> getProposals() {
+    public Page<WordProposalDto.ListResponse> getProposals(
+            String keyword,
+            String sortType,
+            Pageable pageable
+    ) {
+        String normalizedKeyword =
+                keyword == null
+                        ? ""
+                        : keyword.trim();
+
+        String normalizedSortType =
+                sortType == null || sortType.isBlank()
+                        ? "LATEST"
+                        : sortType.toUpperCase();
+
         return proposalRepository
-                .findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(WordProposalDto.ListResponse::from)
-                .toList();
+                .searchProposals(
+                        normalizedKeyword,
+                        normalizedSortType,
+                        pageable
+                )
+                .map(WordProposalDto.ListResponse::from);
     }
 
     @Transactional
@@ -39,6 +59,14 @@ public class WordProposalService {
     ) {
         WordProposal proposal = findProposal(proposalId);
         proposal.increaseView();
+
+        String myVote = null;
+        if (userId != null) {
+            myVote = voteRepository
+                    .findByProposalIdAndUserId(proposalId, userId)
+                    .map(vote -> vote.getType().name())
+                    .orElse(null);
+        }
 
         List<WordProposalDto.CommentResponse> comments =
                 commentRepository
@@ -52,7 +80,7 @@ public class WordProposalService {
                 proposal,
                 comments,
                 null,
-                null
+                myVote
         );
     }
 
@@ -317,5 +345,19 @@ public class WordProposalService {
 
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getSuggestions(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+
+        String trimmedKeyword = keyword.trim();
+
+        return proposalRepository.findSuggestions(
+                trimmedKeyword,
+                org.springframework.data.domain.PageRequest.of(0, 5)
+        );
     }
 }

@@ -2,9 +2,29 @@ import { request } from "./client";
 
 /**
  * 신조어 제안 목록
+ *
+ * @param {number} page 0부터 시작
+ * @param {number} size 페이지당 개수
+ * @param {string} keyword 검색어
+ * @param {string} sortType 정렬 방식
  */
-export async function getProposals() {
-  return request("/api/proposals");
+export async function getProposals(
+  page = 0,
+  size = 10,
+  keyword = "",
+  sortType = "LATEST"
+) {
+  const params = new URLSearchParams();
+
+  params.set("page", page);
+  params.set("size", size);
+  params.set("sortType", sortType);
+
+  if (keyword.trim()) {
+    params.set("keyword", keyword.trim());
+  }
+
+  return request(`/api/proposals?${params.toString()}`);
 }
 
 /**
@@ -93,4 +113,19 @@ export const voteProposal = async (proposalId, type) => {
       type,
     }),
   });
+}
+
+/**
+ * 신조어 검색 자동완성
+ */
+export async function getProposalSuggestions(keyword) {
+  if (!keyword?.trim()) {
+    return [];
+  }
+
+  return request(
+    `/api/proposals/suggestions?keyword=${encodeURIComponent(
+      keyword.trim(),
+    )}`,
+  );
 }

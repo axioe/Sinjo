@@ -661,6 +661,12 @@
   }
 }
 
+@media (max-width: 768px) {
+  .proposal-feature-card {
+    grid-column: auto;
+  }
+}
+
 @media (max-width: 600px) {
   .feature-grid {
     grid-template-columns: 1fr;
@@ -819,4 +825,21 @@
   .today-content p {
     font-size: 11px;
   }
+}
+
+/* =========================================================
+   Proposal Feature
+========================================================= */
+
+.proposal-feature-card {
+  position: relative;
+  grid-column: 1 / -1;
+}
+
+.proposal-feature-card .card-icon {
+  color: var(--c-primary);
+}
+
+.proposal-feature-button {
+  margin-top: auto;
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { ThumbsDown, ThumbsUp } from "lucide-react";
+
 import { useAuth } from "../../AuthContext";
 
 import {
@@ -14,8 +16,6 @@ import {
 
 import "../../css/proposal/ProposalDetail.css";
 
-import { ThumbsUp, ThumbsDown } from "lucide-react";
-
 function ProposalDetail() {
   const { user } = useAuth();
   const { id } = useParams();
@@ -28,9 +28,13 @@ function ProposalDetail() {
   const [comment, setComment] = useState("");
 
   const [editingCommentId, setEditingCommentId] = useState(null);
+
   const [editingContent, setEditingContent] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
+
+  // 내가 선택한 투표
+  const [myVote, setMyVote] = useState(null);
 
   const isOwner =
     !!user && !!proposal && Number(user.id) === Number(proposal.userId);
@@ -45,7 +49,9 @@ function ProposalDetail() {
       setError("");
 
       const data = await getProposal(id);
+
       setProposal(data);
+      setMyVote(data?.myVote ?? null);
     } catch (err) {
       console.error("신조어 제안 상세 조회 실패:", err);
 
@@ -138,6 +144,7 @@ function ProposalDetail() {
       await loadProposal();
     } catch (err) {
       console.error("댓글 작성 실패:", err);
+
       window.alert(err.message || "댓글을 작성하지 못했습니다.");
     } finally {
       setSubmitting(false);
@@ -236,6 +243,7 @@ function ProposalDetail() {
 
     try {
       await deleteProposal(id);
+
       navigate("/proposals");
     } catch (err) {
       console.error("제안 삭제 실패:", err);
@@ -269,12 +277,20 @@ function ProposalDetail() {
       return;
     }
 
+    // 이미 투표한 경우
+    if (myVote) {
+      window.alert("이미 투표한 제안입니다.");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
-      await voteProposal(proposal.id, type);
+      const result = await voteProposal(proposal.id, type);
 
-      // 서버에서 likes / dislikes를 다시 조회
+      // 서버 응답의 myVote 사용
+      setMyVote(result?.myVote ?? type);
+
       await loadProposal();
     } catch (err) {
       console.error("제안 투표 실패:", err);
@@ -287,7 +303,6 @@ function ProposalDetail() {
 
   // ---------------------------------------------------------
   // 댓글 렌더링
-  // 대댓글 기능 제거
   // ---------------------------------------------------------
 
   const renderComment = (item) => {
@@ -297,6 +312,7 @@ function ProposalDetail() {
       <div key={item.id} className="proposal-comment">
         <div className="proposal-comment-header">
           <strong>{item.nickname}</strong>
+
           <span>{formatDate(item.createdAt)}</span>
         </div>
 
@@ -390,7 +406,15 @@ function ProposalDetail() {
     );
   }
 
-  const canVote = !!user && !isOwner && proposal.status === "DISCUSSION";
+  const canVote =
+    !!user && !isOwner && proposal.status === "DISCUSSION" && !myVote;
+
+  const totalVotes = (proposal.likes ?? 0) + (proposal.dislikes ?? 0);
+
+  const likePercentage =
+    totalVotes > 0 ? Math.round(((proposal.likes ?? 0) / totalVotes) * 100) : 0;
+
+  const dislikePercentage = totalVotes > 0 ? 100 - likePercentage : 0;
 
   return (
     <main className="proposal-detail">
@@ -419,11 +443,13 @@ function ProposalDetail() {
 
           <div className="proposal-detail-author">
             <strong>{proposal.nickname}</strong>
+
             <span>{formatDate(proposal.createdAt)}</span>
           </div>
 
           <div className="proposal-detail-section">
             <h2>의미</h2>
+
             <p>{proposal.meaning}</p>
           </div>
 
@@ -452,19 +478,41 @@ function ProposalDetail() {
           )}
 
           {/* 투표 */}
-          {/* 투표 */}
           {proposal.status === "DISCUSSION" && (
             <div className="proposal-vote-box">
-              <div className="proposal-vote-counts">
-                <span className="proposal-like-count">
-                  <ThumbsUp className="vote-count-icon" />
-                  {proposal.likes ?? 0}
-                </span>
+              <div className="proposal-vote-summary">
+                <div className="proposal-vote-counts">
+                  <span className="proposal-like-count">
+                    <ThumbsUp className="vote-count-icon" />
 
-                <span className="proposal-dislike-count">
-                  <ThumbsDown className="vote-count-icon" />
-                  {proposal.dislikes ?? 0}
-                </span>
+                    <strong>{proposal.likes ?? 0}</strong>
+
+                    <span>좋아요</span>
+                  </span>
+
+                  <span className="proposal-dislike-count">
+                    <ThumbsDown className="vote-count-icon" />
+
+                    <strong>{proposal.dislikes ?? 0}</strong>
+
+                    <span>싫어요</span>
+                  </span>
+                </div>
+
+                <div className="proposal-vote-percent">
+                  <span>좋아요 {likePercentage}%</span>
+
+                  <span>싫어요 {dislikePercentage}%</span>
+                </div>
+
+                <div className="proposal-vote-progress">
+                  <div
+                    className="proposal-vote-progress-like"
+                    style={{
+                      width: `${likePercentage}%`,
+                    }}
+                  />
+                </div>
               </div>
 
               {isOwner ? (
@@ -472,27 +520,43 @@ function ProposalDetail() {
                   자신의 제안에는 투표할 수 없습니다.
                 </p>
               ) : user ? (
-                <div className="proposal-vote-actions">
-                  <button
-                    type="button"
-                    disabled={!canVote || submitting}
-                    className="proposal-like-btn"
-                    onClick={() => handleVote("LIKE")}
-                  >
-                    <ThumbsUp className="vote-icon" />
-                    <span>좋아요</span>
-                  </button>
+                <>
+                  {myVote && (
+                    <p className="proposal-vote-selected">
+                      <span>✓</span>
+                      이미 {myVote === "LIKE" ? "좋아요" : "싫어요"}를
+                      선택하셨습니다.
+                    </p>
+                  )}
 
-                  <button
-                    type="button"
-                    disabled={!canVote || submitting}
-                    className="proposal-dislike-btn"
-                    onClick={() => handleVote("DISLIKE")}
-                  >
-                    <ThumbsDown className="vote-icon" />
-                    <span>싫어요</span>
-                  </button>
-                </div>
+                  <div className="proposal-vote-actions">
+                    <button
+                      type="button"
+                      disabled={!canVote || submitting}
+                      className={`proposal-like-btn ${
+                        myVote === "LIKE" ? "active" : ""
+                      }`}
+                      onClick={() => handleVote("LIKE")}
+                    >
+                      <ThumbsUp className="vote-icon" />
+
+                      <span>좋아요</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={!canVote || submitting}
+                      className={`proposal-dislike-btn ${
+                        myVote === "DISLIKE" ? "active" : ""
+                      }`}
+                      onClick={() => handleVote("DISLIKE")}
+                    >
+                      <ThumbsDown className="vote-icon" />
+
+                      <span>싫어요</span>
+                    </button>
+                  </div>
+                </>
               ) : (
                 <p className="proposal-vote-notice">
                   투표하려면 로그인이 필요합니다.

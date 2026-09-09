@@ -5,6 +5,7 @@ import {
   FaGamepad,
   FaBrain,
   FaArrowRight,
+  FaLightbulb,
 } from "react-icons/fa";
 import { useEffect, useMemo, useState } from "react";
 
@@ -383,11 +384,45 @@ function Main() {
               <FaArrowRight />
             </Link>
           </div>
+
+          {/* ===================================================
+              신조어 제안
+            =================================================== */}
+
+          <div className="feature-card proposal-feature-card">
+            <div className="card-top">
+              <div className="card-icon">
+                <FaLightbulb />
+              </div>
+
+              <span className="card-badge">COMMUNITY</span>
+            </div>
+
+            <div className="card-title-row">
+              <h3>신조어 제안</h3>
+            </div>
+
+            <div className="card-content">
+              <p className="card-description">
+                새로운 신조어를 직접 제안하고
+                <br />
+                다른 사용자들과 함께 이야기해보세요.
+              </p>
+            </div>
+
+            <Link
+              to="/proposals"
+              className="card-button proposal-feature-button"
+            >
+              신조어 둘러보기
+              <FaArrowRight />
+            </Link>
+          </div>
         </section>
 
         {/* =====================================================
           HISTORY
-      ===================================================== */}
+         ===================================================== */}
 
         <section className="history">
           <div className="history-header">
