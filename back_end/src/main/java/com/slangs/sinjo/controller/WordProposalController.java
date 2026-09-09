@@ -5,6 +5,9 @@ import com.slangs.sinjo.dto.WordProposalDto;
 import com.slangs.sinjo.service.WordProposalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,16 +27,26 @@ public class WordProposalController {
 
     /**
      * 제안글 목록
+     *
      * GET /api/proposals
+     *
+     * 예:
+     * /api/proposals?page=0&size=10
+     * /api/proposals?page=0&size=10&keyword=갓생
+     * /api/proposals?page=0&size=10&keyword=갓생&sortType=LIKES
      */
     @GetMapping
-    public ResponseEntity<List<WordProposalDto.ListResponse>> getProposals() {
-
-        return ResponseEntity.ok(
-                proposalService.getProposals()
+    public Page<WordProposalDto.ListResponse> getProposals(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "LATEST") String sortType,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return proposalService.getProposals(
+                keyword,
+                sortType,
+                pageable
         );
     }
-
 
     /**
      * 제안글 상세
@@ -190,6 +203,15 @@ public class WordProposalController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<String>> getSuggestions(
+            @RequestParam String keyword
+    ) {
+        return ResponseEntity.ok(
+                proposalService.getSuggestions(keyword)
+        );
     }
 }
 
