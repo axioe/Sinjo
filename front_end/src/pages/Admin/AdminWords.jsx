@@ -5,8 +5,10 @@ import {
   updateWord,
   deleteWord,
   uploadWordsExcel,
+  previewWordsExcel,
+  downloadWordTemplate,
 } from "../../api/adminApi";
-import { FaFileExcel } from "react-icons/fa";
+import { FaFileExcel, FaDownload } from "react-icons/fa";
 
 const CATEGORY_OPTIONS = ["일상", "인터넷", "게임", "SNS", "직장", "기타"];
 
@@ -17,9 +19,16 @@ const EMPTY_FORM = {
   category: "기타",
 };
 
+const STATUS_LABEL = {
+  OK: "등록 가능",
+  DUPLICATE: "중복",
+  ERROR: "오류",
+};
+
 /**
  * 용어 관리 (REQ-ADM-01)
  * 등록 · 수정 · 삭제가 즉시 DB 에 반영된다.
+ * 엑셀은 미리보기로 먼저 검증한 뒤 관리자가 확인해야 등록된다.
  */
 function AdminWords() {
   const [words, setWords] = useState([]);
@@ -32,6 +41,11 @@ function AdminWords() {
   const [uploading, setUploading] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("전체");
   const [keyword, setKeyword] = useState("");
+
+  // 엑셀 미리보기
+  const [previewRows, setPreviewRows] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
+  const [previewing, setPreviewing] = useState(false);
 
   const load = () => {
     getWords()
@@ -130,36 +144,84 @@ function AdminWords() {
     setErrors({});
   };
 
-  const handleExcelUpload = async (e) => {
+  /** 파일을 고르면 등록하지 않고 검증 결과부터 보여준다. */
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     e.target.value = "";
 
-    setUploading(true);
+    setPreviewing(true);
     setErrors({});
 
     try {
       const fd = new FormData();
       fd.append("file", file);
 
+      const rows = await previewWordsExcel(fd);
+
+      if (rows.length === 0) {
+        alert("읽을 수 있는 데이터가 없습니다.\n1행은 머리글, 2행부터 데이터를 넣어 주세요.");
+        return;
+      }
+
+      // 등록 단계에서 같은 파일을 한 번 더 보내야 하므로 들고 있는다.
+      setPreviewFile(file);
+      setPreviewRows(rows);
+    } catch (err) {
+      setErrors({ form: err.message });
+    } finally {
+      setPreviewing(false);
+    }
+  };
+
+  const closePreview = () => {
+    setPreviewRows(null);
+    setPreviewFile(null);
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!previewFile) return;
+
+    setUploading(true);
+
+    try {
+      const fd = new FormData();
+      fd.append("file", previewFile);
+
       const result = await uploadWordsExcel(fd);
 
-      let msg = `총 ${result.totalRows}행 중 ${result.successCount}건 등록`;
-      if (result.skipCount > 0) msg += `, ${result.skipCount}건 중복 제외`;
-      if (result.failures?.length > 0) {
-        msg +=
-          `\n\n[실패 ${result.failures.length}건]\n` +
-          result.failures.join("\n");
-      }
+      let msg = `${result.successCount}건이 등록되었습니다.`;
+      if (result.skipCount > 0) msg += `\n중복 ${result.skipCount}건은 제외했습니다.`;
       alert(msg);
 
+      closePreview();
       load();
     } catch (err) {
       setErrors({ form: err.message });
+      closePreview();
     } finally {
       setUploading(false);
     }
   };
+
+  const handleTemplateDownload = async () => {
+    try {
+      await downloadWordTemplate();
+    } catch (err) {
+      setErrors({ form: err.message });
+    }
+  };
+
+  const previewSummary = useMemo(() => {
+    if (!previewRows) return null;
+
+    return {
+      total: previewRows.length,
+      ok: previewRows.filter((r) => r.status === "OK").length,
+      duplicate: previewRows.filter((r) => r.status === "DUPLICATE").length,
+      error: previewRows.filter((r) => r.status === "ERROR").length,
+    };
+  }, [previewRows]);
 
   // 카테고리별 개수. 탭에 함께 보여줘 어디에 몰려 있는지 바로 알 수 있게 한다.
   const categoryCounts = useMemo(() => {
@@ -200,25 +262,34 @@ function AdminWords() {
           </p>
 
           {!editingId && (
-            <>
+            <div className="admin-form-header-actions">
+              <button
+                type="button"
+                className="admin-btn small"
+                onClick={handleTemplateDownload}
+              >
+                <FaDownload />
+                양식 다운로드
+              </button>
+
               <button
                 type="button"
                 className="admin-btn excel"
                 onClick={() => fileRef.current.click()}
-                disabled={uploading}
+                disabled={previewing || uploading}
               >
                 <FaFileExcel />
-                {uploading ? "업로드 중..." : "엑셀 일괄 등록"}
+                {previewing ? "확인 중..." : "엑셀 일괄 등록"}
               </button>
 
               <input
                 type="file"
                 ref={fileRef}
-                onChange={handleExcelUpload}
+                onChange={handleFileChange}
                 accept=".xlsx,.xls"
                 style={{ display: "none" }}
               />
-            </>
+            </div>
           )}
         </div>
 
@@ -405,9 +476,106 @@ function AdminWords() {
           </div>
         </>
       )}
+
+      {previewRows && (
+        <div className="excel-preview-backdrop" onMouseDown={closePreview}>
+          <section
+            className="excel-preview-modal"
+            role="dialog"
+            aria-modal="true"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <header className="excel-preview-header">
+              <h2>업로드 미리보기</h2>
+
+              <button
+                type="button"
+                className="excel-preview-close"
+                onClick={closePreview}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="excel-preview-summary">
+              총 {previewSummary.total}행
+              <span className="ok"> · 등록 가능 {previewSummary.ok}건</span>
+              {previewSummary.duplicate > 0 && (
+                <span className="dup"> · 중복 {previewSummary.duplicate}건</span>
+              )}
+              {previewSummary.error > 0 && (
+                <span className="err"> · 오류 {previewSummary.error}건</span>
+              )}
+            </div>
+
+            <p className="excel-preview-hint">
+              중복·오류 행은 등록되지 않습니다. 파일을 고친 뒤 다시 올려 주세요.
+            </p>
+
+            <div className="excel-preview-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>행</th>
+                    <th>신조어</th>
+                    <th>뜻</th>
+                    <th>예문</th>
+                    <th>카테고리</th>
+                    <th>상태</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {previewRows.map((row) => (
+                    <tr
+                      key={row.rowNum}
+                      className={`excel-preview-row ${row.status.toLowerCase()}`}
+                    >
+                      <td>{row.rowNum}</td>
+                      <td className="admin-td-word">{row.word || "-"}</td>
+                      <td className="admin-td-wrap">{row.meaning || "-"}</td>
+                      <td className="admin-td-wrap">{row.example || "-"}</td>
+                      <td>{row.category}</td>
+                      <td className="admin-td-wrap">
+                        <span className={`excel-preview-status ${row.status.toLowerCase()}`}>
+                          {STATUS_LABEL[row.status]}
+                        </span>
+                        {row.message && (
+                          <span className="excel-preview-message">
+                            {row.message}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <footer className="excel-preview-actions">
+              <button type="button" className="admin-btn" onClick={closePreview}>
+                취소
+              </button>
+
+              <button
+                type="button"
+                className="admin-btn primary"
+                onClick={handleConfirmUpload}
+                disabled={uploading || previewSummary.ok === 0}
+              >
+                {uploading
+                  ? "등록 중..."
+                  : previewSummary.ok === 0
+                    ? "등록할 항목 없음"
+                    : `${previewSummary.ok}건 등록하기`}
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
     </>
   );
 }
 
 export default AdminWords;
-

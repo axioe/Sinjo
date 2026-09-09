@@ -467,3 +467,108 @@
   text-decoration: underline;
 }
 
+/* ---- 엑셀 미리보기 ------------------------------------------------------- */
+.admin-form-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.excel-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.excel-preview-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 100%);
+  max-height: 85vh;
+  padding: 24px;
+  background: var(--c-surface);
+  border-radius: 20px;
+}
+
+.excel-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.excel-preview-header h2 {
+  font-size: 18px;
+}
+
+.excel-preview-close {
+  border: none;
+  background: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--c-text-sub);
+  cursor: pointer;
+}
+
+.excel-preview-summary {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.excel-preview-summary .ok { color: #12a150; }
+.excel-preview-summary .dup { color: #c2810c; }
+.excel-preview-summary .err { color: var(--c-danger); }
+
+.excel-preview-hint {
+  margin-top: 6px;
+  color: var(--c-text-sub);
+  font-size: 12px;
+}
+
+/* 행이 많아도 모달이 화면을 넘지 않도록 표 영역만 스크롤한다. */
+.excel-preview-table-wrap {
+  flex: 1;
+  overflow: auto;
+  margin-top: 16px;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+}
+
+.excel-preview-row.duplicate {
+  background: #fff8e6;
+}
+
+.excel-preview-row.error {
+  background: #fdeeee;
+}
+
+.excel-preview-status {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.excel-preview-status.ok        { background: #e6f6ed; color: #12a150; }
+.excel-preview-status.duplicate { background: #fdf0d5; color: #a56a00; }
+.excel-preview-status.error     { background: var(--c-danger-tint); color: var(--c-danger); }
+
+.excel-preview-message {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--c-text-sub);
+}
+
+.excel-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
