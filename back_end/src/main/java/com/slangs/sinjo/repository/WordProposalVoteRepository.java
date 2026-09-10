@@ -12,4 +12,6 @@ public interface WordProposalVoteRepository extends JpaRepository<WordProposalVo
     boolean existsByProposalIdAndUserId(Long proposalId, Long userId);
 
     long countByProposalIdAndType(Long proposalId, com.slangs.sinjo.entity.VoteType type);
+
+    void deleteByProposalId(Long proposalId);
 }
