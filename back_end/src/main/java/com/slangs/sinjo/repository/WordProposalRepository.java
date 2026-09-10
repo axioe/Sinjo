@@ -34,8 +34,8 @@ public interface WordProposalRepository
     @Query(
             value = """
                     SELECT p
-                    FROM WordProposal p
-                    JOIN p.user u
+                      FROM WordProposal p
+                       JOIN p.user u
                     WHERE
                         :keyword = ''
                         OR LOWER(p.proposedWord) LIKE LOWER(CONCAT('%', :keyword, '%'))

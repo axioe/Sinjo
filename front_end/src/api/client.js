@@ -8,9 +8,11 @@
  * .env 의 VITE_API_BASE_URL 한 곳에서만 관리한다.
  */
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+export const FASTAPI_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 /** 서버 주소를 붙여 완성된 URL 을 만든다. fetch 를 직접 쓰는 화면에서 사용한다. */
 export const apiUrl = (path) => `${BASE_URL}${path}`;
+export const fastApiUrl = (path) => `${FASTAPI_BASE_URL}${path}`;
 
 const TOKEN_KEY = "token";
 

@@ -6,6 +6,7 @@ on:
     paths:
       - "back_end/**"
       - "front_end/**"
+      - "slang-api/**"
       - "infra/**"
       - ".github/workflows/deploy.yml"
 
@@ -21,6 +22,9 @@ jobs:
           - name: frontend
             context: front_end
             imagename: sinjo-frontend
+          - name: fastapi
+            context: slang-api
+            imagename: sinjo-fastapi
     steps:
       - uses: actions/checkout@v6
 
@@ -58,5 +62,7 @@ jobs:
             set -e
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sinjo-backend:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sinjo-frontend:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sinjo-fastapi:latest
+
             cd ~/app || { mkdir -p ~/app; cd ~/app; }
             docker compose -f infra/docker-compose.prod.yml --env-file infra/.env.prod up -d

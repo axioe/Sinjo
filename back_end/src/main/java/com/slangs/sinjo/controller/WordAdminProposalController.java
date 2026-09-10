@@ -112,4 +112,18 @@ public class WordAdminProposalController {
                 )
         );
     }
+
+    /**
+     * 관리자 - 제안 삭제
+     *
+     * 제안과 연결된 댓글/투표/AI 검수 결과를 함께 삭제한다.
+     */
+    @DeleteMapping("/{proposalId}")
+    public ResponseEntity<Void> deleteProposal(
+            @PathVariable Long proposalId
+    ) {
+        wordProposalAdminService.deleteProposal(proposalId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

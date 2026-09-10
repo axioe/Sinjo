@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 import {
   getAdminProposal,
   updateAdminProposal,
   executeProposalAiReview,
   approveProposal,
   rejectProposal,
+  deleteAdminProposal,
 } from "../../api/adminProposalApi";
 import "../../css/admin/AdminProposalDetail.css";
 
@@ -233,6 +235,36 @@ export default function AdminProposalDetail() {
     proposal.status,
   );
 
+  const remove = async () => {
+    if (!proposal) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `"${proposal.proposedWord}" 제안을 정말 삭제하시겠습니까?\n\n삭제하면 댓글, 투표, AI 검수 결과도 함께 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setProcessing(true);
+
+      await deleteAdminProposal(id);
+
+      alert("제안이 삭제되었습니다.");
+
+      navigate("/admin");
+    } catch (e) {
+      console.error(e);
+
+      alert(e.message || "제안 삭제에 실패했습니다.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   return (
     <div className="admin-page">
       <header className="admin-detail-header">
@@ -391,6 +423,15 @@ export default function AdminProposalDetail() {
                   현재 상태에서는 검수 처리를 할 수 없습니다.
                 </div>
               )}
+              <button
+                type="button"
+                className="admin-delete-button"
+                onClick={remove}
+                disabled={processing}
+              >
+                <Trash2 size={15} />
+                제안 삭제
+              </button>
             </div>
           </section>
         </aside>

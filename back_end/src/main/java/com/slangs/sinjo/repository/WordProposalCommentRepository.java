@@ -12,4 +12,6 @@ public interface WordProposalCommentRepository
     findByProposalIdOrderByCreatedAtAsc(Long proposalId);
 
     long countByProposalId(Long proposalId);
+
+    void deleteByProposalId(Long proposalId);
 }

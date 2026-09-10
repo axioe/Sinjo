@@ -10,6 +10,7 @@ import com.slangs.sinjo.entity.WordProposalReview;
 import com.slangs.sinjo.repository.WordProposalCommentRepository;
 import com.slangs.sinjo.repository.WordProposalRepository;
 import com.slangs.sinjo.repository.WordProposalReviewRepository;
+import com.slangs.sinjo.repository.WordProposalVoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class WordProposalAdminService {
 
     private final WordService wordService;
     private final WordProposalAiReviewService aiReviewService;
+    private final WordProposalVoteRepository voteRepository;
 
     @Transactional(readOnly = true)
     public List<WordProposalDto.AdminRow> getProposals() {
@@ -265,5 +267,29 @@ public class WordProposalAdminService {
         String trimmed = value.trim();
 
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * 관리자 - 제안 삭제
+     *
+     * 제안에 연결된 AI 검수, 투표, 댓글을 먼저 삭제한 후
+     * 제안 본체를 삭제한다.
+     */
+    @Transactional
+    public void deleteProposal(Long proposalId) {
+        WordProposal proposal = findProposal(proposalId);
+
+        // AI 검수 결과 삭제
+        reviewRepository.findByProposalId(proposalId)
+                .ifPresent(reviewRepository::delete);
+
+        // 투표 삭제
+        voteRepository.deleteByProposalId(proposalId);
+
+        // 댓글 삭제
+        commentRepository.deleteByProposalId(proposalId);
+
+        // 제안 삭제
+        proposalRepository.delete(proposal);
     }
 }

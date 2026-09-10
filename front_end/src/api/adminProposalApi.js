@@ -28,3 +28,9 @@ export const rejectProposal = async (proposalId, reason = "") =>
     method: "PATCH",
     body: JSON.stringify({ reason: reason.trim() || null }),
   });
+
+export async function deleteAdminProposal(proposalId) {
+  return request(`/api/admin/proposals/${proposalId}`, {
+    method: "DELETE",
+  });
+}
