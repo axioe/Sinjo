@@ -5,7 +5,7 @@ import { fastApiUrl } from "./client";
  *
  * React
  *   ↓
- * /api/google-trends/ranking
+ * /fastapi/google-trends/ranking
  *   ↓
  * Vite Proxy
  *   ↓

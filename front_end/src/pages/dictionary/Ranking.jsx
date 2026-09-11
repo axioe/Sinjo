@@ -15,6 +15,8 @@ function Ranking() {
   const [trendLoading, setTrendLoading] = useState(true);
   const [trendError, setTrendError] = useState("");
 
+  const [expandedTrend, setExpandedTrend] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -203,25 +205,58 @@ function Ranking() {
           <div className="trend-message error">{trendError}</div>
         ) : trends.length > 0 ? (
           <div className="trend-list">
-            {trends.map((item, index) => (
-              <div key={`${item.keyword}-${index}`} className="trend-card">
-                <div className={`trend-rank trend-rank-${index + 1}`}>
-                  {index + 1}
+            {trends.map((item, index) => {
+              const isExpanded = expandedTrend === index;
+
+              return (
+                <div
+                  key={`${item.keyword}-${index}`}
+                  className={`trend-card-wrapper ${
+                    isExpanded ? "expanded" : ""
+                  }`}
+                >
+                  <button
+                    type="button"
+                    className="trend-card"
+                    onClick={() => setExpandedTrend(isExpanded ? null : index)}
+                  >
+                    <div className={`trend-rank trend-rank-${index + 1}`}>
+                      {index + 1}
+                    </div>
+
+                    <div className="trend-info">
+                      <h3>{item.keyword}</h3>
+
+                      <p
+                        className={`trend-summary ${
+                          isExpanded ? "expanded" : ""
+                        }`}
+                      >
+                        {item.meaning || "등록된 내용이 없습니다."}
+                      </p>
+
+                      {isExpanded && (
+                        <div className="trend-example">
+                          <span>사용 예시</span>
+                          <p>
+                            {item.example || "등록된 사용 예시가 없습니다."}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="trend-score">
+                      <span>검색지수</span>
+                      <strong>{item.score ?? 0}</strong>
+                    </div>
+
+                    <div className="trend-expand-icon">
+                      {isExpanded ? "⌃" : "⌄"}
+                    </div>
+                  </button>
                 </div>
-
-                <div className="trend-info">
-                  <h3>{item.keyword}</h3>
-
-                  {item.meaning && <p>{item.meaning}</p>}
-                </div>
-
-                <div className="trend-score">
-                  <span>검색지수</span>
-
-                  <strong>{item.score ?? 0}</strong>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="trend-message">현재 인기 신조어가 없습니다.</div>
