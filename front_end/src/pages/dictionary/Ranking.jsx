@@ -259,7 +259,9 @@ function Ranking() {
             })}
           </div>
         ) : (
-          <div className="trend-message">현재 인기 신조어가 없습니다.</div>
+          <div className="trend-message">
+            현재 구글 트렌드 인기 신조어가 없습니다.
+          </div>
         )}
 
         <div className="google-trend-footer">

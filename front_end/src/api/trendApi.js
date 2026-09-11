@@ -1,15 +1,7 @@
 import { fastApiUrl } from "./client";
 
 /**
- * Google Trends 인기 검색어
- *
- * React
- *   ↓
- * /fastapi/google-trends/ranking
- *   ↓
- * Vite Proxy
- *   ↓
- * FastAPI :8000
+ * Google Trends 인기 검색어 
  */
 export async function getGoogleTrendRanking() {
    try {
