@@ -13,6 +13,8 @@ import com.slangs.sinjo.exception.UnauthorizedException;
 import com.slangs.sinjo.repository.FavoritesRepository;
 import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.TranslationsRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +36,14 @@ public class MyPageService {
     private final FavoritesRepository favoritesRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final PointService pointService;
+
+    /**
+     * [추가] 제작소 배지용 제안 수를 세는 데만 쓴다.
+     * WordProposalRepository 는 다른 사람이 관리하는 파일이라 메서드를 추가하지 않고
+     * 여기서 JPQL 로 직접 센다.
+     */
+    @PersistenceContext
+    private EntityManager em;
 
     /** [추가] 번역 저장 1건당 적립 포인트. PointService.SHOP_ITEMS 참고 - 가격 기준으로 정한 값이다. */
     private static final int TRANSLATE_SAVE_POINT = 10;
@@ -122,6 +132,22 @@ public class MyPageService {
         if (userId == null) return;
 
         favoritesRepository.deleteByUserIdAndWordId(userId, wordId);
+    }
+
+    /* ===================== 신조어 제작소 (REQ-MY-01) ===================== */
+
+    /**
+     * 내가 작성한 신조어 제안 수. 마이페이지 "제작소 이용" 배지에 쓴다.
+     */
+    public long getProposalCount(Long userId) {
+
+        if (userId == null) return 0L;
+
+        return em.createQuery(
+                        "select count(p) from WordProposal p where p.user.id = :userId",
+                        Long.class)
+                .setParameter("userId", userId)
+                .getSingleResult();
     }
 
     /* ===================== 게임 기록 (REQ-MY-01) ===================== */

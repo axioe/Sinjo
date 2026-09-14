@@ -18,6 +18,7 @@ import { ACTIVITY_SUMMARY_PLACEHOLDERS } from "../../data/myPageSampleData";
 import { getMyQuizStats, getMyGameHistory } from "../../api/quizApi";
 import { getMyAttendance } from "../../api/attendanceApi";
 import { getMyPoints } from "../../api/pointApi";
+import { getMyProposalCount } from "../../api/proposalApi";
 
 import {
   getMyTranslations,
@@ -60,6 +61,8 @@ function MyPage() {
 
   const [pointBalance, setPointBalance] = useState(null);
 
+  const [proposalCount, setProposalCount] = useState(null);
+
   const [loading, setLoading] = useState({
     home: true,
     saved: false,
@@ -82,6 +85,7 @@ function MyPage() {
           favoritesCount,
           attendance,
           points,
+          proposalsCount,
         ] = await Promise.all([
           getMyQuizStats(),
           getMyTranslations(0, 5),
@@ -89,6 +93,7 @@ function MyPage() {
           getMyFavoriteCount(),
           getMyAttendance(),
           getMyPoints(),
+          getMyProposalCount(),
         ]);
 
         if (!alive) return;
@@ -99,6 +104,7 @@ function MyPage() {
         setFavoriteCount(favoritesCount);
         setAttendanceDates(attendance ?? []);
         setPointBalance(points?.balance ?? 0);
+        setProposalCount(proposalsCount ?? 0);
       } catch (error) {
         console.error("마이페이지 기본 데이터 조회 실패:", error);
       } finally {
@@ -247,6 +253,9 @@ function MyPage() {
 
   /*
    * 배지
+   *
+   * 세 항목 모두 실데이터다.
+   * 제작소는 word_proposals 기준으로 내가 올린 제안 수를 센다.
    */
   const badges = useMemo(
     () => [
@@ -267,14 +276,15 @@ function MyPage() {
         tone: "mint",
       },
       {
-        key: "board",
-        name: "게시판 이용",
-        desc: "게시판 기능 준비 중",
+        key: "studio",
+        name: "제작소 이용",
+        desc: "신조어 5회 제안",
+        current: proposalCount ?? 0,
+        goal: 5,
         tone: "pink",
-        prototype: true,
       },
     ],
-    [translationCount, gameStats],
+    [translationCount, gameStats, proposalCount],
   );
 
   const attendanceDateSet = useMemo(
