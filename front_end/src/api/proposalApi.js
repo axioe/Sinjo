@@ -99,13 +99,13 @@ export async function deleteComment(commentId) {
   });
 }
 
-/** 
+/**
  * 신조어 제안 투표
- * type: 
- * - LIKE 
- * - DISLIKE 
+ * type:
+ * - LIKE
+ * - DISLIKE
  * POST /api/proposals/{proposalId}/vote?type=LIKE
- */ 
+ */
 export const voteProposal = async (proposalId, type) => {
   return request(`/api/proposals/${proposalId}/vote`, {
     method: "POST",
@@ -113,7 +113,7 @@ export const voteProposal = async (proposalId, type) => {
       type,
     }),
   });
-}
+};
 
 /**
  * 신조어 검색 자동완성
@@ -128,4 +128,11 @@ export async function getProposalSuggestions(keyword) {
       keyword.trim(),
     )}`,
   );
+}
+
+/**
+ * 내가 작성한 신조어 제안 수 (마이페이지 배지용)
+ */
+export async function getMyProposalCount() {
+  return request("/api/mypage/proposals/count");
 }

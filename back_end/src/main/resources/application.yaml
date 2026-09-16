@@ -67,7 +67,7 @@ server:
         http-only: true
         same-site: lax
         secure: false      # EC2 에 HTTPS 로 배포할 때 true
-# 엑셀 업로드 기능 추가
+    # 엑셀 업로드 기능 추가
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
@@ -79,20 +79,21 @@ app:
 
   frontend-url: ${FRONTEND_URL:http://localhost:5555}
 
-#  네이버 소셜 로그인
+  #  네이버 소셜 로그인
   naver:
     client-id: ${NAVER_CLIENT_ID:}
     client-secret: ${NAVER_CLIENT_SECRET:}
     redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:8080/api/auth/naver/callback}
-  admin:
-    email: ${ADMIN_EMAIL:admin@slangs.com}
-    password: ${ADMIN_PASSWORD:admin1234!}
-    nickname: ${ADMIN_NICKNAME:관리자}
-
+  #  구글 소셜 로그인
   google:
     client-id: ${GOOGLE_CLIENT_ID:}
     client-secret: ${GOOGLE_CLIENT_SECRET:}
     redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/auth/google/callback}
+  #    관리자 로그인
+  admin:
+    email: ${ADMIN_EMAIL:admin@slangs.com}
+    password: ${ADMIN_PASSWORD:admin1234!}
+    nickname: ${ADMIN_NICKNAME:관리자}
 
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5555,http://localhost:5173}

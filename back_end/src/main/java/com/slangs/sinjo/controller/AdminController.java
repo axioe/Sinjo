@@ -156,7 +156,8 @@ public class AdminController {
 //    통계 대시보드
     @GetMapping("/stats/signups")
     public ResponseEntity<List<AdminDto.DailyCount>> signupTrend(
-            @RequestParam(defaultValue = "14") int days) {
+            @RequestParam(defaultValue = "1" +
+                    "4") int days) {
         return ResponseEntity.ok(adminService.getSignupTrend(days));
     }
 

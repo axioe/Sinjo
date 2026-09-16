@@ -1,5 +1,6 @@
 package com.slangs.sinjo.controller;
 
+import com.slangs.sinjo.service.GoogleService;
 import com.slangs.sinjo.service.NaverService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class AuthController {
 
     private final NaverService naverService;
+    private final GoogleService googleService;
 
     @Value("${app.naver.client-id}")
     private String clientId;
@@ -48,6 +50,28 @@ public class AuthController {
                          @RequestParam String state,
                          HttpServletResponse response) throws IOException {
         String token = naverService.naverLogin(code, state);
+        response.sendRedirect(frontendUrl + "/oauth/callback?token=" + token);
+    }
+
+    @Value("${app.google.client-id}")
+    private String googleClientId;
+
+    @Value("${app.google.redirect-uri}")
+    private String googleRedirectUri;
+
+    @GetMapping("/google")
+    public void redirectToGoogle(HttpServletResponse response) throws IOException {
+        String url = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code"
+                + "&client_id=" + googleClientId
+                + "&redirect_uri=" + URLEncoder.encode(googleRedirectUri, StandardCharsets.UTF_8)
+                + "&scope=" + URLEncoder.encode("email profile", StandardCharsets.UTF_8);
+        response.sendRedirect(url);
+    }
+
+    @GetMapping("/google/callback")
+    public void googleCallback(@RequestParam String code,
+                               HttpServletResponse response) throws IOException {
+        String token = googleService.googleLogin(code);
         response.sendRedirect(frontendUrl + "/oauth/callback?token=" + token);
     }
 }
