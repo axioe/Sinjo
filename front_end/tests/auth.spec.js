@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { logTestResult } from "./utils/console-log.js";
 
 /**
  * REQ-AUTH-01: 회원가입 / 로그인 / 접근 제어.
@@ -19,6 +20,7 @@ test.describe("REQ-AUTH-01: 회원가입", () => {
     await page.getByRole("button", { name: "가입하기" }).click();
 
     await expect(page).toHaveURL(/\/login$/);
+    await logTestResult(page, "REQ-AUTH-01", "정상 가입 시 로그인 화면으로 이동");
   });
 
   test("비밀번호 확인이 다르면 가입하지 않고 안내한다", async ({ page }) => {
@@ -33,6 +35,7 @@ test.describe("REQ-AUTH-01: 회원가입", () => {
 
     await expect(page.getByText("비밀번호가 일치하지 않습니다.")).toBeVisible();
     await expect(page).toHaveURL(/\/signup$/);
+    await logTestResult(page, "REQ-AUTH-01", "비밀번호 확인 불일치 시 가입 차단 및 안내 문구 표시");
   });
 });
 
@@ -54,6 +57,7 @@ test.describe("REQ-AUTH-01: 로그인", () => {
     await page.getByRole("button", { name: "로그인", exact: true }).click();
 
     await expect(page.getByText("로그인테스트님")).toBeVisible();
+    await logTestResult(page, "REQ-AUTH-01", "정상 로그인 시 헤더에 닉네임 표시");
   });
 
   test("존재하지 않는 계정으로 로그인하면 오류 문구를 보여준다", async ({ page }) => {
@@ -64,6 +68,7 @@ test.describe("REQ-AUTH-01: 로그인", () => {
     await page.getByRole("button", { name: "로그인", exact: true }).click();
 
     await expect(page.locator(".login-error")).toBeVisible();
+    await logTestResult(page, "REQ-AUTH-01", "존재하지 않는 계정 로그인 시 오류 문구 표시");
   });
 });
 
@@ -76,11 +81,13 @@ test.describe("REQ-AUTH-01: 접근 제어", () => {
     await page.goto("/mypage");
 
     await expect(page).toHaveURL(/\/login$/);
+    await logTestResult(page, "REQ-AUTH-01", "비로그인 상태로 마이페이지 접근 시 로그인 화면으로 리다이렉트");
   });
 
   test("비로그인 상태로 관리자 페이지에 가면 로그인 화면으로 보낸다", async ({ page }) => {
     await page.goto("/admin");
 
     await expect(page).toHaveURL(/\/login$/);
+    await logTestResult(page, "REQ-AUTH-01", "비로그인 상태로 관리자 페이지 접근 시 로그인 화면으로 리다이렉트");
   });
 });
