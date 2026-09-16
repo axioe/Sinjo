@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createAuthenticatedUser, loginInBrowser } from "./utils/auth.js";
+import { logTestResult } from "./utils/console-log.js";
 
 /**
  * REQ-MY-01: 마이페이지.
@@ -19,5 +20,6 @@ test.describe("REQ-MY-01: 마이페이지", () => {
 
     await expect(page.getByText(`${nickname} 님`)).toBeVisible();
     await expect(page.getByText("현재 보유 포인트")).toBeVisible();
+    await logTestResult(page, "REQ-MY-01", "로그인 사용자 닉네임/보유 포인트 표시 확인");
   });
 });

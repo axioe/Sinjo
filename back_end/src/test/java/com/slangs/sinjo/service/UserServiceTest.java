@@ -1,8 +1,10 @@
 package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.UserDto;
+import com.slangs.sinjo.entity.LoginHistory;
 import com.slangs.sinjo.entity.PasswordResetToken;
 import com.slangs.sinjo.entity.Provider;
+import com.slangs.sinjo.entity.Role;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.exception.InvalidCredentialsException;
 import com.slangs.sinjo.repository.LoginHistoryRepository;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * REQ-MYPAGE-04: 계정 정보 수정(닉네임/비밀번호), REQ-AUTH-05: 비밀번호 찾기/재설정.
+ * REQ-AUTH-02: 일반 로그인, REQ-MYPAGE-04: 계정 정보 수정(닉네임/비밀번호), REQ-AUTH-05: 비밀번호 찾기/재설정.
  */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -69,6 +71,66 @@ class UserServiceTest {
         user.setProvider(provider);
         user.setPassword(encodedPassword);
         return user;
+    }
+
+    @Nested
+    @DisplayName("REQ-AUTH-02: 로그인")
+    class Login {
+
+        @Test
+        void 존재하지_않는_이메일이면_예외() {
+            when(userRepository.findByEmail("no-such@example.com")).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                    userService.login(new UserDto.LoginRequest("no-such@example.com", "아무거나1234")))
+                    .isInstanceOf(InvalidCredentialsException.class);
+
+            verify(attendanceService, never()).checkIn(any());
+            verify(loginHistoryRepository, never()).save(any());
+        }
+
+        @Test
+        void 비밀번호가_틀리면_예외() {
+            User user = user(Provider.LOCAL, "encoded");
+            when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("틀린비번", "encoded")).thenReturn(false);
+
+            assertThatThrownBy(() ->
+                    userService.login(new UserDto.LoginRequest("test@example.com", "틀린비번")))
+                    .isInstanceOf(InvalidCredentialsException.class);
+
+            verify(attendanceService, never()).checkIn(any());
+            verify(loginHistoryRepository, never()).save(any());
+        }
+
+        @Test
+        void 이메일_대소문자는_구분하지_않는다() {
+            User user = user(Provider.LOCAL, "encoded");
+            when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("올바른비번1234", "encoded")).thenReturn(true);
+
+            userService.login(new UserDto.LoginRequest("  Test@Example.com  ", "올바른비번1234"));
+
+            verify(userRepository).findByEmail("test@example.com");
+        }
+
+        @Test
+        void 정상_로그인이면_토큰_발급과_함께_출석체크_로그인기록이_남는다() {
+            User user = user(Provider.LOCAL, "encoded");
+            when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("올바른비번1234", "encoded")).thenReturn(true);
+            when(jwtProvider.createToken(1L, "test@example.com", Role.USER)).thenReturn("jwt-token");
+
+            UserDto.LoginResponse response =
+                    userService.login(new UserDto.LoginRequest("test@example.com", "올바른비번1234"));
+
+            assertThat(response.token()).isEqualTo("jwt-token");
+            assertThat(response.user().email()).isEqualTo("test@example.com");
+            verify(attendanceService).checkIn(1L);
+            ArgumentCaptor<LoginHistory> captor = ArgumentCaptor.forClass(LoginHistory.class);
+            verify(loginHistoryRepository).save(captor.capture());
+            assertThat(captor.getValue().getUserId()).isEqualTo(1L);
+        }
     }
 
     @Nested

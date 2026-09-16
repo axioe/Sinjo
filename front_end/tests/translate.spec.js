@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { logTestResult } from "./utils/console-log.js";
 
 /**
  * REQ-TR-01: 신조어 번역 화면.
@@ -14,11 +15,13 @@ test.describe("REQ-TR-01: 신조어 번역", () => {
     await expect(page.getByRole("heading", { name: "✨ 신조어 번역" })).toBeVisible();
     await expect(page.getByLabel("번역할 신조어")).toBeVisible();
     await expect(page.getByRole("button", { name: "번역하기" })).toBeVisible();
+    await logTestResult(page, "REQ-TR-01", "번역 화면 입력창/버튼 렌더링 확인");
   });
 
   test("빈 값으로 번역하면 안내 문구를 보여준다", async ({ page }) => {
     await page.getByRole("button", { name: "번역하기" }).click();
 
     await expect(page.getByText("번역할 신조어를 입력해 주세요.")).toBeVisible();
+    await logTestResult(page, "REQ-TR-01", "빈 값 번역 시도 시 안내 문구 표시");
   });
 });
