@@ -105,4 +105,11 @@ public class MyPageController {
 
         return ResponseEntity.ok(myPageService.getDailyActivity(userId, date));
     }
+
+    @GetMapping("/proposals/count")
+    public ResponseEntity<Long> getProposalCount(
+            @AuthenticationPrincipal Long userId) {
+
+        return ResponseEntity.ok(myPageService.getProposalCount(userId));
+    }
 }
