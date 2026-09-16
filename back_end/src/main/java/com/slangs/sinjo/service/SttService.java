@@ -2,6 +2,7 @@ package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.SttDto;
 import com.slangs.sinjo.exception.SttTranscriptionException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -22,12 +23,16 @@ import java.util.Map;
  * Spring AI 의 ChatModel/EmbeddingModel(WordRagService 참고)과 달리 오디오 인식은
  * 이 프로젝트가 쓰는 spring-ai-openai 2.0.0 에 안정된 추상화가 없어서, NaverService 와
  * 같은 방식으로 Whisper REST 엔드포인트를 RestClient 로 직접 호출한다.
+ * <p>
+ * RestClient 는 필드 초기화가 아니라 생성자로 주입받는다(RestClientConfig 참고) - 그래야
+ * 단위 테스트에서 실제 네트워크 호출 없이 Mock으로 바꿔치기할 수 있다.
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SttService {
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient;
 
     @Value("${spring.ai.openai.api-key}")
     private String apiKey;
