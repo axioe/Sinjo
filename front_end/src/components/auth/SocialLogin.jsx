@@ -9,8 +9,8 @@ function SocialLogin({mode = "login"}) {
   }
 
   const handleGoogle = () => {
-    window.location.href = apiUrl("/api/auth/google");
-  }
+  window.location.href = apiUrl("/api/auth/google");
+};
 
   return (
     <div className="social-login">
