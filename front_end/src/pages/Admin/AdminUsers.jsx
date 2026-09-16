@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../../AuthContext";
 import { getUsers, updateUserRole, deleteUser } from "../../api/adminApi";
 
@@ -32,6 +32,10 @@ function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [keyword, setKeyword] = useState("");
 
+  // 이메일이 길어 기본 폭으로는 잘린다. 머리글 경계를 끌어 넓힐 수 있게 한다.
+  const [emailWidth, setEmailWidth] = useState(200);
+  const dragRef = useRef(null);
+
   const load = () => {
     getUsers()
       .then(setUsers)
@@ -40,6 +44,31 @@ function AdminUsers() {
   };
 
   useEffect(load, []);
+
+  /**
+   * 드래그 중에는 커서가 표 밖으로 나갈 수 있으므로
+   * 이벤트를 th 가 아니라 window 에 건다.
+   */
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    dragRef.current = { startX: e.clientX, startWidth: emailWidth };
+
+    const handleMove = (ev) => {
+      if (!dragRef.current) return;
+      const delta = ev.clientX - dragRef.current.startX;
+      // 너무 좁아지면 내용이 안 보이므로 하한을 둔다.
+      setEmailWidth(Math.max(100, dragRef.current.startWidth + delta));
+    };
+
+    const handleUp = () => {
+      dragRef.current = null;
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+  };
 
   // 전체 목록을 한 번에 받아오므로 걸러내는 일은 화면에서 처리한다.
   const filtered = useMemo(() => {
@@ -134,7 +163,16 @@ function AdminUsers() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>이메일</th>
+
+              <th className="admin-th-resizable" style={{ width: emailWidth }}>
+                이메일
+                <span
+                  className="admin-col-resizer"
+                  onMouseDown={handleDragStart}
+                  title="끌어서 폭 조절"
+                />
+              </th>
+
               <th>닉네임</th>
               <th>권한</th>
               <th>가입일</th>
@@ -156,8 +194,19 @@ function AdminUsers() {
                 return (
                   <tr key={user.id}>
                     <td>{user.id}</td>
-                    <td>{user.email}</td>
-                    <td>{user.nickname}</td>
+
+                    <td
+                      className="admin-td-email"
+                      style={{ maxWidth: emailWidth }}
+                      title={user.email}
+                    >
+                      {user.email}
+                    </td>
+
+                    <td className="admin-td-nickname" title={user.nickname}>
+                      {user.nickname}
+                    </td>
+
                     <td>
                       <span
                         className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}

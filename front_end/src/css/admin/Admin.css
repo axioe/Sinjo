@@ -573,14 +573,32 @@
   margin-top: 18px;
 }
 
-.admin-table td:nth-child(2) {
-  max-width: 200px;
+.admin-th-resizable {
+  position: relative;
+}
+
+/* th 오른쪽 끝에 얇은 손잡이를 겹쳐 둔다. */
+.admin-col-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+}
+
+.admin-col-resizer:hover {
+  background: var(--c-primary);
+}
+
+.admin-td-email {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.admin-table td:nth-child(3) {
+.admin-td-nickname {
   max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
