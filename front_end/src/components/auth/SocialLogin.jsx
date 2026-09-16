@@ -9,8 +9,8 @@ function SocialLogin({mode = "login"}) {
   }
 
   const handleGoogle = () => {
-    alert("구글 로그인 준비 중 입니다.")
-  }
+  window.location.href = apiUrl("/api/auth/google");
+};
 
   return (
     <div className="social-login">
