@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../../AuthContext";
 import { getUsers, updateUserRole, deleteUser } from "../../api/adminApi";
 
@@ -16,6 +16,19 @@ const ROLE_FILTERS = [
   { key: "USER", label: "일반" },
 ];
 
+/** 열별 기본 폭(px). key 는 아래 th 와 td 에서 함께 쓴다. */
+const DEFAULT_WIDTHS = {
+  id: 60,
+  email: 200,
+  nickname: 140,
+  role: 90,
+  createdAt: 110,
+  lastLoginAt: 110,
+  actions: 200,
+};
+
+const PAGE_SIZE = 10;
+
 /**
  * 회원 관리 (REQ-ADM-01)
  * 권한 부여/해제, 삭제가 즉시 DB 에 반영된다.
@@ -31,6 +44,11 @@ function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+
+  // 내용이 길면 잘리므로 머리글 경계를 끌어 열 폭을 조절할 수 있게 한다.
+  const [widths, setWidths] = useState(DEFAULT_WIDTHS);
+  const dragRef = useRef(null);
 
   const load = () => {
     getUsers()
@@ -40,6 +58,41 @@ function AdminUsers() {
   };
 
   useEffect(load, []);
+
+  // 필터를 바꾸면 결과가 줄어 현재 페이지가 비어버릴 수 있으므로 1쪽으로 돌린다.
+  useEffect(() => {
+    setPage(1);
+  }, [roleFilter, keyword]);
+
+  /**
+   * 드래그 중 커서가 표 밖으로 나갈 수 있으므로
+   * 이벤트는 th 가 아니라 window 에 건다.
+   */
+  const startResize = (key) => (e) => {
+    e.preventDefault();
+    dragRef.current = { key, startX: e.clientX, startWidth: widths[key] };
+
+    const handleMove = (ev) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+
+      const delta = ev.clientX - drag.startX;
+      setWidths((prev) => ({
+        ...prev,
+        // 너무 좁아지면 내용이 안 보이므로 하한을 둔다.
+        [drag.key]: Math.max(60, drag.startWidth + delta),
+      }));
+    };
+
+    const handleUp = () => {
+      dragRef.current = null;
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+  };
 
   // 전체 목록을 한 번에 받아오므로 걸러내는 일은 화면에서 처리한다.
   const filtered = useMemo(() => {
@@ -59,6 +112,16 @@ function AdminUsers() {
       // users 에 직접 걸면 state 를 직접 수정하는 셈이 된다.
       .sort((a, b) => b.id - a.id);
   }, [users, roleFilter, keyword]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  // 삭제로 목록이 줄어 마지막 페이지가 사라지면 범위 안으로 당긴다.
+  const safePage = Math.min(page, totalPages);
+
+  const pageRows = useMemo(
+    () => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filtered, safePage],
+  );
 
   const handleToggleRole = async (user) => {
     const nextRole = user.role === "ADMIN" ? "USER" : "ADMIN";
@@ -95,6 +158,18 @@ function AdminUsers() {
   if (loading) return <p className="admin-loading">불러오는 중...</p>;
   if (error) return <p className="admin-error">{error}</p>;
 
+  /** 폭 조절 손잡이가 달린 머리글 */
+  const ResizableTh = ({ colKey, children }) => (
+    <th className="admin-th-resizable" style={{ width: widths[colKey] }}>
+      {children}
+      <span
+        className="admin-col-resizer"
+        onMouseDown={startResize(colKey)}
+        title="끌어서 폭 조절"
+      />
+    </th>
+  );
+
   return (
     <>
       <h1 className="admin-title">회원 관리</h1>
@@ -122,52 +197,77 @@ function AdminUsers() {
         />
       </div>
 
-      <p className="admin-desc">
-        {filtered.length}명
-        {filtered.length !== users.length && ` / 전체 ${users.length}명`}
-      </p>
+      <div className="admin-desc-row">
+        <p className="admin-desc">
+          {filtered.length}명
+          {filtered.length !== users.length && ` / 전체 ${users.length}명`}
+          {filtered.length > 0 && ` · ${safePage} / ${totalPages} 페이지`}
+        </p>
+
+        <button
+          type="button"
+          className="admin-btn small"
+          onClick={() => setWidths(DEFAULT_WIDTHS)}
+        >
+          열 너비 초기화
+        </button>
+      </div>
 
       {actionError && <p className="admin-alert">{actionError}</p>}
 
       <div className="admin-table-wrap">
-        <table className="admin-table">
+        <table className="admin-table admin-table-fixed">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>이메일</th>
-              <th>닉네임</th>
-              <th>권한</th>
-              <th>가입일</th>
-              <th>마지막 접속</th>
-              <th>관리</th>
+              <ResizableTh colKey="id">ID</ResizableTh>
+              <ResizableTh colKey="email">이메일</ResizableTh>
+              <ResizableTh colKey="nickname">닉네임</ResizableTh>
+              <ResizableTh colKey="role">권한</ResizableTh>
+              <ResizableTh colKey="createdAt">가입일</ResizableTh>
+              <ResizableTh colKey="lastLoginAt">마지막 접속</ResizableTh>
+              <ResizableTh colKey="actions">관리</ResizableTh>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {pageRows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="admin-empty">
                   조건에 맞는 회원이 없습니다.
                 </td>
               </tr>
             ) : (
-              filtered.map((user) => {
+              pageRows.map((user) => {
                 const isSelf = me?.id === user.id;
 
                 return (
                   <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.email}</td>
-                    <td>{user.nickname}</td>
-                    <td>
+                    <td className="admin-td-clip">{user.id}</td>
+
+                    <td className="admin-td-clip" title={user.email}>
+                      {user.email}
+                    </td>
+
+                    <td className="admin-td-clip" title={user.nickname}>
+                      {user.nickname}
+                    </td>
+
+                    <td className="admin-td-clip">
                       <span
                         className={`admin-badge ${user.role === "ADMIN" ? "admin" : ""}`}
                       >
                         {user.role === "ADMIN" ? "관리자" : "일반"}
                       </span>
                     </td>
-                    <td>{formatDate(user.createdAt)}</td>
-                    <td>{formatDate(user.lastLoginAt)}</td>
-                    <td className="admin-td-actions">
+
+                    <td className="admin-td-clip">
+                      {formatDate(user.createdAt)}
+                    </td>
+
+                    <td className="admin-td-clip">
+                      {formatDate(user.lastLoginAt)}
+                    </td>
+
+                    <td className="admin-td-actions admin-td-clip">
                       {isSelf ? (
                         <span className="admin-self-label">
                           현재 로그인한 계정
@@ -200,6 +300,39 @@ function AdminUsers() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav className="admin-pagination">
+          <button
+            type="button"
+            className="admin-page-btn"
+            onClick={() => setPage(safePage - 1)}
+            disabled={safePage === 1}
+          >
+            이전
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            <button
+              key={n}
+              type="button"
+              className={`admin-page-btn ${n === safePage ? "active" : ""}`}
+              onClick={() => setPage(n)}
+            >
+              {n}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            className="admin-page-btn"
+            onClick={() => setPage(safePage + 1)}
+            disabled={safePage === totalPages}
+          >
+            다음
+          </button>
+        </nav>
+      )}
     </>
   );
 }
