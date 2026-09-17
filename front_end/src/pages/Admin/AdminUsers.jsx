@@ -98,19 +98,27 @@ function AdminUsers() {
   const filtered = useMemo(() => {
     const q = keyword.trim().toLowerCase();
 
-    return users
-      .filter((user) => {
-        if (roleFilter !== "ALL" && user.role !== roleFilter) return false;
-        if (!q) return true;
+    return (
+      users
+        .filter((user) => {
+          if (roleFilter !== "ALL" && user.role !== roleFilter) return false;
+          if (!q) return true;
 
-        return (
-          user.email?.toLowerCase().includes(q) ||
-          user.nickname?.toLowerCase().includes(q)
-        );
-      })
-      // sort 는 원본 배열을 바꾸므로 filter 가 만든 새 배열에만 건다.
-      // users 에 직접 걸면 state 를 직접 수정하는 셈이 된다.
-      .sort((a, b) => b.id - a.id);
+          return (
+            user.email?.toLowerCase().includes(q) ||
+            user.nickname?.toLowerCase().includes(q)
+          );
+        })
+                // sort 는 원본 배열을 바꾸므로 filter 가 만든 새 배열에만 건다.
+        // 관리자를 먼저 보여주고, 같은 권한 안에서는 최근 가입 순으로 둔다.
+        .sort((a, b) => {
+          const aAdmin = a.role === "ADMIN" ? 0 : 1;
+          const bAdmin = b.role === "ADMIN" ? 0 : 1;
+
+          if (aAdmin !== bAdmin) return aAdmin - bAdmin;
+          return b.id - a.id;
+        })
+    );
   }, [users, roleFilter, keyword]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -197,21 +205,11 @@ function AdminUsers() {
         />
       </div>
 
-      <div className="admin-desc-row">
-        <p className="admin-desc">
-          {filtered.length}명
-          {filtered.length !== users.length && ` / 전체 ${users.length}명`}
-          {filtered.length > 0 && ` · ${safePage} / ${totalPages} 페이지`}
-        </p>
-
-        <button
-          type="button"
-          className="admin-btn small"
-          onClick={() => setWidths(DEFAULT_WIDTHS)}
-        >
-          열 너비 초기화
-        </button>
-      </div>
+      <p className="admin-desc">
+        {filtered.length}명
+        {filtered.length !== users.length && ` / 전체 ${users.length}명`}
+        {filtered.length > 0 && ` · ${safePage} / ${totalPages} 페이지`}
+      </p>
 
       {actionError && <p className="admin-alert">{actionError}</p>}
 
