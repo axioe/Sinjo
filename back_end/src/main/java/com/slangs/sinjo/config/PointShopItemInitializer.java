@@ -35,10 +35,10 @@ public class PointShopItemInitializer implements ApplicationRunner {
         }
 
         pointShopItemRepository.saveAll(List.of(
-                new PointShopItem("프로필 테마", 300),
-                new PointShopItem("닉네임 뱃지", 500),
-                new PointShopItem("반짝반짝 효과", 700),
-                new PointShopItem("VIP 뱃지", 1000)
+                new PointShopItem("프로필 테마", 300, "마이페이지 프로필을 나만의 분위기로 꾸밀 수 있어요.", "🎨"),
+                new PointShopItem("닉네임 뱃지", 500, "프로필에 특별한 닉네임 뱃지를 표시할 수 있어요.", "🏷️"),
+                new PointShopItem("반짝반짝 효과", 700, "프로필에 특별한 반짝임 효과를 추가할 수 있어요.", "✨"),
+                new PointShopItem("VIP 뱃지", 1000, "특별한 VIP 뱃지로 프로필을 꾸밀 수 있어요.", "👑")
         ));
 
         log.info("포인트 상점 기본 카탈로그를 채웠습니다.");

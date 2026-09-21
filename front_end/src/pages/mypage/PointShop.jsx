@@ -14,6 +14,7 @@ import {
   getShopItems,
   getPointHistory,
   purchaseItem,
+  cancelPurchase,
 } from "../../api/pointApi";
 
 function formatHistoryDate(isoString) {
@@ -26,40 +27,16 @@ function formatHistoryDate(isoString) {
   });
 }
 
-/**
- * 상점 아이템의 아이콘/설명/색상 - 화면 전용 정보라 서버에는 없다(id/name/price 만 옴).
- * 관리자 페이지(AdminPointShop)에서 등록한 초기 4개 상품의 id 와 맞춰 둔 값이다.
- * 관리자가 새 상품을 추가하면 이 매핑에 없는 id 가 들어올 수 있어 DEFAULT_PRESENTATION 으로
- * 대체한다 - 새 상품 전용 아이콘/설명이 필요해지면 여기 항목을 추가하면 된다.
- */
-const DEFAULT_PRESENTATION = {
-  icon: "🎁",
-  description: "포인트로 교환할 수 있는 아이템이에요.",
-  color: "purple",
-};
+/** 상품명·설명·아이콘은 이제 서버(관리자 화면)에서 오므로, 여기서는 값이 비어
+ * 있을 때 쓸 기본값만 둔다. */
+const DEFAULT_ICON = "🎁";
+const DEFAULT_DESCRIPTION = "포인트로 교환할 수 있는 아이템이에요.";
 
-const PRESENTATION = {
-  1: {
-    icon: "🎨",
-    description: "마이페이지 프로필을 나만의 분위기로 꾸밀 수 있어요.",
-    color: "purple",
-  },
-  2: {
-    icon: "🏷️",
-    description: "프로필에 특별한 닉네임 뱃지를 표시할 수 있어요.",
-    color: "blue",
-  },
-  3: {
-    icon: "✨",
-    description: "프로필에 특별한 반짝임 효과를 추가할 수 있어요.",
-    color: "yellow",
-  },
-  4: {
-    icon: "👑",
-    description: "특별한 VIP 뱃지로 프로필을 꾸밀 수 있어요.",
-    color: "pink",
-  },
-};
+/** 색상 테마는 순전히 화면 꾸밈용이라 서버에 저장하지 않고, 상품 id로 순환시킨다. */
+const COLOR_CYCLE = ["purple", "blue", "yellow", "pink"];
+function colorForId(id) {
+  return COLOR_CYCLE[Number(id) % COLOR_CYCLE.length];
+}
 
 function PointShop() {
   const navigate = useNavigate();
@@ -70,6 +47,7 @@ function PointShop() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purchasingId, setPurchasingId] = useState(null);
+  const [cancelingId, setCancelingId] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -132,6 +110,29 @@ function PointShop() {
       window.alert(error.message ?? "구매에 실패했습니다. 다시 시도해 주세요.");
     } finally {
       setPurchasingId(null);
+    }
+  };
+
+  const handleCancel = async (item) => {
+    const confirmed = window.confirm(
+      `${item.name} 구매를 취소할까요?\n\n${item.price.toLocaleString()}P가 환불됩니다.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setCancelingId(item.id);
+
+    try {
+      const result = await cancelPurchase(item.id);
+
+      setBalance(result.balance);
+      setPurchasedIds((prev) => prev.filter((id) => id !== item.id));
+    } catch (error) {
+      window.alert(error.message ?? "구매 취소에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setCancelingId(null);
     }
   };
 
@@ -233,17 +234,16 @@ function PointShop() {
 
         <div className="point-shop-grid">
           {items.map((item) => {
-            const { icon, description, color } =
-              PRESENTATION[item.id] ?? DEFAULT_PRESENTATION;
+            const icon = item.icon || DEFAULT_ICON;
+            const description = item.description || DEFAULT_DESCRIPTION;
+            const color = colorForId(item.id);
             const canPurchase = balance >= item.price;
             const purchased = purchasedIds.includes(item.id);
             const purchasing = purchasingId === item.id;
+            const canceling = cancelingId === item.id;
 
             return (
-              <article
-                key={item.id}
-                className={`point-shop-item ${color ?? ""}`}
-              >
+              <article key={item.id} className={`point-shop-item ${color}`}>
                 <div className="point-shop-item-bg" aria-hidden="true" />
 
                 <div className="point-shop-item-top">
@@ -270,30 +270,47 @@ function PointShop() {
                     </strong>
                   </div>
 
-                  <button
-                    type="button"
-                    className={
-                      purchased ? "purchased" : !canPurchase ? "disabled" : ""
-                    }
-                    disabled={!canPurchase || purchased || purchasing}
-                    onClick={() => handlePurchase(item)}
-                  >
-                    {purchased ? (
-                      <>
-                        <FaCheck aria-hidden="true" />
-                        구매 완료
-                      </>
-                    ) : (
-                      <>
-                        <FaShoppingBag aria-hidden="true" />
-                        {purchasing
-                          ? "구매 중..."
-                          : canPurchase
-                            ? "구매하기"
-                            : "포인트 부족"}
-                      </>
+                  <div className="point-shop-item-actions">
+                    <button
+                      type="button"
+                      className={
+                        purchased
+                          ? "purchased"
+                          : !canPurchase
+                            ? "disabled"
+                            : ""
+                      }
+                      disabled={!canPurchase || purchased || purchasing}
+                      onClick={() => handlePurchase(item)}
+                    >
+                      {purchased ? (
+                        <>
+                          <FaCheck aria-hidden="true" />
+                          구매 완료
+                        </>
+                      ) : (
+                        <>
+                          <FaShoppingBag aria-hidden="true" />
+                          {purchasing
+                            ? "구매 중..."
+                            : canPurchase
+                              ? "구매하기"
+                              : "포인트 부족"}
+                        </>
+                      )}
+                    </button>
+
+                    {purchased && (
+                      <button
+                        type="button"
+                        className="point-shop-cancel-btn"
+                        disabled={canceling}
+                        onClick={() => handleCancel(item)}
+                      >
+                        {canceling ? "취소 중..." : "구매 취소"}
+                      </button>
                     )}
-                  </button>
+                  </div>
                 </div>
               </article>
             );

@@ -104,7 +104,13 @@ public class AdminDto {
 
             @NotNull(message = "가격을 입력해 주세요.")
             @Positive(message = "가격은 1 이상이어야 합니다.")
-            Integer price
+            Integer price,
+
+            @Size(max = 300, message = "설명은 300자 이하여야 합니다.")
+            String description,
+
+            @Size(max = 8, message = "아이콘은 8자 이하여야 합니다.")
+            String icon
     ) {
     }
 

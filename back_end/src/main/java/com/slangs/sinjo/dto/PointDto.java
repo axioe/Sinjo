@@ -11,8 +11,8 @@ public class PointDto {
     /** 마이페이지 "포인트 보유량" 카드용. */
     public record Balance(long balance) {}
 
-    /** 상점 카탈로그 1개 항목. 프론트의 아이콘/설명/색상은 화면 전용이라 여기 없다. */
-    public record ShopItem(Long id, String name, int price) {}
+    /** 상점 카탈로그 1개 항목. 색상 테마는 프론트가 id로 순환 결정하는 화면 전용 값이라 여기 없다. */
+    public record ShopItem(Long id, String name, int price, String description, String icon) {}
 
     /**
      * 상점 목록 응답.

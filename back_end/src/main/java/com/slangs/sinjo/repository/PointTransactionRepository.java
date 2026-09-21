@@ -15,9 +15,18 @@ public interface PointTransactionRepository extends JpaRepository<PointTransacti
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PointTransaction p WHERE p.user.id = :userId")
     long sumAmountByUserId(@Param("userId") Long userId);
 
-    /** 이미 구매한 상점 아이템 id 목록 - 중복 구매를 막는 데 쓴다. */
-    @Query("SELECT p.itemId FROM PointTransaction p WHERE p.user.id = :userId AND p.itemId IS NOT NULL")
+    /**
+     * 현재 보유 중인(구매 후 취소하지 않은) 상점 아이템 id 목록.
+     * 구매(-가격)와 취소 환불(+가격)이 같은 itemId 로 쌓이므로, 합계가 여전히 음수인
+     * 항목만 "보유 중"으로 본다 - 취소 후 재구매하면 다시 음수가 되어 목록에 돌아온다.
+     */
+    @Query("SELECT p.itemId FROM PointTransaction p WHERE p.user.id = :userId AND p.itemId IS NOT NULL "
+            + "GROUP BY p.itemId HAVING SUM(p.amount) < 0")
     List<Long> findPurchasedItemIdsByUserId(@Param("userId") Long userId);
+
+    /** 특정 상품에 대해 이 사용자가 쌓은 거래 합계 - 구매 취소 시 정확히 얼마를 돌려줘야 하는지 계산하는 데 쓴다. */
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PointTransaction p WHERE p.user.id = :userId AND p.itemId = :itemId")
+    long sumAmountByUserIdAndItemId(@Param("userId") Long userId, @Param("itemId") Long itemId);
 
     /** 마이페이지 "포인트 사용 내역" 목록 - 최신순. */
     List<PointTransaction> findByUser_IdOrderByCreatedAtDesc(Long userId);
