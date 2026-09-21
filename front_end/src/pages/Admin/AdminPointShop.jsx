@@ -11,12 +11,23 @@ const EMPTY_FORM = {
   price: "",
   description: "",
   icon: "",
+  type: "COSMETIC",
+  effectValue: "",
+};
+
+const TYPE_LABEL = {
+  COSMETIC: "코스메틱",
+  TRANSLATION_EXTRA: "번역권",
 };
 
 /**
- * 포인트 상점 관리 (REQ-ADM-01, REQ-MY-01)
+ * 포인트 상점 관리 (REQ-ADM-01, REQ-MY-01, REQ-TR)
  * PointService.SHOP_ITEMS 고정 Map 을 대체한다 - 여기서 등록/수정/삭제한 값이
  * 그대로 /mypage/point-shop 상점 목록·가격·설명·아이콘에 반영된다.
+ *
+ * 유형이 "번역권"(TRANSLATION_EXTRA)이면 구매하는 즉시 그날 번역 가능 횟수가
+ * effectValue 만큼 늘어난다(소모성이라 하루에 여러 번 다시 살 수 있음) - 나머지
+ * "코스메틱" 유형은 장식용이라 한 번 사면 계속 "구매 완료"로 남는다.
  *
  * 색상 테마는 PointShop.jsx 가 상품 id 로 순환 결정하는 화면 전용 값이라 여기서는
  * 다루지 않는다.
@@ -55,6 +66,17 @@ function AdminPointShop() {
       found.price = "가격은 1 이상의 정수로 입력해 주세요.";
     }
 
+    if (form.type === "TRANSLATION_EXTRA") {
+      const effectValue = Number(form.effectValue);
+      if (
+        !form.effectValue ||
+        !Number.isInteger(effectValue) ||
+        effectValue <= 0
+      ) {
+        found.effectValue = "늘어나는 횟수는 1 이상의 정수로 입력해 주세요.";
+      }
+    }
+
     return found;
   };
 
@@ -63,6 +85,9 @@ function AdminPointShop() {
     price: Number(form.price),
     description: form.description.trim() || null,
     icon: form.icon.trim() || null,
+    type: form.type,
+    effectValue:
+      form.type === "TRANSLATION_EXTRA" ? Number(form.effectValue) : null,
   });
 
   const handleSubmit = async (e) => {
@@ -97,6 +122,8 @@ function AdminPointShop() {
       price: String(item.price),
       description: item.description ?? "",
       icon: item.icon ?? "",
+      type: item.type ?? "COSMETIC",
+      effectValue: item.effectValue != null ? String(item.effectValue) : "",
     });
 
     setErrors({});
@@ -170,6 +197,37 @@ function AdminPointShop() {
         </div>
 
         <div className="admin-field">
+          <label htmlFor="point-shop-type">유형</label>
+
+          <select id="point-shop-type" value={form.type} onChange={setField("type")}>
+            <option value="COSMETIC">코스메틱 (장식용)</option>
+            <option value="TRANSLATION_EXTRA">
+              번역권 (오늘의 번역 횟수 추가)
+            </option>
+          </select>
+        </div>
+
+        {form.type === "TRANSLATION_EXTRA" && (
+          <div className="admin-field">
+            <label htmlFor="point-shop-effect-value">
+              구매 1회당 늘어나는 횟수
+            </label>
+            <input
+              id="point-shop-effect-value"
+              type="number"
+              min="1"
+              step="1"
+              value={form.effectValue}
+              onChange={setField("effectValue")}
+              placeholder="예: 5"
+            />
+            {errors.effectValue && (
+              <p className="admin-field-error">{errors.effectValue}</p>
+            )}
+          </div>
+        )}
+
+        <div className="admin-field">
           <label htmlFor="point-shop-icon">아이콘 (이모지, 선택)</label>
           <input
             id="point-shop-icon"
@@ -226,6 +284,7 @@ function AdminPointShop() {
                   <th>ID</th>
                   <th></th>
                   <th>상품명</th>
+                  <th>유형</th>
                   <th>설명</th>
                   <th>가격</th>
                   <th>관리</th>
@@ -250,6 +309,13 @@ function AdminPointShop() {
                       >
                         {item.name}
                       </button>
+                    </td>
+
+                    <td>
+                      {TYPE_LABEL[item.type] ?? TYPE_LABEL.COSMETIC}
+                      {item.type === "TRANSLATION_EXTRA" &&
+                        item.effectValue != null &&
+                        ` (+${item.effectValue})`}
                     </td>
 
                     <td className="admin-td-wrap admin-td-example">

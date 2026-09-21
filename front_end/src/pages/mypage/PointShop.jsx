@@ -81,6 +81,8 @@ function PointShop() {
   }, []);
 
   const handlePurchase = async (item) => {
+    const isTranslationExtra = item.type === "TRANSLATION_EXTRA";
+
     if (balance < item.price) {
       window.alert(
         `포인트가 부족합니다.\n\n현재 포인트: ${balance.toLocaleString()}P`,
@@ -92,7 +94,10 @@ function PointShop() {
     const confirmed = window.confirm(
       `${item.name}을(를) 구매하시겠습니까?\n\n` +
         `가격: ${item.price.toLocaleString()}P\n` +
-        `현재 포인트: ${balance.toLocaleString()}P`,
+        `현재 포인트: ${balance.toLocaleString()}P` +
+        (isTranslationExtra
+          ? `\n\n오늘의 번역 가능 횟수가 ${item.effectValue}건 늘어납니다.`
+          : ""),
     );
 
     if (!confirmed) {
@@ -105,7 +110,14 @@ function PointShop() {
       const result = await purchaseItem(item.id);
 
       setBalance(result.balance);
-      setPurchasedIds((prev) => [...prev, item.id]);
+
+      if (isTranslationExtra) {
+        // 소모성 아이템이라 "구매 완료"로 잠그지 않는다 - 서버도 이미 구매 목록에서
+        // 뺀 채로 내려주지만, 낙관적으로 바로 알려준다.
+        window.alert(`번역 가능 횟수가 ${item.effectValue}건 늘었어요!`);
+      } else {
+        setPurchasedIds((prev) => [...prev, item.id]);
+      }
     } catch (error) {
       window.alert(error.message ?? "구매에 실패했습니다. 다시 시도해 주세요.");
     } finally {
@@ -238,6 +250,7 @@ function PointShop() {
             const description = item.description || DEFAULT_DESCRIPTION;
             const color = colorForId(item.id);
             const canPurchase = balance >= item.price;
+            const isTranslationExtra = item.type === "TRANSLATION_EXTRA";
             const purchased = purchasedIds.includes(item.id);
             const purchasing = purchasingId === item.id;
             const canceling = cancelingId === item.id;
@@ -251,13 +264,21 @@ function PointShop() {
                     {icon}
                   </div>
 
-                  <span className="point-shop-item-tag">ITEM</span>
+                  <span className="point-shop-item-tag">
+                    {isTranslationExtra ? "번역권" : "ITEM"}
+                  </span>
                 </div>
 
                 <div className="point-shop-item-content">
                   <h3>{item.name}</h3>
 
                   <p>{description}</p>
+
+                  {isTranslationExtra && (
+                    <p className="point-shop-item-effect">
+                      오늘 한도 +{item.effectValue}건 · 여러 번 구매 가능
+                    </p>
+                  )}
                 </div>
 
                 <div className="point-shop-item-bottom">

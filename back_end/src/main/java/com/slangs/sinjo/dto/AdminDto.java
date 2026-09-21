@@ -1,5 +1,6 @@
 package com.slangs.sinjo.dto;
 
+import com.slangs.sinjo.entity.PointShopItemType;
 import com.slangs.sinjo.entity.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -96,6 +97,10 @@ public class AdminDto {
      * [추가] 포인트 상점 항목 등록/수정 요청.
      * 가격을 여기서도 검증하지만, 구매 시 최종 검증은 PointService 가 DB 값으로
      * 다시 한다 - AdminDto 검증은 화면 입력 실수를 막기 위한 것일 뿐이다.
+     * <p>
+     * type 이 TRANSLATION_EXTRA(번역권)일 때만 effectValue(구매 1회당 늘어나는 오늘의
+     * 번역 가능 횟수)가 의미를 갖는다 - 유효성 검증은 AdminService 에서 한다(레코드
+     * 검증만으로는 "type 에 따라 다른 필드가 필수"를 표현할 수 없어서).
      */
     public record PointShopItemRequest(
             @NotBlank(message = "상품명을 입력해 주세요.")
@@ -110,7 +115,13 @@ public class AdminDto {
             String description,
 
             @Size(max = 8, message = "아이콘은 8자 이하여야 합니다.")
-            String icon
+            String icon,
+
+            @NotNull(message = "상품 유형을 선택해 주세요.")
+            PointShopItemType type,
+
+            @Positive(message = "추가 횟수는 1 이상이어야 합니다.")
+            Integer effectValue
     ) {
     }
 

@@ -37,9 +37,14 @@ class TranslationLimitServiceTest {
     private TranslationLimitService translationLimitService;
 
     private TranslationUsage usage(long id, int count) {
+        return usage(id, count, 0);
+    }
+
+    private TranslationUsage usage(long id, int count, int bonusLimit) {
         TranslationUsage usage = new TranslationUsage(1L, LocalDate.now());
         ReflectionTestUtils.setField(usage, "id", id);
         ReflectionTestUtils.setField(usage, "count", count);
+        ReflectionTestUtils.setField(usage, "bonusLimit", bonusLimit);
         return usage;
     }
 
@@ -72,6 +77,16 @@ class TranslationLimitServiceTest {
             TranslationLimitDto.Usage result = translationLimitService.getTodayUsage(1L);
 
             assertThat(result.used()).isEqualTo(3);
+        }
+
+        @Test
+        void 번역권으로_늘어난_한도가_반영된다() {
+            when(translationUsageRepository.findByUserIdAndUsageDate(1L, LocalDate.now()))
+                    .thenReturn(Optional.of(usage(1L, 3, 5)));
+
+            TranslationLimitDto.Usage result = translationLimitService.getTodayUsage(1L);
+
+            assertThat(result.limit()).isEqualTo(TranslationLimitService.DAILY_LIMIT + 5);
         }
     }
 
@@ -120,6 +135,47 @@ class TranslationLimitServiceTest {
                     .hasMessageContaining(String.valueOf(TranslationLimitService.DAILY_LIMIT));
 
             assertThat(existing.getCount()).isEqualTo(TranslationLimitService.DAILY_LIMIT);
+        }
+
+        @Test
+        void 번역권으로_한도가_늘었으면_기본_한도를_넘겨도_통과한다() {
+            // 기본 한도(10건)를 이미 썼지만 번역권으로 +5 된 상태 - 늘어난 한도까지는 통과해야 한다.
+            TranslationUsage existing = usage(1L, TranslationLimitService.DAILY_LIMIT, 5);
+            when(translationUsageRepository.findForUpdate(1L, LocalDate.now()))
+                    .thenReturn(Optional.of(existing));
+
+            translationLimitService.checkAndIncrement(1L);
+
+            assertThat(existing.getCount()).isEqualTo(TranslationLimitService.DAILY_LIMIT + 1);
+        }
+    }
+
+    @Nested
+    @DisplayName("REQ-TR: 번역권 구매로 오늘의 한도 늘리기")
+    class AddBonus {
+
+        @Test
+        void 오늘_처음이면_새로_만들어_보너스를_적용한다() {
+            when(translationUsageRepository.findForUpdate(1L, LocalDate.now()))
+                    .thenReturn(Optional.empty());
+
+            translationLimitService.addBonus(1L, 5);
+
+            verify(translationUsageRepository).save(
+                    org.mockito.ArgumentMatchers.argThat(saved -> saved.getUserId().equals(1L))
+            );
+        }
+
+        @Test
+        void 기존_사용량이_있으면_보너스만_더한다() {
+            TranslationUsage existing = usage(1L, 3, 5);
+            when(translationUsageRepository.findForUpdate(1L, LocalDate.now()))
+                    .thenReturn(Optional.of(existing));
+
+            translationLimitService.addBonus(1L, 5);
+
+            assertThat(existing.getBonusLimit()).isEqualTo(10);
+            assertThat(existing.getCount()).isEqualTo(3);
         }
     }
 }

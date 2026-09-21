@@ -2,6 +2,7 @@ package com.slangs.sinjo.service;
 
 import com.slangs.sinjo.dto.PointDto;
 import com.slangs.sinjo.entity.PointShopItem;
+import com.slangs.sinjo.entity.PointShopItemType;
 import com.slangs.sinjo.entity.PointTransaction;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.exception.NotFoundException;
@@ -46,11 +47,22 @@ class PointServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private TranslationLimitService translationLimitService;
+
     @InjectMocks
     private PointService pointService;
 
     private PointShopItem item(long id, String name, int price) {
-        PointShopItem item = new PointShopItem(name, price, null, null);
+        PointShopItem item = new PointShopItem(name, price, null, null, PointShopItemType.COSMETIC, null);
+        ReflectionTestUtils.setField(item, "id", id);
+        return item;
+    }
+
+    private PointShopItem translationExtraItem(long id, String name, int price, int effectValue) {
+        PointShopItem item = new PointShopItem(
+                name, price, null, null, PointShopItemType.TRANSLATION_EXTRA, effectValue
+        );
         ReflectionTestUtils.setField(item, "id", id);
         return item;
     }
@@ -99,7 +111,9 @@ class PointServiceTest {
 
         @Test
         void 상품의_설명과_아이콘도_함께_내려준다() {
-            PointShopItem shopItem = new PointShopItem("프로필 테마", 300, "설명입니다", "🎨");
+            PointShopItem shopItem = new PointShopItem(
+                    "프로필 테마", 300, "설명입니다", "🎨", PointShopItemType.COSMETIC, null
+            );
             ReflectionTestUtils.setField(shopItem, "id", 1L);
             when(pointShopItemRepository.findAllByOrderByIdAsc()).thenReturn(List.of(shopItem));
             when(pointTransactionRepository.findPurchasedItemIdsByUserId(1L)).thenReturn(List.of());
@@ -109,6 +123,29 @@ class PointServiceTest {
             assertThat(response.items()).hasSize(1);
             assertThat(response.items().get(0).description()).isEqualTo("설명입니다");
             assertThat(response.items().get(0).icon()).isEqualTo("🎨");
+        }
+
+        @Test
+        void 번역권은_거래가_있어도_이미_구매한_목록에서_빠진다() {
+            PointShopItem shopItem = translationExtraItem(1L, "번역권 +5", 200, 5);
+            when(pointShopItemRepository.findAllByOrderByIdAsc()).thenReturn(List.of(shopItem));
+            // 이미 오늘 한 번 산 상태를 흉내낸다 - 그래도 목록에는 안 잡혀야 한다.
+            when(pointTransactionRepository.findPurchasedItemIdsByUserId(1L)).thenReturn(List.of(1L));
+
+            PointDto.ShopResponse response = pointService.getShopItems(1L);
+
+            assertThat(response.purchasedItemIds()).isEmpty();
+        }
+
+        @Test
+        void 코스메틱_상품은_거래가_있으면_이미_구매한_목록에_남는다() {
+            PointShopItem shopItem = item(1L, "프로필 테마", 300);
+            when(pointShopItemRepository.findAllByOrderByIdAsc()).thenReturn(List.of(shopItem));
+            when(pointTransactionRepository.findPurchasedItemIdsByUserId(1L)).thenReturn(List.of(1L));
+
+            PointDto.ShopResponse response = pointService.getShopItems(1L);
+
+            assertThat(response.purchasedItemIds()).containsExactly(1L);
         }
     }
 
@@ -171,6 +208,36 @@ class PointServiceTest {
             verify(pointTransactionRepository).save(captor.capture());
             assertThat(captor.getValue().getAmount()).isEqualTo(-300);
         }
+
+        @Test
+        void 번역권은_중복_구매_검사_없이_다시_살_수_있고_오늘의_한도가_늘어난다() {
+            PointShopItem shopItem = translationExtraItem(1L, "번역권 +5", 200, 5);
+            User user = new User();
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.of(shopItem));
+            when(pointTransactionRepository.sumAmountByUserId(1L)).thenReturn(500L);
+            when(userRepository.getReferenceById(1L)).thenReturn(user);
+
+            PointDto.PurchaseResponse response = pointService.purchase(1L, 1L);
+
+            assertThat(response.balance()).isEqualTo(300L);
+            verify(translationLimitService).addBonus(1L, 5);
+            // 번역권은 소모성이라 이미 산 목록 검사를 아예 건너뛰어야 한다.
+            verify(pointTransactionRepository, org.mockito.Mockito.never()).findPurchasedItemIdsByUserId(1L);
+        }
+
+        @Test
+        void 코스메틱_상품_구매는_번역_한도를_건드리지_않는다() {
+            PointShopItem shopItem = item(1L, "프로필 테마", 300);
+            User user = new User();
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.of(shopItem));
+            when(pointTransactionRepository.findPurchasedItemIdsByUserId(1L)).thenReturn(List.of());
+            when(pointTransactionRepository.sumAmountByUserId(1L)).thenReturn(500L);
+            when(userRepository.getReferenceById(1L)).thenReturn(user);
+
+            pointService.purchase(1L, 1L);
+
+            verifyNoInteractions(translationLimitService);
+        }
     }
 
     @Nested
@@ -189,6 +256,19 @@ class PointServiceTest {
 
             assertThatThrownBy(() -> pointService.cancelPurchase(1L, 1L))
                     .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        void 번역권은_환불할_수_없다() {
+            PointShopItem shopItem = translationExtraItem(1L, "번역권 +5", 200, 5);
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.of(shopItem));
+
+            assertThatThrownBy(() -> pointService.cancelPurchase(1L, 1L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("환불할 수 없는 상품입니다.");
+
+            // 거래 조회/저장까지 가지 않고 일찍 막혀야 한다.
+            verifyNoInteractions(pointTransactionRepository);
         }
 
         @Test

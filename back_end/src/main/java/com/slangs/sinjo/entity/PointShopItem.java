@@ -36,17 +36,39 @@ public class PointShopItem {
     @Column(length = 8)
     private String icon;
 
-    public PointShopItem(String name, int price, String description, String icon) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private PointShopItemType type = PointShopItemType.COSMETIC;
+
+    /** type=TRANSLATION_EXTRA 일 때만 의미가 있다 - 구매 1회당 늘어나는 오늘의 번역 가능 횟수. */
+    @Column(name = "effect_value")
+    private Integer effectValue;
+
+    public PointShopItem(
+            String name, int price, String description, String icon,
+            PointShopItemType type, Integer effectValue
+    ) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.icon = icon;
+        this.type = type;
+        this.effectValue = effectValue;
     }
 
-    public void update(String name, int price, String description, String icon) {
+    public void update(
+            String name, int price, String description, String icon,
+            PointShopItemType type, Integer effectValue
+    ) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.icon = icon;
+        this.type = type;
+        this.effectValue = effectValue;
+    }
+
+    public boolean isTranslationExtra() {
+        return type == PointShopItemType.TRANSLATION_EXTRA;
     }
 }

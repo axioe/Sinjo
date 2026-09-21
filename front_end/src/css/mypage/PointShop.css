@@ -582,6 +582,22 @@
   line-height: 1.6;
 }
 
+.point-shop-item-effect {
+  display: inline-block;
+
+  margin-top: 8px !important;
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  background: #eafaf3;
+
+  color: #1c9a6c !important;
+
+  font-size: 10px !important;
+  font-weight: 700;
+}
+
 /* =========================================================
    BOTTOM
 ========================================================= */

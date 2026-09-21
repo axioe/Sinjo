@@ -40,13 +40,22 @@ public class TranslationUsage extends BaseEntity {
     @Column(nullable = false)
     private int count;
 
+    /** 포인트 상점의 "번역권" 구매로 늘어난 오늘의 추가 한도. 기본 0. */
+    @Column(name = "bonus_limit", nullable = false)
+    private int bonusLimit;
+
     public TranslationUsage(Long userId, LocalDate usageDate) {
         this.userId = userId;
         this.usageDate = usageDate;
         this.count = 0;
+        this.bonusLimit = 0;
     }
 
     public void increment() {
         this.count++;
+    }
+
+    public void addBonus(int amount) {
+        this.bonusLimit += amount;
     }
 }
