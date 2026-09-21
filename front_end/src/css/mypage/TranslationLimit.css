@@ -1,0 +1,89 @@
+/* =========================================================
+   TRANSLATION LIMIT (components/MyPage/TranslationLimit.jsx)
+========================================================= */
+
+.mypage-translation-limit {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.mypage-translation-limit-icon {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #eee8ff;
+
+  color: var(--mypage-primary);
+
+  font-size: 14px;
+}
+
+.mypage-translation-limit-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.mypage-translation-limit-info strong {
+  color: #29243d;
+
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.mypage-translation-limit-info strong small {
+  margin-left: 3px;
+
+  color: #9892a2;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mypage-translation-limit-info span {
+  color: #9892a2;
+
+  font-size: 11px;
+}
+
+.mypage-translation-limit-reached {
+  color: #e0526b !important;
+  font-weight: 700;
+}
+
+.mypage-translation-limit-bar {
+  height: 6px;
+
+  margin-top: 13px;
+
+  border-radius: 999px;
+
+  background: var(--mypage-border);
+
+  overflow: hidden;
+}
+
+.mypage-translation-limit-bar-fill {
+  height: 100%;
+
+  border-radius: 999px;
+
+  background: var(--mypage-primary);
+
+  transition: width 0.3s ease;
+}

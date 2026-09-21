@@ -4,6 +4,7 @@ import com.slangs.sinjo.dto.WordAnswer;
 import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.dto.WordRequest;
 import com.slangs.sinjo.dto.WordSearchResponse;
+import com.slangs.sinjo.service.TranslationLimitService;
 import com.slangs.sinjo.service.WordIndexService;
 import com.slangs.sinjo.service.WordRagService;
 import com.slangs.sinjo.service.WordService;
@@ -22,6 +23,7 @@ public class WordController {
     private final WordService wordService;
     private final WordRagService wordRagService;
     private final WordIndexService wordIndexService;
+    private final TranslationLimitService translationLimitService;
 
     /**
      * 인기 신조어 TOP 5
@@ -148,14 +150,21 @@ public class WordController {
     }
 
     /**
-     * RAG 검색
+     * RAG 검색 (번역)
+     * <p>
+     * 로그인 사용자만 쓸 수 있고, 하루 {@link TranslationLimitService#DAILY_LIMIT}건으로
+     * 제한된다 - 한도 확인/증가는 실제 검색 전에 먼저 처리해, 한도를 넘긴 요청이
+     * RAG 호출까지 가지 않게 한다.
      */
     @GetMapping("/search")
     public WordSearchResponse search(
+            @AuthenticationPrincipal Long userId,
             @RequestParam(defaultValue = "")
             String category,
             @RequestParam String question
     ) {
+        translationLimitService.checkAndIncrement(userId);
+
         return wordRagService.search(
                 category,
                 question

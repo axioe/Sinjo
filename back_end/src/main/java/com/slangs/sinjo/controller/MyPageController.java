@@ -4,6 +4,7 @@ import com.slangs.sinjo.dto.DailyActivityDto;
 import com.slangs.sinjo.dto.FavoritesDto;
 import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.TranslationDto;
+import com.slangs.sinjo.dto.TranslationLimitDto;
 import com.slangs.sinjo.dto.TranslationSaveRequest;
 import com.slangs.sinjo.service.MyPageService;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,14 @@ public class MyPageController {
             @AuthenticationPrincipal Long userId) {
 
         return ResponseEntity.ok(myPageService.getTranslationCount(userId));
+    }
+
+    /** 오늘의 번역 사용량 (REQ-TR 하루 횟수 제한). */
+    @GetMapping("/translation-usage")
+    public ResponseEntity<TranslationLimitDto.Usage> getTodayTranslationUsage(
+            @AuthenticationPrincipal Long userId) {
+
+        return ResponseEntity.ok(myPageService.getTodayTranslationUsage(userId));
     }
 
     @PostMapping("/history")

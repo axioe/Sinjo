@@ -44,9 +44,25 @@ export const getMyTranslationCount = () =>
     method: "GET",
   });
 
+/**
+ * 오늘의 번역 사용량(REQ-TR 하루 한도) - 마이페이지 카드용.
+ * MyPage.jsx 가 Promise.all 로 다른 데이터와 함께 불러온다 - 여기서 실패를 조용히
+ * 삼키지 않으면(getMyPoints 와 같은 패턴) 이 카드 하나 실패했다고 번역/즐겨찾기/게임
+ * 데이터까지 다 같이 못 불러오게 된다.
+ */
+export async function getTranslationUsage() {
+  try {
+    return await request("/api/mypage/translation-usage");
+  } catch (error) {
+    console.warn("[translateApi] 오늘의 번역 사용량 조회 실패", error);
+    return null;
+  }
+}
+
 export default {
   translate,
   getMyTranslations,
   getMyTranslationCount,
+  getTranslationUsage,
   saveTranslation,
 };

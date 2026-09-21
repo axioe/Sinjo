@@ -8,6 +8,7 @@ import RecentTranslations from "../../components/MyPage/RecentTranslations";
 import QuickMenu from "../../components/MyPage/QuickMenu";
 import ActivitySummary from "../../components/MyPage/ActivitySummary";
 import BadgePoints from "../../components/MyPage/BadgePoints";
+import TranslationLimit from "../../components/MyPage/TranslationLimit";
 import WeeklyRecord from "../../components/MyPage/WeeklyRecord";
 import ActivityStatsPanel from "../../components/MyPage/ActivityStatsPanel";
 import GameHistory from "../../components/MyPage/GameHistory";
@@ -23,6 +24,7 @@ import { getMyProposalCount } from "../../api/proposalApi";
 import {
   getMyTranslations,
   getMyTranslationCount,
+  getTranslationUsage,
 } from "../../api/translateApi";
 
 import {
@@ -63,6 +65,8 @@ function MyPage() {
 
   const [proposalCount, setProposalCount] = useState(null);
 
+  const [translationUsage, setTranslationUsage] = useState(null);
+
   const [loading, setLoading] = useState({
     home: true,
     saved: false,
@@ -86,6 +90,7 @@ function MyPage() {
           attendance,
           points,
           proposalsCount,
+          usage,
         ] = await Promise.all([
           getMyQuizStats(),
           getMyTranslations(0, 5),
@@ -94,6 +99,7 @@ function MyPage() {
           getMyAttendance(),
           getMyPoints(),
           getMyProposalCount(),
+          getTranslationUsage(),
         ]);
 
         if (!alive) return;
@@ -105,6 +111,7 @@ function MyPage() {
         setAttendanceDates(attendance ?? []);
         setPointBalance(points?.balance ?? 0);
         setProposalCount(proposalsCount ?? 0);
+        setTranslationUsage(usage);
       } catch (error) {
         console.error("마이페이지 기본 데이터 조회 실패:", error);
       } finally {
@@ -456,6 +463,11 @@ function MyPage() {
 
             <aside className="mypage-side">
               <ActivitySummary items={activityItems} />
+
+              <TranslationLimit
+                used={translationUsage?.used ?? 0}
+                limit={translationUsage?.limit ?? 10}
+              />
 
               <BadgePoints
                 badges={badges}

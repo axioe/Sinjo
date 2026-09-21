@@ -20,6 +20,34 @@
   font-size: 18px;
 }
 
+/* 비로그인 안내 (REQ-TR 하루 번역 한도) */
+
+.translate-login-notice {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 20px 0 0;
+  padding: 14px 18px;
+
+  border: 1px solid #e7e0ff;
+  border-radius: 14px;
+
+  background: #f7f5ff;
+
+  color: #6d4aff;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+textarea:disabled {
+  color: #aaa5b0;
+
+  cursor: not-allowed;
+}
+
 /* 입력 / 결과 */
 
 .translate-box {
@@ -142,6 +170,16 @@ textarea {
   background: #5635d8;
 
   transform: translateY(-3px);
+}
+
+.translate-btn:disabled {
+  background: #d5d1da;
+
+  color: #ffffff;
+
+  cursor: not-allowed;
+
+  transform: none;
 }
 
 /* 최근 번역 */
