@@ -5,7 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 
-import { getWords, likeWord as likeWordApi } from "../../api/wordApi";
+import {
+  getWords,
+  likeWord as likeWordApi,
+  unlikeWord as unlikeWordApi,
+  getLikedWordIds,
+} from "../../api/wordApi";
+
 import {
   getMyFavorites,
   addFavorite,
@@ -53,6 +59,8 @@ function Dictionary() {
    * 같은 단어에 대한 중복 클릭을 막는다.
    */
   const [likingId, setLikingId] = useState(null);
+
+  const [likedIds, setLikedIds] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -175,15 +183,47 @@ function Dictionary() {
         }
 
         const ids = Array.isArray(list)
-          ? list
-              .map((favorite) => favorite.wordId)
-              .filter((id) => id !== null && id !== undefined)
+          ? list.filter((id) => id !== null && id !== undefined)
           : [];
 
         setFavoriteIds(ids);
       })
       .catch((err) => {
         console.error(err);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  /**
+   * 현재 로그인 사용자가 좋아요한 단어 ID 불러오기
+   *
+   * 서버에서 사용자별 좋아요 기록을 가져온다.
+   * 따라서 새로고침해도 이미 좋아요한 단어를 알 수 있다.
+   */
+  useEffect(() => {
+    let alive = true;
+
+    getLikedWordIds()
+      .then((ids) => {
+        if (!alive) {
+          return;
+        }
+
+        const normalizedIds = Array.isArray(ids)
+          ? ids.map((id) => Number(id)).filter((id) => Number.isFinite(id))
+          : [];
+
+        setLikedIds(normalizedIds);
+      })
+      .catch((err) => {
+        console.error(err);
+
+        if (alive) {
+          setLikedIds([]);
+        }
       });
 
     return () => {
@@ -436,7 +476,21 @@ function Dictionary() {
    * 반환하는 경우를 여기서 사용자에게 알려준다.
    */
   const likeWord = async (id) => {
+    /**
+     * 이미 요청 중이면 중복 클릭 방지
+     */
     if (likingId !== null) {
+      return;
+    }
+
+    /**
+     * 이미 좋아요한 단어라면 다시 요청하지 않는다.
+     *
+     * 프론트에서 한 번 막고,
+     * 최종적으로는 백엔드에서도 중복을 막아야 한다.
+     */
+    if (likedIds.includes(Number(id))) {
+      setError("이미 좋아요한 신조어입니다.");
       return;
     }
 
@@ -446,6 +500,10 @@ function Dictionary() {
     try {
       const updated = await likeWordApi(id);
 
+      /**
+       * 서버에서 반환한 최신 단어 정보로
+       * 좋아요 수를 갱신한다.
+       */
       setWords((prev) =>
         prev.map((item) =>
           item.id === updated.id
@@ -456,18 +514,41 @@ function Dictionary() {
             : item,
         ),
       );
+
+      /**
+       * 현재 사용자가 좋아요한 단어로 등록
+       */
+      setLikedIds((prev) => {
+        const numericId = Number(id);
+
+        if (prev.includes(numericId)) {
+          return prev;
+        }
+
+        return [...prev, numericId];
+      });
     } catch (err) {
       console.error(err);
 
-      /*
-       * client.js에서 axios 에러를 그대로 전달하는 경우
-       * response.status를 확인할 수 있다.
-       *
-       * 409 = 이미 좋아요한 경우로 처리한다.
-       */
-      if (err?.response?.status === 409) {
-        setError("이미 좋아요한 신조어입니다.");
+      if (err?.status === 401) {
+        setError("좋아요를 하려면 로그인이 필요합니다.");
       } else if (err?.status === 409) {
+        /**
+         * 서버에서도 중복 좋아요를 차단한다.
+         *
+         * 이미 DB에 좋아요 기록이 있는 경우
+         * 409 Conflict를 반환하도록 구성한다.
+         */
+        setLikedIds((prev) => {
+          const numericId = Number(id);
+
+          if (prev.includes(numericId)) {
+            return prev;
+          }
+
+          return [...prev, numericId];
+        });
+
         setError("이미 좋아요한 신조어입니다.");
       } else {
         setError("좋아요 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -1057,6 +1138,8 @@ function Dictionary() {
 
               const liking = likingId === item.id;
 
+              const liked = likedIds.includes(Number(item.id));
+
               return (
                 <div
                   className={`word-card view-level-${viewLevel}`}
@@ -1110,19 +1193,21 @@ function Dictionary() {
                       <button
                         type="button"
                         className={
-                          liking
-                            ? "card-like-button liking"
-                            : "card-like-button"
+                          liked
+                            ? "card-like-button liked"
+                            : liking
+                              ? "card-like-button liking"
+                              : "card-like-button"
                         }
                         onClick={(e) => {
                           e.stopPropagation();
 
-                          if (!liking) {
+                          if (!liking && !liked) {
                             likeWord(item.id);
                           }
                         }}
-                        disabled={liking}
-                        aria-label="좋아요"
+                        disabled={liking || liked}
+                        aria-label={liked ? "이미 좋아요한 신조어" : "좋아요"}
                       >
                         ❤️ {item.likes ?? 0}
                       </button>

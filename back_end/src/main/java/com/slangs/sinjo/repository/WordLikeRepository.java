@@ -2,33 +2,44 @@ package com.slangs.sinjo.repository;
 
 import com.slangs.sinjo.entity.WordLike;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface WordLikeRepository
         extends JpaRepository<WordLike, Long> {
 
     /**
-     * 특정 사용자가 특정 신조어에 이미 좋아요를 눌렀는지 확인한다.
+     * 특정 사용자가 특정 단어를 좋아요했는지 확인
      */
-    boolean existsByWordIdAndUserId(
-            Long wordId,
-            Long userId
+    boolean existsByUser_IdAndWord_Id(
+            Long userId,
+            Long wordId
     );
 
     /**
-     * 특정 신조어의 좋아요 기록 삭제.
-     * <p>
-     * 신조어 삭제 시 FK 제약에 걸리지 않도록
-     * Word 삭제 전에 좋아요 기록을 먼저 삭제한다.
+     * 특정 사용자의 특정 단어 좋아요 조회
      */
-    @Modifying
-    @Query("""
-            DELETE FROM WordLike wl
-            WHERE wl.word.id = :wordId
-            """)
-    int deleteAllByWordId(
-            @Param("wordId") Long wordId
+    Optional<WordLike> findByUser_IdAndWord_Id(
+            Long userId,
+            Long wordId
     );
+
+    /**
+     * 특정 사용자가 좋아요한 모든 기록
+     */
+    List<WordLike> findAllByUser_Id(Long userId);
+
+    /**
+     * 특정 사용자의 특정 단어 좋아요 삭제
+     */
+    void deleteByUser_IdAndWord_Id(
+            Long userId,
+            Long wordId
+    );
+
+    /**
+     * 단어 삭제 전에 해당 단어의 좋아요 기록 전체 삭제
+     */
+    void deleteAllByWord_Id(Long wordId);
 }

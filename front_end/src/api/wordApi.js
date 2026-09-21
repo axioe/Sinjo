@@ -12,19 +12,26 @@ export const getWords = () => request("/api/words");
 
 /**
  * 신조어 한 건
- *
- * 상세 페이지 진입 시
- * 백엔드에서 조회수 +1
  */
 export const getWord = (id) => request(`/api/words/${id}`);
 
 /**
  * 좋아요
- *
- * 로그인한 사용자가 같은 단어에 여러 번 요청해도
- * 백엔드에서 최초 1회만 좋아요 수를 증가시킨다.
  */
 export const likeWord = (id) =>
   request(`/api/words/${id}/like`, {
     method: "POST",
   });
+
+/**
+ * 좋아요 취소
+ */
+export const unlikeWord = (id) =>
+  request(`/api/words/${id}/like`, {
+    method: "DELETE",
+  });
+
+/**
+ * 현재 로그인 사용자가 좋아요한 단어 ID 목록
+ */
+export const getLikedWordIds = () => request("/api/words/liked");

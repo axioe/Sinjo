@@ -2,17 +2,15 @@ package com.slangs.sinjo.controller;
 
 import com.slangs.sinjo.dto.WordAnswer;
 import com.slangs.sinjo.dto.WordDto;
-import com.slangs.sinjo.dto.WordSearchResponse;
 import com.slangs.sinjo.dto.WordRequest;
+import com.slangs.sinjo.dto.WordSearchResponse;
 import com.slangs.sinjo.service.WordIndexService;
 import com.slangs.sinjo.service.WordRagService;
 import com.slangs.sinjo.service.WordService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -22,14 +20,11 @@ import java.util.List;
 public class WordController {
 
     private final WordService wordService;
-
     private final WordRagService wordRagService;
     private final WordIndexService wordIndexService;
 
     /**
      * 인기 신조어 TOP 5
-     * <p>
-     * GET /api/words/ranking
      */
     @GetMapping("/ranking")
     public List<WordDto> getRankingWords() {
@@ -37,7 +32,17 @@ public class WordController {
     }
 
     /**
-     * 신조어 전체 목록
+     * 현재 로그인 사용자가 좋아요한 단어 ID
+     */
+    @GetMapping("/liked")
+    public List<Long> getLikedWordIds(
+            @AuthenticationPrincipal Long userId
+    ) {
+        return wordService.getLikedWordIds(userId);
+    }
+
+    /**
+     * 전체 신조어
      */
     @GetMapping
     public List<WordDto> getWords() {
@@ -45,9 +50,7 @@ public class WordController {
     }
 
     /**
-     * 신조어 한 건
-     * <p>
-     * 상세 페이지 진입 시 조회수 +1
+     * 신조어 상세
      */
     @GetMapping("/{id}")
     public WordDto getWord(
@@ -57,28 +60,28 @@ public class WordController {
     }
 
     /**
-     * 좋아요
-     * <p>
-     * 같은 사용자가 같은 단어에 여러 번 요청해도
-     * 좋아요는 최초 1회만 증가한다.
-     * <p>
-     * JwtAuthenticationFilter가 Authentication의 principal에
-     * Long userId를 넣고 있으므로 @AuthenticationPrincipal Long으로 받는다.
+     * 좋아요 추가
      */
     @PostMapping("/{id}/like")
     public WordDto likeWord(
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId
     ) {
-
-        if (userId == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "로그인이 필요한 기능입니다."
-            );
-        }
-
         return wordService.likeWord(
+                id,
+                userId
+        );
+    }
+
+    /**
+     * 좋아요 취소
+     */
+    @DeleteMapping("/{id}/like")
+    public WordDto unlikeWord(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return wordService.unlikeWord(
                 id,
                 userId
         );
@@ -122,7 +125,7 @@ public class WordController {
     }
 
     /**
-     * AI 질문
+     * RAG 질문
      */
     @GetMapping("/ask")
     public WordAnswer ask(
@@ -130,7 +133,6 @@ public class WordController {
             @RequestParam(required = false)
             String category
     ) {
-
         return wordRagService.ask(
                 question,
                 category
@@ -138,7 +140,7 @@ public class WordController {
     }
 
     /**
-     * 전체 신조어 VectorStore 인덱싱
+     * VectorStore 전체 색인
      */
     @PostMapping("/index")
     public void index() {
@@ -146,15 +148,13 @@ public class WordController {
     }
 
     /**
-     * AI 검색
+     * RAG 검색
      */
     @GetMapping("/search")
     public WordSearchResponse search(
             @RequestParam(defaultValue = "")
             String category,
-
-            @RequestParam
-            String question
+            @RequestParam String question
     ) {
         return wordRagService.search(
                 category,
