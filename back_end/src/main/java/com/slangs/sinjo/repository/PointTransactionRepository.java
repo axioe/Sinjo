@@ -19,6 +19,9 @@ public interface PointTransactionRepository extends JpaRepository<PointTransacti
     @Query("SELECT p.itemId FROM PointTransaction p WHERE p.user.id = :userId AND p.itemId IS NOT NULL")
     List<Long> findPurchasedItemIdsByUserId(@Param("userId") Long userId);
 
+    /** 마이페이지 "포인트 사용 내역" 목록 - 최신순. */
+    List<PointTransaction> findByUser_IdOrderByCreatedAtDesc(Long userId);
+
     /** 관리자가 회원을 삭제할 때 먼저 지운다 - user_id 가 FK(nullable = false)라 남아있으면 삭제가 막힌다. */
     void deleteByUserId(Long userId);
 }

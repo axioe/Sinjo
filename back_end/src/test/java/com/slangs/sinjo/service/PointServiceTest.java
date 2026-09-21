@@ -167,4 +167,45 @@ class PointServiceTest {
             assertThat(balance.balance()).isEqualTo(1000L);
         }
     }
+
+    @Nested
+    @DisplayName("REQ-POINT-03: 포인트 사용 내역 조회")
+    class History {
+
+        private PointTransaction transaction(long id, int amount, String reason) {
+            PointTransaction transaction = new PointTransaction(new User(), amount, reason, null);
+            ReflectionTestUtils.setField(transaction, "id", id);
+            return transaction;
+        }
+
+        @Test
+        void 비로그인이면_예외() {
+            assertThatThrownBy(() -> pointService.getHistory(null))
+                    .isInstanceOf(UnauthorizedException.class);
+        }
+
+        @Test
+        void 로그인_사용자는_거래_내역을_최신순으로_받는다() {
+            when(pointTransactionRepository.findByUser_IdOrderByCreatedAtDesc(1L)).thenReturn(List.of(
+                    transaction(2L, -300, "포인트 상점 구매: 프로필 테마"),
+                    transaction(1L, 10, "번역 저장")
+            ));
+
+            PointDto.HistoryResponse response = pointService.getHistory(1L);
+
+            assertThat(response.items()).extracting(PointDto.HistoryItem::id).containsExactly(2L, 1L);
+            assertThat(response.items()).extracting(PointDto.HistoryItem::amount).containsExactly(-300, 10);
+            assertThat(response.items()).extracting(PointDto.HistoryItem::reason)
+                    .containsExactly("포인트 상점 구매: 프로필 테마", "번역 저장");
+        }
+
+        @Test
+        void 거래가_없으면_빈_목록을_받는다() {
+            when(pointTransactionRepository.findByUser_IdOrderByCreatedAtDesc(1L)).thenReturn(List.of());
+
+            PointDto.HistoryResponse response = pointService.getHistory(1L);
+
+            assertThat(response.items()).isEmpty();
+        }
+    }
 }

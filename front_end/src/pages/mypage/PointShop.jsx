@@ -1,9 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaCoins, FaShoppingBag, FaCheck } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaCoins,
+  FaShoppingBag,
+  FaCheck,
+  FaReceipt,
+} from "react-icons/fa";
 
 import "../../css/mypage/PointShop.css";
-import { getMyPoints, getShopItems, purchaseItem } from "../../api/pointApi";
+import {
+  getMyPoints,
+  getShopItems,
+  getPointHistory,
+  purchaseItem,
+} from "../../api/pointApi";
+
+function formatHistoryDate(isoString) {
+  if (!isoString) return "";
+
+  return new Date(isoString).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
 
 /**
  * 상점 아이템의 아이콘/설명/색상 - 화면 전용 정보라 서버에는 없다(id/name/price 만 옴).
@@ -46,6 +67,7 @@ function PointShop() {
   const [balance, setBalance] = useState(0);
   const [items, setItems] = useState([]);
   const [purchasedIds, setPurchasedIds] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purchasingId, setPurchasingId] = useState(null);
 
@@ -54,9 +76,10 @@ function PointShop() {
 
     const load = async () => {
       try {
-        const [points, shop] = await Promise.all([
+        const [points, shop, historyResponse] = await Promise.all([
           getMyPoints(),
           getShopItems(),
+          getPointHistory(),
         ]);
 
         if (!alive) return;
@@ -64,6 +87,7 @@ function PointShop() {
         setBalance(points?.balance ?? 0);
         setItems(shop?.items ?? []);
         setPurchasedIds(shop?.purchasedItemIds ?? []);
+        setHistory(historyResponse?.items ?? []);
       } catch (error) {
         console.error("포인트 상점 조회 실패:", error);
       } finally {
@@ -275,6 +299,58 @@ function PointShop() {
             );
           })}
         </div>
+      </section>
+
+      {/* HISTORY */}
+      <section className="point-shop-section">
+        <div className="point-shop-section-header">
+          <div>
+            <span>POINT HISTORY</span>
+
+            <h2>포인트 사용 내역</h2>
+
+            <p>적립하고 사용한 포인트 내역을 최신순으로 확인할 수 있어요.</p>
+          </div>
+
+          <div className="point-shop-count">{history.length} RECORDS</div>
+        </div>
+
+        {history.length === 0 ? (
+          <div className="point-shop-history-empty">
+            <FaReceipt aria-hidden="true" />
+            아직 포인트 내역이 없어요.
+          </div>
+        ) : (
+          <ul className="point-shop-history-list">
+            {history.map((entry) => {
+              const isEarn = entry.amount > 0;
+
+              return (
+                <li key={entry.id} className="point-shop-history-item">
+                  <div className="point-shop-history-info">
+                    <span className="point-shop-history-reason">
+                      {entry.reason}
+                    </span>
+
+                    <span className="point-shop-history-date">
+                      {formatHistoryDate(entry.createdAt)}
+                    </span>
+                  </div>
+
+                  <strong
+                    className={`point-shop-history-amount ${
+                      isEarn ? "earn" : "use"
+                    }`}
+                  >
+                    {isEarn ? "+" : ""}
+                    {entry.amount.toLocaleString()}
+                    <small>P</small>
+                  </strong>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
       {/* FOOTER INFO */}

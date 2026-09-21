@@ -62,6 +62,20 @@ public class PointService {
         return new PointDto.Balance(pointTransactionRepository.sumAmountByUserId(userId));
     }
 
+    /** 마이페이지 "포인트 사용 내역" 카드용 - 최신순 전체 거래 목록. */
+    public PointDto.HistoryResponse getHistory(Long userId) {
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        List<PointDto.HistoryItem> items = pointTransactionRepository.findByUser_IdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(t -> new PointDto.HistoryItem(t.getId(), t.getAmount(), t.getReason(), t.getCreatedAt()))
+                .toList();
+
+        return new PointDto.HistoryResponse(items);
+    }
+
     /** 포인트 상점 목록 + 이미 구매한 항목. */
     public PointDto.ShopResponse getShopItems(Long userId) {
         if (userId == null) {

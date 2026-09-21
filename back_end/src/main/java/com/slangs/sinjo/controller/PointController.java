@@ -30,6 +30,11 @@ public class PointController {
         return ResponseEntity.ok(pointService.getShopItems(userId));
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<PointDto.HistoryResponse> getHistory(@AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(pointService.getHistory(userId));
+    }
+
     @PostMapping("/purchase")
     public ResponseEntity<PointDto.PurchaseResponse> purchase(
             @AuthenticationPrincipal Long userId,
