@@ -5,6 +5,7 @@ import com.slangs.sinjo.dto.FavoritesDto;
 import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.QuizDto;
 import com.slangs.sinjo.dto.TranslationDto;
+import com.slangs.sinjo.dto.TranslationLimitDto;
 import com.slangs.sinjo.entity.QuizAttempt;
 import com.slangs.sinjo.entity.TranslationMode;
 import com.slangs.sinjo.entity.Translations;
@@ -55,6 +56,9 @@ class MyPageServiceTest {
     @Mock
     private PointService pointService;
 
+    @Mock
+    private TranslationLimitService translationLimitService;
+
     @InjectMocks
     private MyPageService myPageService;
 
@@ -87,6 +91,14 @@ class MyPageServiceTest {
             when(translationsRepository.countByUserId(1L)).thenReturn(7L);
 
             assertThat(myPageService.getTranslationCount(1L)).isEqualTo(7L);
+        }
+
+        @Test
+        void 오늘의_번역_사용량은_TranslationLimitService에_위임된다() {
+            TranslationLimitDto.Usage usage = new TranslationLimitDto.Usage(3, 10);
+            when(translationLimitService.getTodayUsage(1L)).thenReturn(usage);
+
+            assertThat(myPageService.getTodayTranslationUsage(1L)).isEqualTo(usage);
         }
     }
 

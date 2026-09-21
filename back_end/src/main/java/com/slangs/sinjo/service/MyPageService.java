@@ -4,6 +4,7 @@ import com.slangs.sinjo.dto.DailyActivityDto;
 import com.slangs.sinjo.dto.FavoritesDto;
 import com.slangs.sinjo.dto.QuizAttemptDto;
 import com.slangs.sinjo.dto.TranslationDto;
+import com.slangs.sinjo.dto.TranslationLimitDto;
 import com.slangs.sinjo.dto.TranslationSaveRequest;
 import com.slangs.sinjo.entity.Favorites;
 import com.slangs.sinjo.entity.QuizAttempt;
@@ -36,6 +37,7 @@ public class MyPageService {
     private final FavoritesRepository favoritesRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final PointService pointService;
+    private final TranslationLimitService translationLimitService;
 
     /**
      * [추가] 제작소 배지용 제안 수를 세는 데만 쓴다.
@@ -61,6 +63,11 @@ public class MyPageService {
 
     public long getTranslationCount(Long userId) {
         return translationsRepository.countByUserId(userId);
+    }
+
+    /** 마이페이지 "오늘의 번역 사용량" 카드용 - REQ-TR 하루 횟수 제한. */
+    public TranslationLimitDto.Usage getTodayTranslationUsage(Long userId) {
+        return translationLimitService.getTodayUsage(userId);
     }
 
     /**

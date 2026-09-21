@@ -1,37 +1,33 @@
 import "../../css/dictionary/Translate.css";
 import { useState } from "react";
-import { FaArrowRight, FaCopy } from "react-icons/fa";
+import { FaArrowRight, FaCopy, FaLock } from "react-icons/fa";
 import { translate, saveTranslation } from "../../api/translateApi";
+import { useAuth } from "../../AuthContext";
 
-/**
- * [수정] 임시 사전을 컴포넌트 밖으로 빼고 Map 으로 바꿨다.
- *
- * 안에 두면 글자를 한 자 칠 때마다 객체를 새로 만든다. 그건 성능 문제이고,
- * 더 중요한 건 일반 객체에 dictionary[input] 으로 접근하는 방식이다.
- * 사용자가 "constructor", "toString", "__proto__" 같은 단어를 입력하면
- * 사전에 없는데도 프로토타입에 있는 함수가 그대로 반환된다.
- * 그 함수가 setResult 로 들어가면 React 가 렌더링 중 예외를 던져 화면이 죽는다.
- * Map 은 프로토타입 체인을 타지 않아 이 문제가 없다.
- */
-const DICTIONARY = new Map([
-  ["억까", "억지로 비판하거나 부당한 비난을 받는 상황"],
-  ["갓생", "부지런하고 계획적인 삶"],
-  ["킹받네", "매우 화가 난다는 의미"],
-  ["알잘딱깔센", "알아서 잘 딱 깔끔하고 센스있게"],
-]);
-
-const NOT_FOUND = "등록되지 않은 신조어입니다.";
 const MAX_HISTORY = 5;
 
+/** 비로그인 사용자에게 보여줄 고정 안내 문구 (REQ-TR 하루 번역 횟수 제한). */
+const LOGIN_REQUIRED_NOTICE = "로그인 후 사용 가능합니다.";
+
 function Translate() {
+  const { user } = useAuth();
+
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
   const [history, setHistory] = useState([]);
   const [notice, setNotice] = useState("");
   const [word, setWord] = useState("");
   const [example, setExample] = useState("");
+  const [translating, setTranslating] = useState(false);
 
   const handleTranslate = async () => {
+    if (!user) {
+      // 서버도 비로그인이면 막지만(TranslationLimitService), 굳이 요청을 보내지
+      // 않고 화면에서 먼저 안내한다.
+      setNotice(LOGIN_REQUIRED_NOTICE);
+      return;
+    }
+
     const keyword = input.trim(); // [수정] " 억까" 처럼 공백이 섞여도 찾도록
 
     if (!keyword) {
@@ -41,29 +37,43 @@ function Translate() {
     }
 
     setNotice("");
-    ///const translation = DICTIONARY.get(keyword) ?? NOT_FOUND;
-    const result = await translate(keyword);
-    if (result == null) return;
-    if (result.found) {
-      const translation = result.wordAnswers[0].meaning;
-      setResult(translation);
-      setWord(result.wordAnswers[0].word);
-      setExample(result.wordAnswers[0].answer);
+    setTranslating(true);
 
-      setHistory((prev) => {
-        // [수정] 같은 단어를 계속 누르면 기록이 똑같은 줄로 가득 찼다.
-        const withoutDuplicate = prev.filter((item) => item.before !== keyword);
-        return [
-          { before: keyword, after: translation },
-          ...withoutDuplicate,
-        ].slice(0, MAX_HISTORY);
-      });
+    try {
+      const result = await translate(keyword);
+      if (result == null) return;
+      if (result.found) {
+        const translation = result.wordAnswers[0].meaning;
+        setResult(translation);
+        setWord(result.wordAnswers[0].word);
+        setExample(result.wordAnswers[0].answer);
 
-      saveTranslation({
-        originalText: keyword,
-        translatedText: translation,
-        explanation: result.wordAnswers[0].answer,
-      }).catch(console.error);
+        setHistory((prev) => {
+          // [수정] 같은 단어를 계속 누르면 기록이 똑같은 줄로 가득 찼다.
+          const withoutDuplicate = prev.filter(
+            (item) => item.before !== keyword,
+          );
+          return [
+            { before: keyword, after: translation },
+            ...withoutDuplicate,
+          ].slice(0, MAX_HISTORY);
+        });
+
+        saveTranslation({
+          originalText: keyword,
+          translatedText: translation,
+          explanation: result.wordAnswers[0].answer,
+        }).catch(console.error);
+      }
+    } catch (error) {
+      // 401 = 비로그인(서버 쪽 최종 방어선), 그 외(400)는 하루 한도 초과 메시지.
+      setNotice(
+        error.status === 401
+          ? LOGIN_REQUIRED_NOTICE
+          : (error.message ?? "번역에 실패했습니다. 잠시 후 다시 시도해 주세요."),
+      );
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -104,6 +114,13 @@ function Translate() {
 
       <p className="translate-subtitle">어려운 신조어를 쉽게 이해해 보세요.</p>
 
+      {!user && (
+        <p className="translate-login-notice" role="status">
+          <FaLock aria-hidden="true" />
+          {LOGIN_REQUIRED_NOTICE}
+        </p>
+      )}
+
       <div className="translate-box">
         {/* 입력 */}
         <div className="left">
@@ -113,8 +130,13 @@ function Translate() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="번역할 신조어를 입력해 주세요. (Ctrl + Enter 로 번역)"
+            placeholder={
+              user
+                ? "번역할 신조어를 입력해 주세요. (Ctrl + Enter 로 번역)"
+                : LOGIN_REQUIRED_NOTICE
+            }
             aria-label="번역할 신조어"
+            disabled={!user}
           />
         </div>
 
@@ -177,8 +199,13 @@ function Translate() {
         </p>
       )}
 
-      <button type="button" className="translate-btn" onClick={handleTranslate}>
-        번역하기
+      <button
+        type="button"
+        className="translate-btn"
+        onClick={handleTranslate}
+        disabled={!user || translating}
+      >
+        {translating ? "번역 중..." : "번역하기"}
         <FaArrowRight />
       </button>
 
