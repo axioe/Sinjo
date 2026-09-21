@@ -3,12 +3,24 @@ import {
   LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { getSummary, getSignupTrend, getLoginTrend } from "../../api/adminApi";
+import {
+  getSummary,
+  getSignupTrend,
+  getLoginTrend,
+  getTranslationTrend,
+} from "../../api/adminApi";
 
 const METRICS = [
-  { key: "signups", label: "신규 가입", color: "#7c5cff" },
-  { key: "logins",  label: "일일 접속", color: "#00b894" },
+  { key: "signups", label: "신규 가입", color: "#7c5cff", unit: "명" },
+  { key: "logins",  label: "일일 접속", color: "#00b894", unit: "명" },
+  { key: "translations", label: "번역 횟수", color: "#ff7f50", unit: "건" },
 ];
+
+const TREND_FETCHERS = {
+  signups: getSignupTrend,
+  logins: getLoginTrend,
+  translations: getTranslationTrend,
+};
 
 function AdminSummary() {
   const [summary, setSummary] = useState(null);
@@ -25,7 +37,7 @@ function AdminSummary() {
   useEffect(() => {
     setTrendLoading(true);
 
-    const fetcher = metric === "logins" ? getLoginTrend : getSignupTrend;
+    const fetcher = TREND_FETCHERS[metric];
 
     fetcher(14)
       .then((data) => setTrend(data ?? []))
@@ -59,7 +71,7 @@ function AdminSummary() {
 
       <section className="admin-chart-card">
         <div className="admin-chart-header">
-          <h3 className="admin-chart-title">최근 14일 회원 통계</h3>
+          <h3 className="admin-chart-title">최근 14일 통계</h3>
 
           <div className="admin-metric-tabs">
             {METRICS.map(({ key, label }) => (
@@ -93,7 +105,9 @@ function AdminSummary() {
 
               <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
 
-              <Tooltip formatter={(value) => [`${value}명`, current.label]} />
+              <Tooltip
+                formatter={(value) => [`${value}${current.unit}`, current.label]}
+              />
 
               <Line
                 type="monotone"

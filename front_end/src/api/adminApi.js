@@ -120,3 +120,7 @@ export function getSignupTrend(days = 14) {
 export function getLoginTrend(days = 14) {
   return request(`/api/admin/stats/logins?days=${days}`);
 }
+
+export function getTranslationTrend(days = 14) {
+  return request(`/api/admin/stats/translations?days=${days}`);
+}

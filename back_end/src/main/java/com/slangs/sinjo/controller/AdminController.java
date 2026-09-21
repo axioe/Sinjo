@@ -167,6 +167,12 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getLoginTrend(days));
     }
 
+    @GetMapping("/stats/translations")
+    public ResponseEntity<List<AdminDto.DailyCount>> translationTrend(
+            @RequestParam(defaultValue = "14") int days) {
+        return ResponseEntity.ok(adminService.getTranslationTrend(days));
+    }
+
 //    엑셀 업로드 미리보기
 @PostMapping("/words/excel/preview")
 public ResponseEntity<?> previewExcel(@RequestParam("file") MultipartFile file) {

@@ -16,6 +16,7 @@ import com.slangs.sinjo.repository.PointShopItemRepository;
 import com.slangs.sinjo.repository.PointTransactionRepository;
 import com.slangs.sinjo.repository.QuizAttemptRepository;
 import com.slangs.sinjo.repository.QuizRepository;
+import com.slangs.sinjo.repository.TranslationUsageRepository;
 import com.slangs.sinjo.repository.UserRepository;
 import com.slangs.sinjo.repository.WordRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +54,7 @@ class AdminServiceTest {
     @Mock private PointTransactionRepository pointTransactionRepository;
     @Mock private PointShopItemRepository pointShopItemRepository;
     @Mock private LoginHistoryRepository loginHistoryRepository;
+    @Mock private TranslationUsageRepository translationUsageRepository;
 
     @InjectMocks
     private AdminService adminService;
@@ -275,6 +278,21 @@ class AdminServiceTest {
 
             assertThat(result).hasSize(7);
             assertThat(result).allMatch(dailyCount -> dailyCount.count() == 0);
+        }
+
+        @Test
+        void 번역_횟수_추이도_없는_날짜는_0으로_채워진다() {
+            LocalDate today = LocalDate.now();
+            when(translationUsageRepository.countDailyTranslations(any())).thenReturn(
+                    List.<Object[]>of(new Object[]{today, 12L})
+            );
+
+            List<AdminDto.DailyCount> result = adminService.getTranslationTrend(3);
+
+            assertThat(result).hasSize(3);
+            assertThat(result.get(2).count()).isEqualTo(12L);
+            assertThat(result.get(0).count()).isZero();
+            assertThat(result.get(1).count()).isZero();
         }
     }
 }
