@@ -29,13 +29,24 @@ public class PointShopItem {
     @Column(nullable = false)
     private int price;
 
-    public PointShopItem(String name, int price) {
+    @Column(length = 300)
+    private String description;
+
+    /** 이모지 한두 글자. 비어 있으면 프론트가 기본 아이콘(🎁)으로 대체한다. */
+    @Column(length = 8)
+    private String icon;
+
+    public PointShopItem(String name, int price, String description, String icon) {
         this.name = name;
         this.price = price;
+        this.description = description;
+        this.icon = icon;
     }
 
-    public void update(String name, int price) {
+    public void update(String name, int price, String description, String icon) {
         this.name = name;
         this.price = price;
+        this.description = description;
+        this.icon = icon;
     }
 }

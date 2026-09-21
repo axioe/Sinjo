@@ -263,17 +263,23 @@ public class AdminService {
     public List<PointDto.ShopItem> getPointShopItems() {
         return pointShopItemRepository.findAllByOrderByIdAsc()
                 .stream()
-                .map(item -> new PointDto.ShopItem(item.getId(), item.getName(), item.getPrice()))
+                .map(item -> new PointDto.ShopItem(
+                        item.getId(), item.getName(), item.getPrice(), item.getDescription(), item.getIcon()
+                ))
                 .toList();
     }
 
     @Transactional
     public PointDto.ShopItem createPointShopItem(AdminDto.PointShopItemRequest request) {
         PointShopItem saved = pointShopItemRepository.save(
-                new PointShopItem(request.name().trim(), request.price())
+                new PointShopItem(
+                        request.name().trim(), request.price(), trimToNull(request.description()), trimToNull(request.icon())
+                )
         );
 
-        return new PointDto.ShopItem(saved.getId(), saved.getName(), saved.getPrice());
+        return new PointDto.ShopItem(
+                saved.getId(), saved.getName(), saved.getPrice(), saved.getDescription(), saved.getIcon()
+        );
     }
 
     @Transactional
@@ -281,9 +287,22 @@ public class AdminService {
         PointShopItem target = pointShopItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 상품을 찾을 수 없습니다."));
 
-        target.update(request.name().trim(), request.price());
+        target.update(
+                request.name().trim(), request.price(), trimToNull(request.description()), trimToNull(request.icon())
+        );
 
-        return new PointDto.ShopItem(target.getId(), target.getName(), target.getPrice());
+        return new PointDto.ShopItem(
+                target.getId(), target.getName(), target.getPrice(), target.getDescription(), target.getIcon()
+        );
+    }
+
+    /** 빈 문자열/공백만 들어오면 null 로 정규화한다(설명·아이콘은 선택 입력이라). */
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     @Transactional

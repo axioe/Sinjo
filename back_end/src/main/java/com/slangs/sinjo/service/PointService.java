@@ -83,7 +83,9 @@ public class PointService {
         }
 
         List<PointDto.ShopItem> items = pointShopItemRepository.findAllByOrderByIdAsc().stream()
-                .map(item -> new PointDto.ShopItem(item.getId(), item.getName(), item.getPrice()))
+                .map(item -> new PointDto.ShopItem(
+                        item.getId(), item.getName(), item.getPrice(), item.getDescription(), item.getIcon()
+                ))
                 .toList();
 
         return new PointDto.ShopResponse(items, pointTransactionRepository.findPurchasedItemIdsByUserId(userId));
@@ -117,5 +119,33 @@ public class PointService {
         );
 
         return new PointDto.PurchaseResponse(balance - item.getPrice(), item.getName());
+    }
+
+    /**
+     * 상점 구매 취소. 실제로 낸 만큼만 정확히 돌려주기 위해, 현재 상품 가격이 아니라
+     * 그 상품에 대해 이 사용자가 쌓은 거래 합계(음수)를 그대로 되돌린다 - 취소 사이에
+     * 관리자가 가격을 바꿔도 과다/과소 환불되지 않는다.
+     */
+    @Transactional
+    public PointDto.PurchaseResponse cancelPurchase(Long userId, Long itemId) {
+        if (userId == null) {
+            throw new UnauthorizedException();
+        }
+
+        PointShopItem item = pointShopItemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다."));
+
+        long net = pointTransactionRepository.sumAmountByUserIdAndItemId(userId, itemId);
+        if (net >= 0) {
+            throw new IllegalArgumentException("구매하지 않은 상품입니다.");
+        }
+
+        User user = userRepository.getReferenceById(userId);
+        pointTransactionRepository.save(
+                new PointTransaction(user, (int) -net, "포인트 상점 구매 취소: " + item.getName(), item.getId())
+        );
+
+        long balance = pointTransactionRepository.sumAmountByUserId(userId);
+        return new PointDto.PurchaseResponse(balance, item.getName());
     }
 }

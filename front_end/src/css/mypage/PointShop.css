@@ -683,6 +683,43 @@
   cursor: default;
 }
 
+.point-shop-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  gap: 6px;
+}
+
+.point-shop-cancel-btn {
+  min-height: auto !important;
+
+  padding: 0 !important;
+
+  background: none !important;
+
+  color: #aaa5b0 !important;
+
+  font-size: 10px !important;
+  font-weight: 600 !important;
+
+  text-decoration: underline;
+  text-decoration-color: transparent;
+
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.point-shop-cancel-btn:hover:not(:disabled) {
+  color: #e0526b !important;
+  text-decoration-color: currentColor;
+}
+
+.point-shop-cancel-btn:disabled {
+  color: #d5d1da !important;
+  cursor: not-allowed;
+}
+
 /* =========================================================
    HISTORY
 ========================================================= */

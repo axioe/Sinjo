@@ -50,7 +50,7 @@ class PointServiceTest {
     private PointService pointService;
 
     private PointShopItem item(long id, String name, int price) {
-        PointShopItem item = new PointShopItem(name, price);
+        PointShopItem item = new PointShopItem(name, price, null, null);
         ReflectionTestUtils.setField(item, "id", id);
         return item;
     }
@@ -84,6 +84,31 @@ class PointServiceTest {
             verify(pointTransactionRepository).save(captor.capture());
             assertThat(captor.getValue().getAmount()).isEqualTo(10);
             assertThat(captor.getValue().getReason()).isEqualTo("번역 저장");
+        }
+    }
+
+    @Nested
+    @DisplayName("REQ-MY-01: 상점 목록 조회")
+    class GetShopItems {
+
+        @Test
+        void 비로그인이면_예외() {
+            assertThatThrownBy(() -> pointService.getShopItems(null))
+                    .isInstanceOf(UnauthorizedException.class);
+        }
+
+        @Test
+        void 상품의_설명과_아이콘도_함께_내려준다() {
+            PointShopItem shopItem = new PointShopItem("프로필 테마", 300, "설명입니다", "🎨");
+            ReflectionTestUtils.setField(shopItem, "id", 1L);
+            when(pointShopItemRepository.findAllByOrderByIdAsc()).thenReturn(List.of(shopItem));
+            when(pointTransactionRepository.findPurchasedItemIdsByUserId(1L)).thenReturn(List.of());
+
+            PointDto.ShopResponse response = pointService.getShopItems(1L);
+
+            assertThat(response.items()).hasSize(1);
+            assertThat(response.items().get(0).description()).isEqualTo("설명입니다");
+            assertThat(response.items().get(0).icon()).isEqualTo("🎨");
         }
     }
 
@@ -145,6 +170,74 @@ class PointServiceTest {
             ArgumentCaptor<PointTransaction> captor = ArgumentCaptor.forClass(PointTransaction.class);
             verify(pointTransactionRepository).save(captor.capture());
             assertThat(captor.getValue().getAmount()).isEqualTo(-300);
+        }
+    }
+
+    @Nested
+    @DisplayName("REQ-MY-01: 상점 구매 취소")
+    class CancelPurchase {
+
+        @Test
+        void 비로그인이면_예외() {
+            assertThatThrownBy(() -> pointService.cancelPurchase(null, 1L))
+                    .isInstanceOf(UnauthorizedException.class);
+        }
+
+        @Test
+        void 존재하지_않는_상품이면_예외() {
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> pointService.cancelPurchase(1L, 1L))
+                    .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        void 구매하지_않은_상품이면_예외() {
+            PointShopItem shopItem = item(1L, "프로필 테마", 300);
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.of(shopItem));
+            when(pointTransactionRepository.sumAmountByUserIdAndItemId(1L, 1L)).thenReturn(0L);
+
+            assertThatThrownBy(() -> pointService.cancelPurchase(1L, 1L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("구매하지 않은 상품입니다.");
+        }
+
+        @Test
+        void 정상_취소시_낸_만큼_환불되고_잔액이_반영된다() {
+            PointShopItem shopItem = item(1L, "프로필 테마", 300);
+            User user = new User();
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.of(shopItem));
+            when(pointTransactionRepository.sumAmountByUserIdAndItemId(1L, 1L)).thenReturn(-300L);
+            when(userRepository.getReferenceById(1L)).thenReturn(user);
+            when(pointTransactionRepository.sumAmountByUserId(1L)).thenReturn(200L);
+
+            PointDto.PurchaseResponse response = pointService.cancelPurchase(1L, 1L);
+
+            assertThat(response.balance()).isEqualTo(200L);
+            assertThat(response.itemName()).isEqualTo("프로필 테마");
+
+            ArgumentCaptor<PointTransaction> captor = ArgumentCaptor.forClass(PointTransaction.class);
+            verify(pointTransactionRepository).save(captor.capture());
+            assertThat(captor.getValue().getAmount()).isEqualTo(300);
+            assertThat(captor.getValue().getReason()).isEqualTo("포인트 상점 구매 취소: 프로필 테마");
+        }
+
+        @Test
+        void 상품_가격이_바뀌었어도_실제로_낸_금액만큼만_환불된다() {
+            // 구매 당시 300P 였다가 관리자가 500P 로 올린 상황을 가정 - 현재가가 아니라
+            // sumAmountByUserIdAndItemId(구매 시점 거래 합계)를 기준으로 환불해야 한다.
+            PointShopItem shopItem = item(1L, "프로필 테마", 500);
+            User user = new User();
+            when(pointShopItemRepository.findById(1L)).thenReturn(Optional.of(shopItem));
+            when(pointTransactionRepository.sumAmountByUserIdAndItemId(1L, 1L)).thenReturn(-300L);
+            when(userRepository.getReferenceById(1L)).thenReturn(user);
+            when(pointTransactionRepository.sumAmountByUserId(1L)).thenReturn(300L);
+
+            pointService.cancelPurchase(1L, 1L);
+
+            ArgumentCaptor<PointTransaction> captor = ArgumentCaptor.forClass(PointTransaction.class);
+            verify(pointTransactionRepository).save(captor.capture());
+            assertThat(captor.getValue().getAmount()).isEqualTo(300);
         }
     }
 

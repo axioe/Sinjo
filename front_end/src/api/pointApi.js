@@ -29,3 +29,7 @@ export const purchaseItem = (itemId) =>
     method: "POST",
     body: JSON.stringify({ itemId }),
   });
+
+/** 상점 구매 취소. 구매하지 않은 상품이면 서버가 400 을 던진다(err.message 참고). */
+export const cancelPurchase = (itemId) =>
+  request(`/api/points/purchase/${itemId}`, { method: "DELETE" });

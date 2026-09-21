@@ -9,16 +9,17 @@ import {
 const EMPTY_FORM = {
   name: "",
   price: "",
+  description: "",
+  icon: "",
 };
 
 /**
  * 포인트 상점 관리 (REQ-ADM-01, REQ-MY-01)
  * PointService.SHOP_ITEMS 고정 Map 을 대체한다 - 여기서 등록/수정/삭제한 값이
- * 그대로 /mypage/point-shop 상점 목록과 가격에 반영된다.
+ * 그대로 /mypage/point-shop 상점 목록·가격·설명·아이콘에 반영된다.
  *
- * 아이콘/설명/색상은 PointShop.jsx 쪽 화면 전용 정보라 여기서는 다루지 않는다 -
- * 새로 등록한 상품은 PointShop.jsx 의 기본 프레젠테이션으로 보이고, 필요하면
- * 프론트에서 PRESENTATION 매핑을 그 상품 id 에 맞게 추가해 주면 된다.
+ * 색상 테마는 PointShop.jsx 가 상품 id 로 순환 결정하는 화면 전용 값이라 여기서는
+ * 다루지 않는다.
  */
 function AdminPointShop() {
   const [items, setItems] = useState([]);
@@ -60,6 +61,8 @@ function AdminPointShop() {
   const toPayload = () => ({
     name: form.name.trim(),
     price: Number(form.price),
+    description: form.description.trim() || null,
+    icon: form.icon.trim() || null,
   });
 
   const handleSubmit = async (e) => {
@@ -92,6 +95,8 @@ function AdminPointShop() {
     setForm({
       name: item.name,
       price: String(item.price),
+      description: item.description ?? "",
+      icon: item.icon ?? "",
     });
 
     setErrors({});
@@ -164,6 +169,33 @@ function AdminPointShop() {
           )}
         </div>
 
+        <div className="admin-field">
+          <label htmlFor="point-shop-icon">아이콘 (이모지, 선택)</label>
+          <input
+            id="point-shop-icon"
+            value={form.icon}
+            onChange={setField("icon")}
+            placeholder="예: 🎁"
+            maxLength={8}
+          />
+          {errors.icon && <p className="admin-field-error">{errors.icon}</p>}
+        </div>
+
+        <div className="admin-field">
+          <label htmlFor="point-shop-description">설명 (선택)</label>
+          <textarea
+            id="point-shop-description"
+            value={form.description}
+            onChange={setField("description")}
+            placeholder="예: 마이페이지 프로필을 나만의 분위기로 꾸밀 수 있어요."
+            maxLength={300}
+            rows={3}
+          />
+          {errors.description && (
+            <p className="admin-field-error">{errors.description}</p>
+          )}
+        </div>
+
         <div className="admin-form-actions">
           <button
             type="submit"
@@ -192,7 +224,9 @@ function AdminPointShop() {
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th></th>
                   <th>상품명</th>
+                  <th>설명</th>
                   <th>가격</th>
                   <th>관리</th>
                 </tr>
@@ -206,6 +240,8 @@ function AdminPointShop() {
                   >
                     <td>{item.id}</td>
 
+                    <td aria-hidden="true">{item.icon || "🎁"}</td>
+
                     <td className="admin-td-word">
                       <button
                         type="button"
@@ -214,6 +250,10 @@ function AdminPointShop() {
                       >
                         {item.name}
                       </button>
+                    </td>
+
+                    <td className="admin-td-wrap admin-td-example">
+                      {item.description || "—"}
                     </td>
 
                     <td>{item.price.toLocaleString()}P</td>
