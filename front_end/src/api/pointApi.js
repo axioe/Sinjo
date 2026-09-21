@@ -20,6 +20,9 @@ export async function getMyPoints() {
 /** 포인트 상점 목록 + 이미 구매한 항목. */
 export const getShopItems = () => request("/api/points/shop");
 
+/** 포인트 적립/사용 내역 - 최신순. */
+export const getPointHistory = () => request("/api/points/history");
+
 /** 상점 구매. 이미 구매했거나 포인트가 부족하면 서버가 400 을 던진다(err.message 참고). */
 export const purchaseItem = (itemId) =>
   request("/api/points/purchase", {

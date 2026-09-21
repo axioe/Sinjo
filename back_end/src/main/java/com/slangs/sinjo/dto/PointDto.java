@@ -2,6 +2,7 @@ package com.slangs.sinjo.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /** 포인트 적립/상점 (REQ-MY-01). */
@@ -26,4 +27,10 @@ public class PointDto {
     ) {}
 
     public record PurchaseResponse(long balance, String itemName) {}
+
+    /** 포인트 사용 내역 1건. amount 는 양수 = 적립, 음수 = 사용(PointTransaction 과 동일). */
+    public record HistoryItem(Long id, int amount, String reason, LocalDateTime createdAt) {}
+
+    /** 마이페이지 "포인트 사용 내역" 응답 - 최신순. */
+    public record HistoryResponse(List<HistoryItem> items) {}
 }
