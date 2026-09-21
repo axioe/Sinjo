@@ -4,14 +4,15 @@ import com.slangs.sinjo.dto.WordAnswer;
 import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.dto.WordSearchResponse;
 import com.slangs.sinjo.dto.WordRequest;
-import com.slangs.sinjo.entity.Word;
 import com.slangs.sinjo.service.WordIndexService;
 import com.slangs.sinjo.service.WordRagService;
 import com.slangs.sinjo.service.WordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,21 +30,25 @@ public class WordController {
      * 인기 신조어 TOP 5
      * <p>
      * GET /api/words/ranking
-     * <p>
-     * [주의] 이 메서드는 반드시 getWord(@PathVariable id) 보다 위에 두는 것이 안전하다.
-     * 스프링은 고정 경로("/ranking")를 변수 경로("/{id}")보다 우선하므로 지금도 동작하지만,
-     * 읽는 사람이 헷갈리지 않도록 순서를 맞춰 둔다.
      */
     @GetMapping("/ranking")
     public List<WordDto> getRankingWords() {
         return wordService.getRankingWords();
     }
 
+    /**
+     * 신조어 전체 목록
+     */
     @GetMapping
     public List<WordDto> getWords() {
         return wordService.getAllWords();
     }
 
+    /**
+     * 신조어 한 건
+     * <p>
+     * 상세 페이지 진입 시 조회수 +1
+     */
     @GetMapping("/{id}")
     public WordDto getWord(
             @PathVariable Long id
@@ -51,13 +56,37 @@ public class WordController {
         return wordService.getWord(id);
     }
 
+    /**
+     * 좋아요
+     * <p>
+     * 같은 사용자가 같은 단어에 여러 번 요청해도
+     * 좋아요는 최초 1회만 증가한다.
+     * <p>
+     * JwtAuthenticationFilter가 Authentication의 principal에
+     * Long userId를 넣고 있으므로 @AuthenticationPrincipal Long으로 받는다.
+     */
     @PostMapping("/{id}/like")
     public WordDto likeWord(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @AuthenticationPrincipal Long userId
     ) {
-        return wordService.likeWord(id);
+
+        if (userId == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "로그인이 필요한 기능입니다."
+            );
+        }
+
+        return wordService.likeWord(
+                id,
+                userId
+        );
     }
 
+    /**
+     * 신조어 생성
+     */
     @PostMapping
     public WordDto create(
             @RequestBody WordRequest request
@@ -65,6 +94,9 @@ public class WordController {
         return wordService.create(request);
     }
 
+    /**
+     * 신조어 수정
+     */
     @PutMapping("/{id}")
     public WordDto update(
             @PathVariable Long id,
@@ -76,6 +108,9 @@ public class WordController {
         );
     }
 
+    /**
+     * 신조어 삭제
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id
@@ -86,6 +121,9 @@ public class WordController {
                 .build();
     }
 
+    /**
+     * AI 질문
+     */
     @GetMapping("/ask")
     public WordAnswer ask(
             @RequestParam String question,
@@ -99,19 +137,36 @@ public class WordController {
         );
     }
 
+    /**
+     * 전체 신조어 VectorStore 인덱싱
+     */
     @PostMapping("/index")
     public void index() {
         wordIndexService.indexAll();
     }
 
+    /**
+     * AI 검색
+     */
     @GetMapping("/search")
     public WordSearchResponse search(
-            @RequestParam (defaultValue = "") String category,
-            @RequestParam String question) {
-        return wordRagService.search(category, question);
+            @RequestParam(defaultValue = "")
+            String category,
+
+            @RequestParam
+            String question
+    ) {
+        return wordRagService.search(
+                category,
+                question
+        );
     }
+
+    /**
+     * 카테고리 목록
+     */
     @GetMapping("/categories")
-    public List<String> findCategories(){
+    public List<String> findCategories() {
         return wordService.findCategories();
     }
 }

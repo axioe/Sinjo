@@ -20,6 +20,9 @@ export const getWord = (id) => request(`/api/words/${id}`);
 
 /**
  * 좋아요
+ *
+ * 로그인한 사용자가 같은 단어에 여러 번 요청해도
+ * 백엔드에서 최초 1회만 좋아요 수를 증가시킨다.
  */
 export const likeWord = (id) =>
   request(`/api/words/${id}/like`, {

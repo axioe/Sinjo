@@ -82,7 +82,17 @@ public class Word {
         this.era = era;
     }
 
+    /**
+     * 좋아요 1 증가.
+     * <p>
+     * 실제 중복 여부는 WordLike에서 관리한다.
+     * 이 메서드는 WordService에서 중복이 확인되지 않은 경우에만 호출한다.
+     */
     public void increaseLike() {
+        if (this.likes == null) {
+            this.likes = 0L;
+        }
+
         this.likes++;
     }
 }
