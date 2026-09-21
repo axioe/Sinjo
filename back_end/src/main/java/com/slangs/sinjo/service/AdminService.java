@@ -40,6 +40,7 @@ public class AdminService {
     private final PointTransactionRepository pointTransactionRepository;
     private final PointShopItemRepository pointShopItemRepository;
     private final LoginHistoryRepository loginHistoryRepository;
+    private final TranslationUsageRepository translationUsageRepository;
 
     /**
      * [추가] 객관식 퀴즈 오답 보기 최소 개수.
@@ -360,8 +361,18 @@ public List<AdminDto.DailyCount> getSignupTrend(int days) {
                 loginHistoryRepository.countDailyLogins(startOf(days)), days);
     }
 
+    /** [추가] REQ-TR 하루 번역 한도 도입에 맞춰 대시보드에도 날짜별 번역 횟수 추이를 보여준다. */
+    public List<AdminDto.DailyCount> getTranslationTrend(int days) {
+        return toDailyCounts(
+                translationUsageRepository.countDailyTranslations(startOfDate(days)), days);
+    }
+
     private LocalDateTime startOf(int days) {
         return LocalDate.now().minusDays(days - 1L).atStartOfDay();
+    }
+
+    private LocalDate startOfDate(int days) {
+        return LocalDate.now().minusDays(days - 1L);
     }
 
     /**
