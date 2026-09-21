@@ -46,6 +46,12 @@ function Dictionary() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  /**
+   * 좋아요 요청 중인 단어 ID
+   *
+   * 같은 단어에 대한 중복 클릭을 막는다.
+   */
   const [likingId, setLikingId] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,9 +79,6 @@ function Dictionary() {
 
   const [showExcelModal, setShowExcelModal] = useState(false);
 
-  /*
-   * 처음에는 모두 false
-   */
   const [excelFields, setExcelFields] = useState({
     word: false,
     meaning: false,
@@ -84,11 +87,6 @@ function Dictionary() {
     era: false,
   });
 
-  /*
-   * 세부 선택
-   *
-   * 처음에는 모두 선택되지 않은 상태
-   */
   const [excelInitials, setExcelInitials] = useState([]);
   const [excelCategories, setExcelCategories] = useState([]);
   const [excelYears, setExcelYears] = useState([]);
@@ -136,6 +134,9 @@ function Dictionary() {
 
     const fetchWords = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const data = await getWords();
 
         if (alive) {
@@ -161,20 +162,29 @@ function Dictionary() {
     };
   }, []);
 
-    /**
-   * 즐겨찾기 불러오기 (REQ-MY-01)
-   *
-   * [수정] localStorage 대신 서버 목록으로 별표 상태를 맞춘다.
-   * 브라우저에만 저장하면 다른 기기에서 안 보이고 마이페이지와도 어긋난다.
+  /**
+   * 즐겨찾기 불러오기
    */
   useEffect(() => {
     let alive = true;
 
     getMyFavorites(0, 1000)
       .then((list) => {
-        if (alive) setFavoriteIds(list.map((f) => f.wordId));
+        if (!alive) {
+          return;
+        }
+
+        const ids = Array.isArray(list)
+          ? list
+              .map((favorite) => favorite.wordId)
+              .filter((id) => id !== null && id !== undefined)
+          : [];
+
+        setFavoriteIds(ids);
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+      });
 
     return () => {
       alive = false;
@@ -203,22 +213,18 @@ function Dictionary() {
     ];
   }, [words]);
 
-  /*
-   * =========================================================
-   * 엑셀용 세부 목록
-   * =========================================================
+  /**
+   * 엑셀용 년도 목록
    */
-
   const excelYearOptions = useMemo(() => {
     return years.filter((year) => year !== "전체");
   }, [years]);
 
-  /*
+  /**
    * =========================================================
    * 검색 + 필터 + 정렬
    * =========================================================
    */
-
   const result = useMemo(() => {
     const q = query.trim().toLowerCase();
 
@@ -417,7 +423,17 @@ function Dictionary() {
   };
 
   /**
+   * =========================================================
    * 좋아요
+   * =========================================================
+   *
+   * 중요:
+   * 프론트의 likingId는 빠른 연속 클릭만 방지한다.
+   *
+   * 실제 "사용자당 1회" 중복 제거는 반드시 서버에서 해야 한다.
+   *
+   * 서버에서 이미 좋아요한 사용자의 요청을 409 등으로
+   * 반환하는 경우를 여기서 사용자에게 알려준다.
    */
   const likeWord = async (id) => {
     if (likingId !== null) {
@@ -425,6 +441,7 @@ function Dictionary() {
     }
 
     setLikingId(id);
+    setError("");
 
     try {
       const updated = await likeWordApi(id);
@@ -442,15 +459,26 @@ function Dictionary() {
     } catch (err) {
       console.error(err);
 
-      setError("좋아요 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      /*
+       * client.js에서 axios 에러를 그대로 전달하는 경우
+       * response.status를 확인할 수 있다.
+       *
+       * 409 = 이미 좋아요한 경우로 처리한다.
+       */
+      if (err?.response?.status === 409) {
+        setError("이미 좋아요한 신조어입니다.");
+      } else if (err?.status === 409) {
+        setError("이미 좋아요한 신조어입니다.");
+      } else {
+        setError("좋아요 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      }
     } finally {
       setLikingId(null);
     }
   };
 
-    /**
-   * 즐겨찾기 토글 (REQ-MY-01)
-   * 먼저 화면에 반영하고, 서버 요청이 실패하면 되돌린다.
+  /**
+   * 즐겨찾기 토글
    */
   const toggleFavorite = async (id) => {
     const wasFavorite = favoriteIds.includes(id);
@@ -464,7 +492,7 @@ function Dictionary() {
     try {
       if (wasFavorite) {
         await removeFavorite(id);
-      } else { 
+      } else {
         await addFavorite(id);
       }
     } catch (err) {
@@ -482,6 +510,9 @@ function Dictionary() {
 
   const isFavorite = (id) => favoriteIds.includes(id);
 
+  /**
+   * 즐겨찾기 전체 해제
+   */
   const resetFavorites = async () => {
     const previousIds = [...favoriteIds];
 
@@ -531,13 +562,10 @@ function Dictionary() {
     setCurrentPage(1);
   };
 
-  /*
+  /**
    * =========================================================
-   * 엑셀 모달 열기
+   * 엑셀 모달
    * =========================================================
-   *
-   * 중요:
-   * 버튼을 누를 때마다 전체 체크 해제
    */
 
   const openExcelModal = () => {
@@ -560,21 +588,12 @@ function Dictionary() {
     setShowExcelModal(false);
   };
 
-  /*
-   * =========================================================
-   * 엑셀 메인 항목 체크
-   * =========================================================
-   */
-
   const toggleExcelField = (field) => {
     setExcelFields((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
 
-    /*
-     * 해당 항목을 해제하면 세부 선택도 초기화
-     */
     if (field === "word") {
       setExcelInitials([]);
     }
@@ -588,12 +607,6 @@ function Dictionary() {
     }
   };
 
-  /*
-   * =========================================================
-   * 초성 선택
-   * =========================================================
-   */
-
   const toggleExcelInitial = (initial) => {
     setExcelInitials((prev) =>
       prev.includes(initial)
@@ -601,12 +614,6 @@ function Dictionary() {
         : [...prev, initial],
     );
   };
-
-  /*
-   * =========================================================
-   * 카테고리 선택
-   * =========================================================
-   */
 
   const toggleExcelCategory = (category) => {
     setExcelCategories((prev) =>
@@ -616,12 +623,6 @@ function Dictionary() {
     );
   };
 
-  /*
-   * =========================================================
-   * 년도 선택
-   * =========================================================
-   */
-
   const toggleExcelYear = (year) => {
     setExcelYears((prev) =>
       prev.includes(year)
@@ -629,12 +630,6 @@ function Dictionary() {
         : [...prev, year],
     );
   };
-
-  /*
-   * =========================================================
-   * 전체 선택 / 전체 해제
-   * =========================================================
-   */
 
   const toggleAllExcelInitials = () => {
     if (excelInitials.length === INITIALS.length) {
@@ -660,7 +655,7 @@ function Dictionary() {
     }
   };
 
-  /*
+  /**
    * =========================================================
    * 엑셀 다운로드
    * =========================================================
@@ -671,50 +666,31 @@ function Dictionary() {
       (key) => excelFields[key],
     );
 
-    /*
-     * 아무 항목도 선택하지 않은 경우
-     */
     if (selectedFields.length === 0) {
       alert("엑셀로 받을 항목을 하나 이상 선택해 주세요.");
 
       return;
     }
 
-    /*
-     * 단어 선택 시 초성을 하나라도 선택해야 함
-     */
     if (excelFields.word && excelInitials.length === 0) {
       alert("단어의 초성을 하나 이상 선택해 주세요.");
 
       return;
     }
 
-    /*
-     * 카테고리 선택 시 카테고리를 하나라도 선택해야 함
-     */
     if (excelFields.category && excelCategories.length === 0) {
       alert("카테고리를 하나 이상 선택해 주세요.");
 
       return;
     }
 
-    /*
-     * 시대 선택 시 년도를 하나라도 선택해야 함
-     */
     if (excelFields.era && excelYears.length === 0) {
       alert("시대를 하나 이상 선택해 주세요.");
 
       return;
     }
 
-    /*
-     * 현재 검색/필터 결과를 기준으로
-     * 엑셀 세부 조건을 한 번 더 적용
-     */
     const excelResult = result.filter((item) => {
-      /*
-       * 단어 → 초성
-       */
       if (excelFields.word) {
         const itemInitial = getInitial(item.word);
 
@@ -723,9 +699,6 @@ function Dictionary() {
         }
       }
 
-      /*
-       * 카테고리
-       */
       if (excelFields.category) {
         const itemCategory = item.category?.trim() || "기타";
 
@@ -734,9 +707,6 @@ function Dictionary() {
         }
       }
 
-      /*
-       * 시대 → 년도
-       */
       if (excelFields.era) {
         const itemYear = getYear(item.era);
 
@@ -754,11 +724,6 @@ function Dictionary() {
       return;
     }
 
-    /*
-     * 엑셀 데이터 생성
-     *
-     * 좋아요 / 조회수 / 즐겨찾기는 포함하지 않음
-     */
     const excelData = excelResult.map((item, index) => {
       const row = {
         번호: index + 1,
@@ -789,9 +754,6 @@ function Dictionary() {
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    /*
-     * 선택한 항목에 따라 컬럼 너비 설정
-     */
     const columnWidths = [];
 
     columnWidths.push({ wch: 8 });
@@ -824,9 +786,6 @@ function Dictionary() {
 
     XLSX.writeFile(workbook, "신조어_사전.xlsx");
 
-    /*
-     * 다운로드 후 모달 닫기
-     */
     setShowExcelModal(false);
   };
 
@@ -1094,6 +1053,10 @@ function Dictionary() {
             {paginatedWords.map((item) => {
               const viewLevel = getViewLevel(item.views ?? 0);
 
+              const favorite = isFavorite(item.id);
+
+              const liking = likingId === item.id;
+
               return (
                 <div
                   className={`word-card view-level-${viewLevel}`}
@@ -1128,7 +1091,7 @@ function Dictionary() {
                       <button
                         type="button"
                         className={
-                          isFavorite(item.id)
+                          favorite
                             ? "card-favorite-button active"
                             : "card-favorite-button"
                         }
@@ -1137,19 +1100,29 @@ function Dictionary() {
 
                           toggleFavorite(item.id);
                         }}
+                        aria-label={
+                          favorite ? "즐겨찾기 해제" : "즐겨찾기 추가"
+                        }
                       >
-                        {isFavorite(item.id) ? "⭐" : "☆"}
+                        {favorite ? "⭐" : "☆"}
                       </button>
 
                       <button
                         type="button"
-                        className="card-like-button"
+                        className={
+                          liking
+                            ? "card-like-button liking"
+                            : "card-like-button"
+                        }
                         onClick={(e) => {
                           e.stopPropagation();
 
-                          likeWord(item.id);
+                          if (!liking) {
+                            likeWord(item.id);
+                          }
                         }}
-                        disabled={likingId === item.id}
+                        disabled={liking}
+                        aria-label="좋아요"
                       >
                         ❤️ {item.likes ?? 0}
                       </button>
@@ -1443,6 +1416,7 @@ function Dictionary() {
 
               <div className="excel-notice">
                 <span>ℹ️</span>
+
                 <p>
                   좋아요, 조회수, 즐겨찾기 정보는 엑셀 파일에 포함되지 않습니다.
                 </p>

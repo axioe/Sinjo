@@ -1,12 +1,15 @@
 package com.slangs.sinjo.repository;
 
 import com.slangs.sinjo.entity.Word;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface WordRepository
         extends JpaRepository<Word, Long> {
@@ -32,23 +35,42 @@ public interface WordRepository
     List<Word> findAllByOrderByIdDesc();
 
     /**
+     * 좋아요 처리용 단어 조회.
+     * <p>
+     * 같은 신조어에 동시에 좋아요 요청이 들어오는 경우
+     * Word 행을 잠가서 좋아요 중복 처리를 안전하게 한다.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT w
+            FROM Word w
+            WHERE w.id = :id
+            """)
+    Optional<Word> findByIdForLike(
+            @Param("id") Long id
+    );
+
+    /**
      * 좋아요 +1
      */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-                UPDATE Word w
-                SET w.likes = w.likes + 1
-                WHERE w.id = :id
+            UPDATE Word w
+            SET w.likes = w.likes + 1
+            WHERE w.id = :id
             """)
-    int increaseLike(@Param("id") Long id);
+    int increaseLike(
+            @Param("id") Long id
+    );
 
     @Query("""
-        select distinct w.category
-        from Word w
-        where w.category is not null
-        order by w.category
-    """)
+            SELECT DISTINCT w.category
+            FROM Word w
+            WHERE w.category IS NOT NULL
+            ORDER BY w.category
+            """)
     List<String> findCategories();
+
     /**
      * 조회수 +1
      * <p>
@@ -57,9 +79,11 @@ public interface WordRepository
      */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-                UPDATE Word w
-                SET w.views = w.views + 1
-                WHERE w.id = :id
+            UPDATE Word w
+            SET w.views = w.views + 1
+            WHERE w.id = :id
             """)
-    int increaseView(@Param("id") Long id);
+    int increaseView(
+            @Param("id") Long id
+    );
 }
