@@ -1,6 +1,7 @@
 package com.slangs.sinjo.config;
 
 import com.slangs.sinjo.entity.PointShopItem;
+import com.slangs.sinjo.entity.PointShopItemType;
 import com.slangs.sinjo.repository.PointShopItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +36,26 @@ public class PointShopItemInitializer implements ApplicationRunner {
         }
 
         pointShopItemRepository.saveAll(List.of(
-                new PointShopItem("프로필 테마", 300, "마이페이지 프로필을 나만의 분위기로 꾸밀 수 있어요.", "🎨"),
-                new PointShopItem("닉네임 뱃지", 500, "프로필에 특별한 닉네임 뱃지를 표시할 수 있어요.", "🏷️"),
-                new PointShopItem("반짝반짝 효과", 700, "프로필에 특별한 반짝임 효과를 추가할 수 있어요.", "✨"),
-                new PointShopItem("VIP 뱃지", 1000, "특별한 VIP 뱃지로 프로필을 꾸밀 수 있어요.", "👑")
+                new PointShopItem(
+                        "프로필 테마", 300, "마이페이지 프로필을 나만의 분위기로 꾸밀 수 있어요.", "🎨",
+                        PointShopItemType.COSMETIC, null
+                ),
+                new PointShopItem(
+                        "닉네임 뱃지", 500, "프로필에 특별한 닉네임 뱃지를 표시할 수 있어요.", "🏷️",
+                        PointShopItemType.COSMETIC, null
+                ),
+                new PointShopItem(
+                        "반짝반짝 효과", 700, "프로필에 특별한 반짝임 효과를 추가할 수 있어요.", "✨",
+                        PointShopItemType.COSMETIC, null
+                ),
+                new PointShopItem(
+                        "VIP 뱃지", 1000, "특별한 VIP 뱃지로 프로필을 꾸밀 수 있어요.", "👑",
+                        PointShopItemType.COSMETIC, null
+                ),
+                new PointShopItem(
+                        "번역권 +5", 200, "오늘 하루 번역 가능 횟수를 5건 늘려줘요. 여러 번 살 수 있어요.", "🎟️",
+                        PointShopItemType.TRANSLATION_EXTRA, 5
+                )
         ));
 
         log.info("포인트 상점 기본 카탈로그를 채웠습니다.");

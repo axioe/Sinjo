@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 포인트 적립/상점 (REQ-MY-01).
@@ -38,6 +40,7 @@ public class PointService {
     private final PointTransactionRepository pointTransactionRepository;
     private final PointShopItemRepository pointShopItemRepository;
     private final UserRepository userRepository;
+    private final TranslationLimitService translationLimitService;
 
     /**
      * 포인트 적립. userId 가 null(비로그인)이거나 amount 가 0 이하면 조용히 무시한다 -
@@ -76,24 +79,42 @@ public class PointService {
         return new PointDto.HistoryResponse(items);
     }
 
-    /** 포인트 상점 목록 + 이미 구매한 항목. */
+    /**
+     * 포인트 상점 목록 + 이미 구매한 항목.
+     * 번역권(TRANSLATION_EXTRA)은 소모성이라 하루에 여러 번 다시 살 수 있어야 하므로,
+     * "이미 구매함" 목록에서는 제외한다 - 프론트가 계속 "구매 완료"로 잠그지 않도록.
+     */
     public PointDto.ShopResponse getShopItems(Long userId) {
         if (userId == null) {
             throw new UnauthorizedException();
         }
 
-        List<PointDto.ShopItem> items = pointShopItemRepository.findAllByOrderByIdAsc().stream()
+        List<PointShopItem> catalog = pointShopItemRepository.findAllByOrderByIdAsc();
+
+        List<PointDto.ShopItem> items = catalog.stream()
                 .map(item -> new PointDto.ShopItem(
-                        item.getId(), item.getName(), item.getPrice(), item.getDescription(), item.getIcon()
+                        item.getId(), item.getName(), item.getPrice(), item.getDescription(), item.getIcon(),
+                        item.getType(), item.getEffectValue()
                 ))
                 .toList();
 
-        return new PointDto.ShopResponse(items, pointTransactionRepository.findPurchasedItemIdsByUserId(userId));
+        Set<Long> translationExtraIds = catalog.stream()
+                .filter(PointShopItem::isTranslationExtra)
+                .map(PointShopItem::getId)
+                .collect(Collectors.toSet());
+
+        List<Long> purchasedItemIds = pointTransactionRepository.findPurchasedItemIdsByUserId(userId).stream()
+                .filter(id -> !translationExtraIds.contains(id))
+                .toList();
+
+        return new PointDto.ShopResponse(items, purchasedItemIds);
     }
 
     /**
      * 상점 구매.
-     * 이미 산 항목이거나 포인트가 부족하면 IllegalArgumentException(400) 으로 막는다.
+     * 코스메틱 항목은 이미 산 항목이면 막는다(1회 소유). 번역권(TRANSLATION_EXTRA)은
+     * 소모성이라 이 중복 검사를 건너뛰고, 구매 즉시 오늘의 번역 한도를 늘려준다.
+     * 포인트가 부족하면 종류와 상관없이 IllegalArgumentException(400) 으로 막는다.
      */
     @Transactional
     public PointDto.PurchaseResponse purchase(Long userId, Long itemId) {
@@ -104,7 +125,8 @@ public class PointService {
         PointShopItem item = pointShopItemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다."));
 
-        if (pointTransactionRepository.findPurchasedItemIdsByUserId(userId).contains(itemId)) {
+        if (!item.isTranslationExtra()
+                && pointTransactionRepository.findPurchasedItemIdsByUserId(userId).contains(itemId)) {
             throw new IllegalArgumentException("이미 구매한 상품입니다.");
         }
 
@@ -117,6 +139,10 @@ public class PointService {
         pointTransactionRepository.save(
                 new PointTransaction(user, -item.getPrice(), "포인트 상점 구매: " + item.getName(), item.getId())
         );
+
+        if (item.isTranslationExtra()) {
+            translationLimitService.addBonus(userId, item.getEffectValue());
+        }
 
         return new PointDto.PurchaseResponse(balance - item.getPrice(), item.getName());
     }
@@ -134,6 +160,12 @@ public class PointService {
 
         PointShopItem item = pointShopItemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다."));
+
+        if (item.isTranslationExtra()) {
+            // 이미 늘어난 오늘의 한도를 되돌리는 건 그 사이 쓴 횟수와 얽혀 있어 안전하게
+            // 계산할 수 없다 - 번역권은 애초에 환불 대상이 아니다.
+            throw new IllegalArgumentException("환불할 수 없는 상품입니다.");
+        }
 
         long net = pointTransactionRepository.sumAmountByUserIdAndItemId(userId, itemId);
         if (net >= 0) {

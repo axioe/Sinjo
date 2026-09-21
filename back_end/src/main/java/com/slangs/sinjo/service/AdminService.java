@@ -6,6 +6,7 @@ import com.slangs.sinjo.dto.QuizWordDto;
 import com.slangs.sinjo.dto.UserDto;
 import com.slangs.sinjo.dto.WordDto;
 import com.slangs.sinjo.entity.PointShopItem;
+import com.slangs.sinjo.entity.PointShopItemType;
 import com.slangs.sinjo.entity.QuizWord;
 import com.slangs.sinjo.entity.User;
 import com.slangs.sinjo.entity.Word;
@@ -263,37 +264,52 @@ public class AdminService {
     public List<PointDto.ShopItem> getPointShopItems() {
         return pointShopItemRepository.findAllByOrderByIdAsc()
                 .stream()
-                .map(item -> new PointDto.ShopItem(
-                        item.getId(), item.getName(), item.getPrice(), item.getDescription(), item.getIcon()
-                ))
+                .map(this::toShopItemDto)
                 .toList();
     }
 
     @Transactional
     public PointDto.ShopItem createPointShopItem(AdminDto.PointShopItemRequest request) {
+        requireEffectValueForTranslationExtra(request);
+
         PointShopItem saved = pointShopItemRepository.save(
                 new PointShopItem(
-                        request.name().trim(), request.price(), trimToNull(request.description()), trimToNull(request.icon())
+                        request.name().trim(), request.price(), trimToNull(request.description()),
+                        trimToNull(request.icon()), request.type(), request.effectValue()
                 )
         );
 
-        return new PointDto.ShopItem(
-                saved.getId(), saved.getName(), saved.getPrice(), saved.getDescription(), saved.getIcon()
-        );
+        return toShopItemDto(saved);
     }
 
     @Transactional
     public PointDto.ShopItem updatePointShopItem(Long id, AdminDto.PointShopItemRequest request) {
+        requireEffectValueForTranslationExtra(request);
+
         PointShopItem target = pointShopItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 상품을 찾을 수 없습니다."));
 
         target.update(
-                request.name().trim(), request.price(), trimToNull(request.description()), trimToNull(request.icon())
+                request.name().trim(), request.price(), trimToNull(request.description()),
+                trimToNull(request.icon()), request.type(), request.effectValue()
         );
 
+        return toShopItemDto(target);
+    }
+
+    private PointDto.ShopItem toShopItemDto(PointShopItem item) {
         return new PointDto.ShopItem(
-                target.getId(), target.getName(), target.getPrice(), target.getDescription(), target.getIcon()
+                item.getId(), item.getName(), item.getPrice(), item.getDescription(), item.getIcon(),
+                item.getType(), item.getEffectValue()
         );
+    }
+
+    /** 번역권(TRANSLATION_EXTRA)인데 늘어날 횟수를 안 정하면 구매해도 아무 효과가 없어 여기서 막는다. */
+    private void requireEffectValueForTranslationExtra(AdminDto.PointShopItemRequest request) {
+        if (request.type() == PointShopItemType.TRANSLATION_EXTRA
+                && request.effectValue() == null) {
+            throw new IllegalArgumentException("번역권은 늘어나는 횟수를 입력해야 합니다.");
+        }
     }
 
     /** 빈 문자열/공백만 들어오면 null 로 정규화한다(설명·아이콘은 선택 입력이라). */
