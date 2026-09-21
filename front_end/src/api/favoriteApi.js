@@ -9,29 +9,37 @@ export const getMyFavorites = async (page = 0, size = 5) => {
     },
   );
 
-  return list.map((f) => ({
-    id: f.id,
-    wordId: f.wordId,
-    word: f.word,
-    meaning: f.meaning,
-    category: f.category,
-    createdAt: f.createdAt
-      ? f.createdAt.slice(0, 16).replace("T", " ").replaceAll("-", ".")
-      : "",
-  }));
+  return Array.isArray(list)
+    ? list.map((f) => ({
+        id: f.id,
+        wordId: f.wordId,
+        word: f.word,
+        meaning: f.meaning,
+        category: f.category,
+        createdAt: f.createdAt
+          ? f.createdAt.slice(0, 16).replace("T", " ").replaceAll("-", ".")
+          : "",
+      }))
+    : [];
 };
 
 /** 즐겨찾기 개수 */
 export const getMyFavoriteCount = () =>
-  request("/api/mypage/favorites/count", { method: "GET" });
+  request("/api/mypage/favorites/count", {
+    method: "GET",
+  });
 
 /** 즐겨찾기 등록 */
 export const addFavorite = (wordId) =>
-  request(`/api/mypage/favorites/${wordId}`, { method: "POST" });
+  request(`/api/mypage/favorites/${wordId}`, {
+    method: "POST",
+  });
 
 /** 즐겨찾기 해제 */
 export const removeFavorite = (wordId) =>
-  request(`/api/mypage/favorites/${wordId}`, { method: "DELETE" });
+  request(`/api/mypage/favorites/${wordId}`, {
+    method: "DELETE",
+  });
 
 export default {
   getMyFavorites,

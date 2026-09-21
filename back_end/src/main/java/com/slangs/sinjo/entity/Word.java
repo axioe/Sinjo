@@ -27,7 +27,7 @@ public class Word {
     private Long likes = 0L;
 
     /**
-     * 단어 상세 페이지 조회수
+     * 상세 페이지 조회수
      */
     @Column(nullable = false)
     private Long views = 0L;
@@ -35,7 +35,7 @@ public class Word {
     @Column(nullable = false, length = 100)
     private String category;
 
-    @Column(nullable = true, length = 20)
+    @Column(length = 20)
     private String era;
 
     public Word(
@@ -48,10 +48,10 @@ public class Word {
         this.word = word;
         this.meaning = meaning;
         this.example = example;
-        this.likes = 0L;
-        this.views = 0L;
         this.category = category;
         this.era = era;
+        this.likes = 0L;
+        this.views = 0L;
     }
 
     public Word(
@@ -85,10 +85,11 @@ public class Word {
     /**
      * 좋아요 1 증가.
      * <p>
-     * 실제 중복 여부는 WordLike에서 관리한다.
-     * 이 메서드는 WordService에서 중복이 확인되지 않은 경우에만 호출한다.
+     * 현재 WordService에서는 DB 증가 쿼리를 사용하므로
+     * 직접 사용하지 않아도 된다.
      */
     public void increaseLike() {
+
         if (this.likes == null) {
             this.likes = 0L;
         }

@@ -15,19 +15,22 @@ public interface WordRepository
         extends JpaRepository<Word, Long> {
 
     /**
-     * 좋아요 기준 TOP 5
+     * 좋아요 기준 인기 TOP 5
      */
     List<Word> findTop5ByOrderByLikesDescIdAsc();
 
     /**
-     * 관리자 등록 시 중복 확인
+     * 단어 중복 확인
      */
     boolean existsByWord(String word);
 
     /**
-     * 수정 시 자기 자신 제외하고 중복 확인
+     * 수정 시 자기 자신을 제외한 중복 확인
      */
-    boolean existsByWordAndIdNot(String word, Long id);
+    boolean existsByWordAndIdNot(
+            String word,
+            Long id
+    );
 
     /**
      * 관리자 목록
@@ -35,25 +38,12 @@ public interface WordRepository
     List<Word> findAllByOrderByIdDesc();
 
     /**
-     * 좋아요 처리용 단어 조회.
-     * <p>
-     * 같은 신조어에 동시에 좋아요 요청이 들어오는 경우
-     * Word 행을 잠가서 좋아요 중복 처리를 안전하게 한다.
-     */
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-            SELECT w
-            FROM Word w
-            WHERE w.id = :id
-            """)
-    Optional<Word> findByIdForLike(
-            @Param("id") Long id
-    );
-
-    /**
      * 좋아요 +1
      */
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying(
+            clearAutomatically = true,
+            flushAutomatically = true
+    )
     @Query("""
             UPDATE Word w
             SET w.likes = w.likes + 1
@@ -63,6 +53,44 @@ public interface WordRepository
             @Param("id") Long id
     );
 
+    /**
+     * 좋아요 -1
+     * <p>
+     * likes가 0보다 작아지지 않도록 방어한다.
+     */
+    @Modifying(
+            clearAutomatically = true,
+            flushAutomatically = true
+    )
+    @Query("""
+            UPDATE Word w
+            SET w.likes = w.likes - 1
+            WHERE w.id = :id
+              AND w.likes > 0
+            """)
+    int decreaseLike(
+            @Param("id") Long id
+    );
+
+    /**
+     * 좋아요 처리 시 Word 행을 잠근다.
+     * <p>
+     * 같은 단어에 동시에 좋아요/취소 요청이 들어오는 경우
+     * 중복 검사와 likes 변경을 안전하게 처리하기 위해 사용한다.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT w
+            FROM Word w
+            WHERE w.id = :id
+            """)
+    Optional<Word> findByIdForUpdate(
+            @Param("id") Long id
+    );
+
+    /**
+     * 카테고리 목록
+     */
     @Query("""
             SELECT DISTINCT w.category
             FROM Word w
@@ -73,11 +101,11 @@ public interface WordRepository
 
     /**
      * 조회수 +1
-     * <p>
-     * DB에서 직접 증가시키므로
-     * 동시에 여러 명이 조회해도 조회수가 유실되지 않는다.
      */
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying(
+            clearAutomatically = true,
+            flushAutomatically = true
+    )
     @Query("""
             UPDATE Word w
             SET w.views = w.views + 1
