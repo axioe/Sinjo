@@ -615,10 +615,6 @@
    Typing
 ================================= */
 
-/* =================================
-   Thinking
-================================= */
-
 .typing {
   display: flex;
   align-items: center;
@@ -639,6 +635,10 @@
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
+
+/* =================================
+   Thinking
+================================= */
 
 .thinking-text {
   display: inline-flex;
@@ -700,17 +700,19 @@
   display: inline-flex;
   align-items: center;
 
-  gap: 5px;
+  gap: 6px;
 
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 
   padding: 5px 10px;
 
-  background: #f1f3f5;
+  background: #f3f4f6;
 
-  border-radius: 10px;
+  border: 1px solid #e5e7eb;
 
-  color: #555555;
+  border-radius: 999px;
+
+  color: #4b5563;
 
   font-size: 12px;
 
@@ -721,167 +723,230 @@
   width: 18px;
   height: 18px;
 
-  padding: 0;
-
-  border: none;
-
-  background: transparent;
-
-  color: #777777;
-
-  font-size: 16px;
-
-  line-height: 18px;
-
-  cursor: pointer;
-}
-
-/* =================================
-   Input
-================================= */
-
-.input-row {
-  display: flex;
-
-  align-items: flex-end;
-
-  gap: 9px;
-}
-
-.input-textarea-wrap {
-  position: relative;
-
-  flex: 1;
-}
-
-.input-textarea-wrap textarea {
-  width: 100%;
-
-  min-height: 72px;
-  max-height: 140px;
-
-  resize: none;
-
-  padding: 12px 14px 38px 76px;
-
-  border: 1px solid #dddddd;
-
-  border-radius: 14px;
-
-  outline: none;
-
-  color: #222222;
-
-  background: #ffffff;
-
-  font-size: 14px;
-
-  font-family: inherit;
-
-  line-height: 1.5;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.input-textarea-wrap textarea::placeholder {
-  color: #aaaaaa;
-}
-
-.input-textarea-wrap textarea:focus {
-  border-color: #aaaeb5;
-
-  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.04);
-}
-
-/* 마이크/업로드 버튼 - 입력창 안쪽 왼쪽 아래에 겹쳐서 배치한다. */
-.input-inline-actions {
-  position: absolute;
-
-  left: 6px;
-  bottom: 6px;
-
-  display: flex;
-
-  gap: 4px;
-}
-
-/* =================================
-   Mic / Upload Button
-================================= */
-
-.mic-btn {
-  width: 30px;
-  height: 30px;
-
-  flex: 0 0 30px;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
   padding: 0;
 
-  border: 1px solid #dddddd;
+  border: none;
+
+  background: transparent;
+
+  color: #9ca3af;
+
+  font-size: 16px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
   border-radius: 50%;
 
-  background: #ffffff;
-  color: #555555;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
 
-  font-size: 13px;
+.selected-category button:hover {
+  background: #e5e7eb;
+
+  color: #374151;
+}
+
+/* =================================
+   Input Box
+================================= */
+
+.input-box {
+  position: relative;
+
+  width: 100%;
+
+  background: #ffffff;
+
+  border: 1px solid #d9dce1;
+
+  border-radius: 18px;
+
+  padding: 12px 12px 9px;
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input-box:focus-within {
+  border-color: #b7bbc2;
+
+  box-shadow:
+    0 0 0 3px rgba(17, 24, 39, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+/* =================================
+   Textarea
+================================= */
+
+.input-box textarea {
+  display: block;
+
+  width: 100%;
+
+  height: 48px;
+  min-height: 48px;
+  max-height: 120px;
+
+  padding: 3px 4px 8px;
+
+  border: none;
+
+  outline: none;
+
+  resize: none;
+
+  background: transparent;
+
+  color: #1f2937;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  line-height: 1.55;
+}
+
+.input-box textarea::placeholder {
+  color: #9ca3af;
+}
+
+.input-box textarea:disabled {
+  color: #9ca3af;
+
+  cursor: default;
+}
+
+/* =================================
+   Input Bottom
+================================= */
+
+.input-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  min-height: 38px;
+}
+
+/* =================================
+   Left Actions
+================================= */
+
+.input-left-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  min-width: 0;
+}
+
+/* =================================
+   Input Action Button
+================================= */
+
+.input-action-button {
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  padding: 0 10px;
+
+  border: 1px solid transparent;
+
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6b7280;
+
+  font-size: 11px;
+
+  font-weight: 600;
 
   cursor: pointer;
 
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.18s ease;
+    border-color 0.18s ease;
 }
 
-.mic-btn:hover:not(:disabled) {
-  background: #111827;
+.input-action-button svg {
+  flex-shrink: 0;
 
-  border-color: #111827;
-
-  color: #ffffff;
+  font-size: 13px;
 }
 
-.mic-btn.recording {
-  background: #ff4d5e;
+.input-action-button:hover:not(:disabled) {
+  background: #f3f4f6;
 
-  border-color: #ff4d5e;
+  border-color: #e5e7eb;
 
-  color: #ffffff;
-
-  animation: mic-pulse 1.4s ease-in-out infinite;
+  color: #374151;
 }
 
-.mic-btn:disabled {
+.input-action-button:active:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.input-action-button:disabled {
   opacity: 0.4;
 
   cursor: default;
 }
 
-@keyframes mic-pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 77, 94, 0.35);
+/* =================================
+   Recording
+================================= */
+
+.input-action-button.recording {
+  background: #fff1f2;
+
+  border-color: #fecdd3;
+
+  color: #e11d48;
+
+  animation: recording-button-pulse 1.5s ease-in-out infinite;
+}
+
+.input-action-button.recording:hover:not(:disabled) {
+  background: #ffe4e6;
+
+  border-color: #fda4af;
+
+  color: #be123c;
+}
+
+@keyframes recording-button-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.12);
   }
 
   50% {
-    box-shadow: 0 0 0 8px rgba(255, 77, 94, 0);
+    box-shadow: 0 0 0 4px rgba(225, 29, 72, 0);
   }
-}
-
-.mic-status {
-  margin: 6px 0 0;
-
-  color: #6659d6;
-
-  font-size: 12px;
-
-  text-align: center;
 }
 
 /* =================================
@@ -889,10 +954,10 @@
 ================================= */
 
 .send-button {
-  width: 46px;
-  height: 46px;
+  width: 36px;
+  height: 36px;
 
-  flex: 0 0 46px;
+  flex: 0 0 36px;
 
   display: flex;
   align-items: center;
@@ -900,56 +965,72 @@
 
   padding: 0;
 
+  margin-left: 8px;
+
   border: none;
+
   border-radius: 50%;
 
   background: #111827;
+
   color: #ffffff;
 
   cursor: pointer;
 
+  box-shadow: 0 2px 7px rgba(17, 24, 39, 0.2);
+
   transition:
-    transform 0.18s ease,
     background 0.18s ease,
-    opacity 0.18s ease,
-    box-shadow 0.18s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
 }
 
-/* 화살표 */
-.send-button span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.send-button svg {
+  width: 15px;
+  height: 15px;
 
-  width: 100%;
-  height: 100%;
-
-  font-size: 22px;
-  font-weight: 500;
-
-  line-height: 1;
+  stroke-width: 2.5;
 
   transform: translateY(-1px);
 }
 
 .send-button:hover:not(:disabled) {
-  background: #1f2937;
+  background: #000000;
 
-  transform: translateY(-1px);
+  transform: scale(1.05);
 
-  box-shadow: 0 5px 12px rgba(17, 24, 39, 0.2);
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.25);
 }
 
 .send-button:active:not(:disabled) {
   transform: scale(0.94);
+
+  box-shadow: 0 2px 5px rgba(17, 24, 39, 0.18);
 }
 
 .send-button:disabled {
-  opacity: 0.35;
+  background: #e5e7eb;
+
+  color: #ffffff;
 
   cursor: default;
 
   box-shadow: none;
+}
+
+/* =================================
+   Mic Status
+================================= */
+
+.mic-status {
+  margin: 6px 0 0;
+
+  color: #6659d6;
+
+  font-size: 11px;
+
+  text-align: center;
 }
 
 /* =================================
@@ -958,6 +1039,146 @@
 
 .input-help {
   margin-top: 6px;
+
+  color: #b0b3b8;
+
+  font-size: 10px;
+
+  text-align: center;
+}
+
+/* =================================
+   Mobile
+================================= */
+
+@media (max-width: 600px) {
+  .input-area {
+    padding: 9px 10px 7px;
+  }
+
+  .input-box {
+    padding: 10px 10px 8px;
+
+    border-radius: 17px;
+  }
+
+  .input-box textarea {
+    height: 44px;
+    min-height: 44px;
+    max-height: 100px;
+
+    padding: 2px 3px 7px;
+
+    font-size: 13px;
+  }
+
+  .input-bottom {
+    min-height: 36px;
+  }
+
+  .input-left-actions {
+    gap: 3px;
+  }
+
+  .input-action-button {
+    height: 31px;
+
+    padding: 0 8px;
+
+    gap: 5px;
+
+    font-size: 10px;
+  }
+
+  .input-action-button svg {
+    font-size: 12px;
+  }
+
+  .send-button {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    margin-left: 5px;
+  }
+
+  .send-button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .input-help {
+    margin-top: 5px;
+
+    font-size: 9px;
+  }
+}
+
+/* =================================
+   Small Mobile
+================================= */
+
+@media (max-width: 400px) {
+  .input-area {
+    padding: 8px 8px 6px;
+  }
+
+  .input-box {
+    padding: 9px 9px 7px;
+
+    border-radius: 16px;
+  }
+
+  .input-box textarea {
+    height: 42px;
+    min-height: 42px;
+
+    font-size: 13px;
+  }
+
+  .input-action-button {
+    width: 31px;
+    height: 31px;
+
+    padding: 0;
+
+    border-radius: 8px;
+  }
+
+  .input-action-button span {
+    display: none;
+  }
+
+  .input-action-button svg {
+    font-size: 13px;
+  }
+
+  .send-button {
+    width: 33px;
+    height: 33px;
+
+    flex: 0 0 33px;
+
+    border-radius: 50%;
+  }
+
+  .send-button svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .input-help {
+    font-size: 9px;
+  }
+}
+
+/* =================================
+   Input Help
+================================= */
+
+.input-help {
+  margin-top: 5px;
 
   text-align: center;
 
@@ -1081,14 +1302,54 @@
   }
 
   .input-area {
-    padding: 10px 12px 8px;
+    padding: 9px 12px 7px;
+  }
+
+  .input-textarea-wrap textarea {
+    height: 56px;
+    min-height: 56px;
+    max-height: 110px;
+
+    padding: 10px 12px;
+
+    font-size: 13px;
+
+    border-radius: 13px;
+  }
+
+  .input-actions-row {
+    margin-top: 6px;
+
+    min-height: 38px;
+  }
+
+  .input-left-actions {
+    gap: 6px;
+  }
+
+  .input-action-button {
+    height: 34px;
+
+    padding: 0 10px;
+
+    gap: 5px;
+
+    font-size: 11px;
+  }
+
+  .input-action-button svg {
+    font-size: 12px;
   }
 
   .send-button {
-    width: 46px;
-    height: 46px;
+    width: 38px;
+    height: 38px;
 
-    flex: 0 0 46px;
+    flex: 0 0 38px;
+
+    margin-left: 8px;
+
+    border-radius: 10px;
   }
 }
 
@@ -1139,14 +1400,35 @@
     font-size: 18px;
   }
 
-  .input-help {
-    font-size: 10px;
+  .input-action-button {
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    border-radius: 9px;
+  }
+
+  .input-action-button span {
+    display: none;
+  }
+
+  .input-action-button svg {
+    font-size: 13px;
   }
 
   .send-button {
-    width: 46px;
-    height: 46px;
+    width: 36px;
+    height: 36px;
 
-    flex: 0 0 46px;
+    flex: 0 0 36px;
+
+    margin-left: 7px;
+
+    border-radius: 9px;
+  }
+
+  .input-help {
+    font-size: 10px;
   }
 }

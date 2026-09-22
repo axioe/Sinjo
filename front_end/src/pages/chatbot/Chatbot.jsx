@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import "../../css/chatbot/Chatbot.css";
-import { FaMicrophone, FaStop, FaUpload } from "react-icons/fa";
+import { FaMicrophone, FaStop, FaUpload, FaArrowUp } from "react-icons/fa";
 import { request } from "../../api/client";
 import { transcribeAudio } from "../../api/sttApi";
 import AiLearning from "./AiLearning";
 import slang from "../../assets/images/chatbot.png";
 
-/** Whisper API 가 허용하는 최대 업로드 용량. */
+/** Whisper API가 허용하는 최대 업로드 용량 */
 const MAX_AUDIO_FILE_SIZE = 25 * 1024 * 1024;
 
 function Chatbot() {
@@ -19,17 +19,17 @@ function Chatbot() {
   const [loading, setLoading] = useState(false);
 
   /*
-   * 음성 인식(STT)
+   * 음성 인식
    */
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const fileInputRef = useRef(null);
 
   /*
-   * CHAT
-   * LEARNING
+   * CHAT / LEARNING
    */
   const [mode, setMode] = useState("CHAT");
 
@@ -65,7 +65,7 @@ function Chatbot() {
 
   /*
    * ==============================
-   * 카테고리 스크롤 상태 확인
+   * 카테고리 스크롤 상태
    * ==============================
    */
 
@@ -82,9 +82,6 @@ function Chatbot() {
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 2);
   };
 
-  /*
-   * 카테고리 데이터가 변경되었을 때
-   */
   useEffect(() => {
     updateCategoryScroll();
 
@@ -107,7 +104,7 @@ function Chatbot() {
 
   /*
    * ==============================
-   * 카테고리 좌우 이동
+   * 카테고리 이동
    * ==============================
    */
 
@@ -118,23 +115,14 @@ function Chatbot() {
       return;
     }
 
-    const scrollAmount = 180;
-
     container.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
+      left: direction === "left" ? -180 : 180,
       behavior: "smooth",
     });
 
-    /*
-     * smooth scroll 이후 상태가 바뀌므로
-     * 약간의 시간 후 다시 확인
-     */
     setTimeout(updateCategoryScroll, 250);
   };
 
-  /*
-   * 실제 손가락/마우스로 스크롤했을 때
-   */
   const handleCategoryScroll = () => {
     updateCategoryScroll();
   };
@@ -164,9 +152,6 @@ function Chatbot() {
       return;
     }
 
-    /*
-     * 사용자 메시지
-     */
     setMessages((prev) => [
       ...prev,
       {
@@ -187,22 +172,10 @@ function Chatbot() {
         params.append("category", selectedCategory);
       }
 
-      /*
-       * 서버
-       *
-       * PVector 검색
-       * ↓
-       * DB 확인
-       * ↓
-       * LLM 답변
-       */
-
       const result = await request(`/api/words/ask?${params.toString()}`);
 
       /*
-       * ============================
-       * DB 기반 답변
-       * ============================
+       * DB 답변
        */
 
       if (result && result.found) {
@@ -218,9 +191,7 @@ function Chatbot() {
       }
 
       /*
-       * ============================
-       * LLM 답변
-       * ============================
+       * AI 답변
        */
 
       if (result && result.answer) {
@@ -236,9 +207,7 @@ function Chatbot() {
       }
 
       /*
-       * ============================
-       * 아무 결과도 없는 경우
-       * ============================
+       * 결과 없음
        */
 
       setMessages((prev) => [
@@ -285,11 +254,7 @@ function Chatbot() {
 
   /*
    * ==============================
-   * 음성 인식(STT)
-   *
-   * 인식된 텍스트는 입력창에 채워 넣기만 하고 자동으로 전송하지 않는다 -
-   * Whisper 가 신조어를 발음이 비슷한 표준어로 잘못 받아적을 수 있어서,
-   * 사용자가 확인·수정한 뒤 직접 전송 버튼을 누르게 한다.
+   * STT 오류
    * ==============================
    */
 
@@ -298,42 +263,71 @@ function Chatbot() {
       ...prev,
       {
         type: "bot",
-        data: { found: false, answer: text },
+        data: {
+          found: false,
+          answer: text,
+        },
       },
     ]);
   };
 
+  /*
+   * ==============================
+   * 녹음 시작
+   * ==============================
+   */
+
   const startRecording = async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
       pushSttError("이 브라우저에서는 음성 인식을 지원하지 않습니다.");
+
       return;
     }
 
     let stream;
+
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
     } catch {
-      pushSttError("마이크 권한이 필요합니다. 브라우저 설정에서 허용해 주세요.");
+      pushSttError(
+        "마이크 권한이 필요합니다. 브라우저 설정에서 허용해 주세요.",
+      );
+
       return;
     }
 
-    const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "";
-    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+      ? "audio/webm"
+      : "";
+
+    const recorder = mimeType
+      ? new MediaRecorder(stream, {
+          mimeType,
+        })
+      : new MediaRecorder(stream);
 
     chunksRef.current = [];
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) chunksRef.current.push(e.data);
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunksRef.current.push(event.data);
+      }
     };
 
     recorder.onstop = async () => {
-      // 스트림을 계속 열어두면 브라우저 탭에 마이크 사용 중 표시가 남는다.
       stream.getTracks().forEach((track) => track.stop());
 
-      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+      const blob = new Blob(chunksRef.current, {
+        type: recorder.mimeType || "audio/webm",
+      });
+
       setIsTranscribing(true);
 
       try {
         const text = await transcribeAudio(blob);
+
         setQuestion((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
       } catch (err) {
         pushSttError(err.message);
@@ -343,14 +337,34 @@ function Chatbot() {
     };
 
     recorder.start();
+
     mediaRecorderRef.current = recorder;
+
     setIsRecording(true);
   };
 
+  /*
+   * ==============================
+   * 녹음 중지
+   * ==============================
+   */
+
   const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+
     setIsRecording(false);
   };
+
+  /*
+   * ==============================
+   * 마이크
+   * ==============================
+   */
 
   const handleMicClick = () => {
     if (isRecording) {
@@ -360,23 +374,34 @@ function Chatbot() {
     }
   };
 
+  /*
+   * ==============================
+   * 파일 업로드
+   * ==============================
+   */
+
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // 같은 파일을 다시 골라도 onChange 가 또 일어나게 한다.
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
 
-    if (!file) return;
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
 
     if (!file.type.startsWith("audio/")) {
       pushSttError("오디오 파일만 업로드할 수 있습니다.");
+
       return;
     }
 
     if (file.size > MAX_AUDIO_FILE_SIZE) {
       pushSttError("파일 용량은 25MB를 넘을 수 없습니다.");
+
       return;
     }
 
@@ -384,6 +409,7 @@ function Chatbot() {
 
     try {
       const text = await transcribeAudio(file, file.name);
+
       setQuestion((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
     } catch (err) {
       pushSttError(err.message);
@@ -408,16 +434,6 @@ function Chatbot() {
 
   /*
    * ==============================
-   * 대화 삭제
-   * ==============================
-   */
-
-  const clearMessages = () => {
-    setMessages([]);
-  };
-
-  /*
-   * ==============================
    * 학습
    * ==============================
    */
@@ -432,7 +448,7 @@ function Chatbot() {
 
   /*
    * ==============================
-   * 메인
+   * Main
    * ==============================
    */
 
@@ -443,8 +459,6 @@ function Chatbot() {
       ========================= */}
 
       <div className="category-wrapper">
-        {/* 왼쪽 이동 버튼 */}
-
         {canScrollLeft && (
           <button
             type="button"
@@ -456,8 +470,6 @@ function Chatbot() {
             ‹
           </button>
         )}
-
-        {/* 카테고리 */}
 
         <div
           className="category-container"
@@ -516,8 +528,6 @@ function Chatbot() {
           ))}
         </div>
 
-        {/* 오른쪽 이동 버튼 */}
-
         {canScrollRight && (
           <button
             type="button"
@@ -543,8 +553,6 @@ function Chatbot() {
             <Message key={index} message={message} />
           ))
         )}
-
-        {/* Loading */}
 
         {loading && (
           <div className="bot-row">
@@ -580,46 +588,48 @@ function Chatbot() {
           </div>
         )}
 
-        <div className="input-row">
-          <div className="input-textarea-wrap">
-            <textarea
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                selectedCategory
-                  ? `${selectedCategory} 관련 신조어를 물어보세요`
-                  : "궁금한 신조어를 물어보세요"
-              }
-              disabled={loading}
-              rows={1}
-            />
+        <div className="input-box">
+          <textarea
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={
+              selectedCategory
+                ? `${selectedCategory} 관련 신조어를 물어보세요`
+                : "궁금한 신조어를 물어보세요"
+            }
+            disabled={loading}
+            rows={1}
+          />
 
-            <div className="input-inline-actions">
-              {/* 음성으로 입력 */}
-
+          <div className="input-bottom">
+            <div className="input-left-actions">
+              {/* 음성 입력 */}
               <button
                 type="button"
-                className={`mic-btn ${isRecording ? "recording" : ""}`}
+                className={`input-action-button ${
+                  isRecording ? "recording" : ""
+                }`}
                 onClick={handleMicClick}
                 disabled={isTranscribing || loading}
                 aria-label={isRecording ? "녹음 중지" : "음성으로 입력"}
                 title={isRecording ? "녹음 중지" : "음성으로 입력"}
               >
                 {isRecording ? <FaStop /> : <FaMicrophone />}
+                <span>{isRecording ? "녹음 중지" : "음성 입력"}</span>
               </button>
 
               {/* 음성 파일 업로드 */}
-
               <button
                 type="button"
-                className="mic-btn"
+                className="input-action-button"
                 onClick={handleFileUploadClick}
                 disabled={isRecording || isTranscribing || loading}
                 aria-label="음성 파일 업로드"
                 title="음성 파일 업로드"
               >
                 <FaUpload />
+                <span>파일 업로드</span>
               </button>
 
               <input
@@ -630,20 +640,19 @@ function Chatbot() {
                 hidden
               />
             </div>
+
+            {/* 전송 */}
+            <button
+              type="button"
+              className="send-button"
+              onClick={() => ask()}
+              disabled={loading || !question.trim()}
+              aria-label="질문 보내기"
+              title="질문 보내기"
+            >
+              <FaArrowUp />
+            </button>
           </div>
-
-          {/* 전송 */}
-
-          <button
-            type="button"
-            className="send-button"
-            onClick={() => ask()}
-            disabled={loading || !question.trim()}
-            aria-label="질문 보내기"
-            title="질문 보내기"
-          >
-            <span>↑</span>
-          </button>
         </div>
 
         {(isRecording || isTranscribing) && (
@@ -723,7 +732,7 @@ function Message({ message }) {
   }
 
   /*
-   * LLM
+   * AI
    */
 
   if (message.type === "ai") {
