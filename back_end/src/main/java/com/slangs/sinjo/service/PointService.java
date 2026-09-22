@@ -24,9 +24,10 @@ import java.util.stream.Collectors;
  * 현재 준비 중입니다" 알림만 뜨고 실제 처리는 없었음, PointShop.jsx 참고). 이 서비스가
  * 그 뒤를 채운다.
  * <p>
- * 적립은 "번역 저장"과 "게임 플레이" 두 곳에서만 일어난다 - 상점 화면 안내 문구
- * ("단어를 번역하거나 게임을 플레이하면서 활동 포인트를 모아보세요")와 맞춘 것이다.
- * MyPageService.saveHistory / QuizService.saveAttempt 에서 이 서비스를 호출한다.
+ * 적립은 "번역 저장", "게임 플레이", "출석 체크" 세 곳에서만 일어난다 - 상점 화면 안내
+ * 문구("단어를 번역하거나 게임을 플레이하면서 활동 포인트를 모아보세요")도 함께 갱신했다.
+ * MyPageService.saveHistory / QuizService.saveAttempt / AttendanceService.checkIn 에서
+ * 이 서비스를 호출한다.
  * <p>
  * [추가] 상점 카탈로그(PointShopItem)는 AdminService 가 관리한다 - 여기서는 조회/
  * 가격 검증만 한다. 가격을 프론트가 아니라 서버에서 최종 검증하는 이유는, 클라이언트가

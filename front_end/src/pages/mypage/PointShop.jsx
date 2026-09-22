@@ -221,7 +221,10 @@ function PointShop() {
         <div className="point-shop-notice-content">
           <strong>포인트는 어떻게 모을까요?</strong>
 
-          <p>단어를 번역하거나 게임을 플레이하면서 활동 포인트를 모아보세요.</p>
+          <p>
+            단어를 번역하거나 게임을 플레이하고, 매일 출석하면서 활동 포인트를
+            모아보세요.
+          </p>
         </div>
 
         <div className="point-shop-notice-badge">

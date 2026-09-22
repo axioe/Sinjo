@@ -20,6 +20,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +36,9 @@ class AttendanceServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PointService pointService;
 
     @InjectMocks
     private AttendanceService attendanceService;
@@ -81,6 +85,15 @@ class AttendanceServiceTest {
         }
 
         @Test
+        void 오늘_이미_출석했으면_포인트도_다시_적립하지_않는다() {
+            when(attendanceRepository.existsByUserIdAndAttendanceDate(1L, LocalDate.now())).thenReturn(true);
+
+            attendanceService.checkIn(1L);
+
+            verify(pointService, never()).earn(any(), anyInt(), any());
+        }
+
+        @Test
         void 오늘_처음_출석하면_저장된다() {
             when(attendanceRepository.existsByUserIdAndAttendanceDate(1L, LocalDate.now())).thenReturn(false);
             when(userRepository.getReferenceById(1L)).thenReturn(new User());
@@ -88,6 +101,16 @@ class AttendanceServiceTest {
             attendanceService.checkIn(1L);
 
             verify(attendanceRepository).save(any(Attendance.class));
+        }
+
+        @Test
+        void 오늘_처음_출석하면_50포인트가_적립된다() {
+            when(attendanceRepository.existsByUserIdAndAttendanceDate(1L, LocalDate.now())).thenReturn(false);
+            when(userRepository.getReferenceById(1L)).thenReturn(new User());
+
+            attendanceService.checkIn(1L);
+
+            verify(pointService).earn(1L, 50, "출석 체크");
         }
     }
 }

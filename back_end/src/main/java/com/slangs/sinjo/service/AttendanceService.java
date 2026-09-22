@@ -20,13 +20,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AttendanceService {
 
+    /** [추가] 출석 체크 1회당 적립 포인트. PointService.SHOP_ITEMS 가격 기준으로 정한 값이다. */
+    private static final int ATTENDANCE_POINT = 50;
+
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final PointService pointService;
 
     /**
      * 오늘 출석을 기록한다.
      * 이미 오늘 출석했다면(하루에 여러 번 로그인) 아무 것도 하지 않는다 - 로그인 자체를
-     * 막을 이유는 아니라서 예외를 던지지 않고 조용히 건너뛴다.
+     * 막을 이유는 아니라서 예외를 던지지 않고 조용히 건너뛴다. 포인트도 같은 이유로
+     * 새로 기록될 때만 적립한다(하루에 여러 번 로그인해도 중복 적립되지 않도록).
      */
     @Transactional
     public void checkIn(Long userId) {
@@ -37,6 +42,7 @@ public class AttendanceService {
         }
 
         attendanceRepository.save(new Attendance(userRepository.getReferenceById(userId), today));
+        pointService.earn(userId, ATTENDANCE_POINT, "출석 체크");
     }
 
     /** 마이페이지 화면이라 UserController.mypage 와 같은 패턴으로 비로그인은 401 로 막는다. */
