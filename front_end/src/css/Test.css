@@ -237,6 +237,25 @@
   margin-top: 24px;
   width: 100%;
   max-width: 250px;
+  height: 56px;
+
+  border: none;
+  border-radius: 18px;
+
+  background: #6d4aff;
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.test-next:hover {
+  background: #5635d8;
+  transform: translateY(-2px);
 }
 
 /* 결과(등급) 화면 */
