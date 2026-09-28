@@ -22,6 +22,11 @@ const TYPE_LABEL = {
     tone: "pink",
     icon: "✎",
   },
+  KNOWLEDGE_CHECK: {
+    label: "이해도 테스트",
+    tone: "orange",
+    icon: "🧠",
+  },
 };
 
 function typeInfo(quizType) {

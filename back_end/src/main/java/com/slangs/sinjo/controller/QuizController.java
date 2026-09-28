@@ -35,6 +35,12 @@ public class QuizController {
         return ResponseEntity.ok(quizService.getSubjectiveQuizzes());
     }
 
+    // 신조어 이해도 테스트 문제 목록 API (메인 "TEST" 카드)
+    @GetMapping("/knowledge-check")
+    public ResponseEntity<List<QuizDto.MultipleChoice>> getKnowledgeCheckQuizzes() {
+        return ResponseEntity.ok(quizService.getKnowledgeCheckQuizzes());
+    }
+
     /**
      * 공통 정답 채점 API.
      *
