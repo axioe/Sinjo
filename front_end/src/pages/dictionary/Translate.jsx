@@ -1,7 +1,7 @@
 import "../../css/dictionary/Translate.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaArrowRight, FaCopy, FaLock } from "react-icons/fa";
-import { translate, saveTranslation } from "../../api/translateApi";
+import { translate, saveTranslation, getTranslationUsage } from "../../api/translateApi";
 import { useAuth } from "../../AuthContext";
 
 const MAX_HISTORY = 5;
@@ -19,6 +19,22 @@ function Translate() {
   const [word, setWord] = useState("");
   const [example, setExample] = useState("");
   const [translating, setTranslating] = useState(false);
+  const [usage, setUsage] = useState(null); // { used, limit } | null
+
+  // 로그인 상태일 때만 오늘의 번역 사용량을 불러온다 - 비로그인은 어차피 번역 자체가 막혀있다.
+  // usage 는 렌더 쪽에서 `user &&` 조건과 함께 봐서, 로그아웃해도 옛 값이 화면에 남지 않는다.
+  useEffect(() => {
+    if (!user) return;
+
+    let alive = true;
+    getTranslationUsage().then((data) => {
+      if (alive) setUsage(data);
+    });
+
+    return () => {
+      alive = false;
+    };
+  }, [user]);
 
   const handleTranslate = async () => {
     if (!user) {
@@ -74,6 +90,8 @@ function Translate() {
       );
     } finally {
       setTranslating(false);
+      // 성공/실패(한도 초과 등) 상관없이 서버 기준 최신 사용량으로 다시 맞춘다.
+      getTranslationUsage().then(setUsage);
     }
   };
 
@@ -113,6 +131,18 @@ function Translate() {
       <h1>✨ 신조어 번역</h1>
 
       <p className="translate-subtitle">어려운 신조어를 쉽게 이해해 보세요.</p>
+
+      {user && usage && (
+        <p
+          className={`translate-usage-notice${usage.used >= usage.limit ? " reached" : ""}`}
+          role="status"
+        >
+          오늘 번역 {usage.used}/{usage.limit}건
+          {usage.used >= usage.limit
+            ? " · 오늘의 한도를 모두 사용했어요"
+            : ` · 남은 횟수 ${usage.limit - usage.used}건`}
+        </p>
+      )}
 
       {!user && (
         <p className="translate-login-notice" role="status">

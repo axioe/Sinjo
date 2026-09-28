@@ -20,6 +20,32 @@
   font-size: 18px;
 }
 
+/* 오늘의 번역 사용량 (REQ-TR 하루 번역 한도) */
+
+.translate-usage-notice {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 16px 0 0;
+  padding: 8px 16px;
+
+  border-radius: 999px;
+
+  background: #f3f1fc;
+
+  color: #6d4aff;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.translate-usage-notice.reached {
+  background: #ffebf1;
+  color: #df5c7b;
+}
+
 /* 비로그인 안내 (REQ-TR 하루 번역 한도) */
 
 .translate-login-notice {

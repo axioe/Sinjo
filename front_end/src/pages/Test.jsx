@@ -203,7 +203,7 @@ function Test() {
       <div className="test-page">
         <h1>📝 신조어 이해도 테스트</h1>
         <h2>당신은 MZ세대 신조어를 얼마나 알고 있을까요?</h2>
-        <button type="button" onClick={handleStart}>테스트 시작</button>
+        <button type="button" className="test-start-btn" onClick={handleStart}>테스트 시작</button>
       </div>
     );
   }
