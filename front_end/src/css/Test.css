@@ -20,7 +20,14 @@
   color: #555;
 }
 
-.test-page button {
+/*
+ * [수정] 원래 여기 있던 `.test-page button` 규칙은 페이지에 버튼이
+ * "테스트 시작" 하나뿐이던 시절 것이라, 이후 추가된 알아요/몰라요·4지선다·다음 문제
+ * 버튼에도 전부 적용돼 height:60px 등을 강제로 덮어썼다(구체성이 더 높아서 이겼다).
+ * 4지선다 보기가 길어지면 버튼 높이가 60px로 고정된 채 내용만 넘쳐서 다음 보기와
+ * 겹쳐 보이는 원인이었다 - 전용 클래스로 좁혀서 "테스트 시작" 버튼에만 적용한다.
+ */
+.test-start-btn {
   margin-top: 50px;
 
   width: 250px;
@@ -40,7 +47,7 @@
   cursor: pointer;
 }
 
-.test-page button:hover {
+.test-start-btn:hover {
   background: #5635d8;
 }
 
@@ -159,8 +166,10 @@
 
 .test-options {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  /* 한 줄에 하나씩, 가로로 길게 쌓는 배치 - 문장이 긴 보기가 2열에서 잘려 보이는
+     문제가 있어 1열로 바꿨다. 버튼 자체는 height:auto라 내용 길이에 맞춰 늘어난다. */
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .test-option {
@@ -168,7 +177,7 @@
   width: 100%;
   height: auto;
   min-height: 56px;
-  padding: 14px 18px;
+  padding: 14px 22px;
 
   border: 2px solid #ece7ff;
   border-radius: 14px;
@@ -178,6 +187,9 @@
 
   font-size: 15px;
   font-weight: 600;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: break-word;
 
   cursor: pointer;
 
@@ -292,10 +304,6 @@
 }
 
 @media (max-width: 560px) {
-  .test-options {
-    grid-template-columns: 1fr;
-  }
-
   .test-know-buttons {
     flex-direction: column;
     align-items: center;
