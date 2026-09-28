@@ -8,4 +8,6 @@ import java.util.List;
 public interface PointShopItemRepository extends JpaRepository<PointShopItem, Long> {
 
     List<PointShopItem> findAllByOrderByIdAsc();
+
+    boolean existsByName(String name);
 }
