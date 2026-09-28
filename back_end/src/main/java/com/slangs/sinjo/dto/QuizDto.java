@@ -21,7 +21,9 @@ public class QuizDto {
     public enum QuizType {
         MULTIPLE_CHOICE,
         INITIAL_SOUND,
-        SUBJECTIVE
+        SUBJECTIVE,
+        /** 신조어 이해도 테스트(메인 "TEST" 카드) - 채점 기준은 객관식과 동일하게 "뜻"으로 비교한다. */
+        KNOWLEDGE_CHECK
     }
 
     /** 객관식. 정답은 내려주지 않는다(브라우저에서 들여다볼 수 있으므로). */

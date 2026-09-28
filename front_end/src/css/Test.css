@@ -43,3 +43,261 @@
 .test-page button:hover {
   background: #5635d8;
 }
+
+.test-loading {
+  color: #777;
+  font-size: 18px;
+}
+
+/* 진행률 바 */
+
+.test-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 30px;
+
+  color: #777;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.test-progress-bar {
+  flex: 1;
+
+  height: 8px;
+
+  border-radius: 999px;
+
+  background: #ece7ff;
+
+  overflow: hidden;
+}
+
+.test-progress-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(90deg, #6d4aff, #9278f5);
+
+  transition: width 0.35s ease;
+}
+
+/* 문제 카드 */
+
+.test-card {
+  padding: 48px 32px;
+
+  border-radius: 24px;
+
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(109, 74, 255, 0.12);
+}
+
+.test-word {
+  font-size: 34px;
+  font-weight: 800;
+
+  color: #2a1f45;
+}
+
+.test-word-sub {
+  margin-top: 8px;
+  margin-bottom: 32px;
+
+  color: #777;
+  font-size: 16px;
+}
+
+.test-know-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.test-know {
+  margin-top: 0;
+  width: 180px;
+  height: 64px;
+
+  border: none;
+  border-radius: 18px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.test-know:hover {
+  transform: translateY(-2px);
+}
+
+.test-know-yes {
+  background: #6d4aff;
+  color: #ffffff;
+}
+
+.test-know-yes:hover {
+  background: #5635d8;
+}
+
+.test-know-no {
+  background: #f3f1fc;
+  color: #6d4aff;
+}
+
+.test-know-no:hover {
+  background: #ece7ff;
+}
+
+/* 4지선다 보기 (알아요 선택 시) */
+
+.test-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.test-option {
+  margin-top: 0;
+  width: 100%;
+  height: auto;
+  min-height: 56px;
+  padding: 14px 18px;
+
+  border: 2px solid #ece7ff;
+  border-radius: 14px;
+
+  background: #ffffff;
+  color: #2a1f45;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.test-option:hover {
+  border-color: #b8a6ff;
+}
+
+.test-option.selected {
+  border-color: #6d4aff;
+  background: #f3f1fc;
+}
+
+.test-submit-error {
+  margin-top: 16px;
+  color: #d95757;
+  font-size: 14px;
+}
+
+/* 정답/오답 피드백 */
+
+.test-feedback {
+  margin-top: 24px;
+  padding: 16px 20px;
+
+  border-radius: 14px;
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.test-feedback.correct {
+  background: #e4f8ef;
+  color: #35a375;
+}
+
+.test-feedback.wrong {
+  background: #ffebf1;
+  color: #df5c7b;
+}
+
+.test-next {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 250px;
+}
+
+/* 결과(등급) 화면 */
+
+.test-result {
+  padding: 56px 32px;
+
+  border-radius: 24px;
+
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(109, 74, 255, 0.12);
+}
+
+.test-result-emoji {
+  font-size: 64px;
+}
+
+.test-result-tier {
+  margin-top: 8px;
+
+  font-size: 30px;
+  font-weight: 800;
+
+  color: #6d4aff;
+}
+
+.test-result-score {
+  margin-top: 10px;
+
+  color: #777;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.test-result-desc {
+  margin-top: 20px;
+
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.test-result-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  margin-top: 36px;
+}
+
+.test-result-actions .test-know-yes {
+  margin-top: 0;
+}
+
+.test-result-actions a {
+  color: #6d4aff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.test-result-actions a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  .test-options {
+    grid-template-columns: 1fr;
+  }
+
+  .test-know-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+}

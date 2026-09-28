@@ -3,6 +3,7 @@ import {
   MULTIPLE_CHOICE_SAMPLE,
   INITIAL_SOUND_SAMPLE,
   SUBJECTIVE_SAMPLE,
+  KNOWLEDGE_CHECK_SAMPLE,
 } from "../data/quizSampleData";
 
 const BASE_URL = apiUrl("/api/quiz");
@@ -12,6 +13,7 @@ export const QUIZ_TYPE = {
   MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
   INITIAL_SOUND: "INITIAL_SOUND",
   SUBJECTIVE: "SUBJECTIVE",
+  KNOWLEDGE_CHECK: "KNOWLEDGE_CHECK",
 };
 
 /**
@@ -41,6 +43,7 @@ async function fetchQuizzes(path, fallback) {
 export const getMultipleChoiceQuiz = () => fetchQuizzes("/multiple-choice", MULTIPLE_CHOICE_SAMPLE);
 export const getInitialSoundQuiz = () => fetchQuizzes("/initial-sound", INITIAL_SOUND_SAMPLE);
 export const getSubjectiveQuiz = () => fetchQuizzes("/subjective", SUBJECTIVE_SAMPLE);
+export const getKnowledgeCheckQuiz = () => fetchQuizzes("/knowledge-check", KNOWLEDGE_CHECK_SAMPLE);
 
 const normalize = (value) => String(value ?? "").replace(/\s/g, "").toLowerCase();
 

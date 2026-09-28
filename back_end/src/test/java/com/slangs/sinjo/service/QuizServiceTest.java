@@ -138,6 +138,20 @@ class QuizServiceTest {
         }
 
         @Test
+        void 이해도_테스트는_10문제를_돌려준다() {
+            List<Long> ids = java.util.stream.LongStream.rangeClosed(1, 10).boxed().toList();
+            List<QuizWord> words = ids.stream()
+                    .map(id -> quizWord(id, "단어" + id, "뜻" + id, List.of(), "힌트"))
+                    .toList();
+            when(quizRepository.findAllIds()).thenReturn(ids);
+            when(quizRepository.findAllById(any())).thenReturn(words);
+
+            List<QuizDto.MultipleChoice> result = quizService.getKnowledgeCheckQuizzes();
+
+            assertThat(result).hasSize(10);
+        }
+
+        @Test
         void 등록된_문제가_요청_개수보다_적으면_있는_만큼만_돌려준다() {
             when(quizRepository.findAllIds()).thenReturn(List.of(1L, 2L, 3L));
             when(quizRepository.findAllById(any())).thenReturn(List.of(
@@ -179,6 +193,17 @@ class QuizServiceTest {
                     new QuizDto.CheckRequest(1L, "억까", QuizDto.QuizType.MULTIPLE_CHOICE));
 
             assertThat(response.correct()).isFalse();
+        }
+
+        @Test
+        void 이해도_테스트도_객관식과_같은_기준으로_채점한다() {
+            QuizWord quiz = quizWord("갓생", "부지런하고 계획적인 삶");
+            when(quizRepository.findById(1L)).thenReturn(Optional.of(quiz));
+
+            QuizDto.CheckResponse response = quizService.checkAnswer(
+                    new QuizDto.CheckRequest(1L, "부지런하고 계획적인 삶", QuizDto.QuizType.KNOWLEDGE_CHECK));
+
+            assertThat(response.correct()).isTrue();
         }
     }
 

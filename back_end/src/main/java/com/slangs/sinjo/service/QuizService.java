@@ -34,13 +34,27 @@ public class QuizService {
     private final PointService pointService;
     private static final int DEFAULT_QUIZ_COUNT = 5;
 
+    /** [추가] 이해도 테스트는 등급(늙크크~MZ) 판정을 위해 문제 수를 더 많이 낸다. */
+    private static final int KNOWLEDGE_CHECK_COUNT = 10;
+
     /** [추가] 정답 1개당 적립 포인트. PointService.SHOP_ITEMS 참고 - 가격 기준으로 정한 값이다. */
     private static final int QUIZ_CORRECT_POINT = 10;
 
     // 1. 객관식 퀴즈 목록 생성
     public List<QuizDto.MultipleChoice> getMultipleChoiceQuizzes() {
-        List<QuizWord> randomWords = findRandomQuizzes(DEFAULT_QUIZ_COUNT);
+        return toMultipleChoice(findRandomQuizzes(DEFAULT_QUIZ_COUNT));
+    }
 
+    /**
+     * [추가] 신조어 이해도 테스트 문제 목록 생성 (메인 "TEST" 카드).
+     * 채점은 객관식과 같은 기준(뜻 비교)을 쓰므로 문제 생성 로직도 그대로 재사용하고,
+     * 등급(늙크크~MZ) 판정에 쓸 수 있도록 문제 수만 더 많이 낸다.
+     */
+    public List<QuizDto.MultipleChoice> getKnowledgeCheckQuizzes() {
+        return toMultipleChoice(findRandomQuizzes(KNOWLEDGE_CHECK_COUNT));
+    }
+
+    private List<QuizDto.MultipleChoice> toMultipleChoice(List<QuizWord> randomWords) {
         return randomWords.stream().map(quiz -> {
             List<String> options = new ArrayList<>(
                     quiz.getOptions() == null ? List.of() : quiz.getOptions());
@@ -122,7 +136,7 @@ public class QuizService {
         boolean correct;
         String correctAnswer;
 
-        if (type == QuizDto.QuizType.MULTIPLE_CHOICE) {
+        if (type == QuizDto.QuizType.MULTIPLE_CHOICE || type == QuizDto.QuizType.KNOWLEDGE_CHECK) {
             correct = normalize(meaning).equals(submitted);
             correctAnswer = meaning;
         } else if (type == QuizDto.QuizType.INITIAL_SOUND || type == QuizDto.QuizType.SUBJECTIVE) {
